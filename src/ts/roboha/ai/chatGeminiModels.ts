@@ -4,6 +4,7 @@ const TTL = 60 * 60 * 1000;
 export interface ChatGeminiModel { id: string; version: number[]; lite: boolean; outputTokenLimit?: number; thinking?: boolean }
 const caches = new Map<string, { at: number; models: ChatGeminiModel[] }>();
 const unavailable = new Map<string, Set<string>>();
+const busyUntil = new Map<string, number>();
 let selected = "auto";
 try { selected = localStorage.getItem("aiGeminiModel") || "auto"; } catch { /* storage unavailable */ }
 export function getChatGeminiSelection(): string { return selected; }
@@ -74,7 +75,9 @@ export function adaptChatGeminiBody(raw: string, model: ChatGeminiModel): string
 export async function createChatGeminiRequest(key: string, signal?: AbortSignal) {
   const choice = selected;
   const models = await listChatGeminiModels(key, signal);
-  const candidates = choice === "auto" ? models : models.filter(m => m.id === choice);
+  const candidates = (choice === "auto" ? models : models.filter(m => m.id === choice))
+    .filter(m => (busyUntil.get(m.id) || 0) <= Date.now());
+  if (!candidates.length && models.length) throw Object.assign(new Error("Моделі Gemini тимчасово недоступні. Спробуйте через хвилину."), { status: 503 });
   if (!candidates.length) throw new Error("Обрана модель недоступна для цього ключа. Виберіть «🤖 Авто».");
   let index = 0;
   let pinned = false;
@@ -92,6 +95,10 @@ export async function createChatGeminiRequest(key: string, signal?: AbortSignal)
       if (response.status === 404) {
         const blocked = unavailable.get(key) || new Set<string>();
         blocked.add(model.id); unavailable.set(key, blocked);
+        if (!pinned && choice === "auto" && index + 1 < candidates.length && index < 2) { index++; continue; }
+      }
+      if ([502, 503, 504].includes(response.status)) {
+        busyUntil.set(model.id, Date.now() + 60000);
         if (!pinned && choice === "auto" && index + 1 < candidates.length && index < 2) { index++; continue; }
       }
       if (response.ok) pinned = true;

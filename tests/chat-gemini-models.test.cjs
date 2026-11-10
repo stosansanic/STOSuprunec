@@ -55,7 +55,7 @@ test('manual model never falls back; quota and authorization errors are returned
       if (!init.method) return json({ models: [model('gemini-3.8-flash'), model('gemini-3.7-flash')] });
       count++; return new Response('', { status });
     });
-    if (status === 404) api.setChatGeminiSelection('gemini-3.7-flash');
+    if (status === 404 || status === 503) api.setChatGeminiSelection('gemini-3.7-flash');
     assert.equal((await (await api.createChatGeminiRequest('a'))(request)).status, status);
     assert.equal(count, 1);
   }
@@ -84,4 +84,34 @@ test('cancellation and uncertain network failures never generate a retry', async
   assert.equal(count, 1);
   const controller = new AbortController(); controller.abort();
   await assert.rejects(api.createChatGeminiRequest('a', controller.signal), { name: 'AbortError' });
+});
+
+test('auto falls back on 503 and cools down the model across keys', async () => {
+ const posts=[];
+ const api=setup(async(url,init)=>{
+  if(!init.method) return json({models:[model('gemini-3.8-flash'),model('gemini-3.7-flash')]});
+  posts.push(String(url));
+  return String(url).includes('3.8') ? new Response('',{status:503}):json({});
+ });
+ await (await api.createChatGeminiRequest('a'))(request);
+ await (await api.createChatGeminiRequest('b'))(request);
+ assert.equal(posts.length,3);
+ assert.match(posts[2],/3.7/);
+});
+test('all models busy stops requests; pinned conversations do not switch on 503',async()=>{
+ let count=0;
+ const api=setup(async(_url,init)=>{
+  if(!init.method)return json({models:[model('gemini-3.8-flash'),model('gemini-3.7-flash')]});
+  count++;return new Response('',{status:503});
+ });
+ assert.equal((await (await api.createChatGeminiRequest('a'))(request)).status,503);
+ await assert.rejects(api.createChatGeminiRequest('b'),{status:503});
+ assert.equal(count,2);
+ let n=0;
+ const pinned=setup(async(_url,init)=>{
+  if(!init.method)return json({models:[model('gemini-3.8-flash'),model('gemini-3.7-flash')]});
+  return ++n===1?json({}):new Response('',{status:503});
+ });
+ const send=await pinned.createChatGeminiRequest('a');
+ await send(request);await send(request);assert.equal(n,2);
 });

@@ -750,7 +750,7 @@ async function refreshChatModelSelect(): Promise<void> {
     if (value !== "auto" && !models.some(m => m.id === value)) el.add(new Option(value + " (недоступна)", value));
     el.value = value;
     el.disabled = false;
-    el.title = "Авто: актуальна Flash-модель; при 404 — наступна доступна. Ручний вибір фіксує модель.";
+    el.title = "Авто: актуальна Flash-модель; при 404 або перевантаженні — наступна доступна. Ручний вибір фіксує модель.";
   } catch {
     if (revision !== modelSelectRevision || !el.isConnected) return;
     const value = getChatGeminiSelection();
@@ -1526,7 +1526,8 @@ async function geminiSearchGrounding(args: {
           const status = response.status;
 
           // 429 (rate limit) або 503 (overloaded) → спробувати інший ключ
-          if (status === 429 || status === 503) {
+          if (status === 503 || status === 502 || status === 504) return { success: false, text: "", sources: [] };
+          if (status === 429) {
             continue;
           }
           // 400 (model incompatibility з googleSearch) → перейти на fallback модель
@@ -3929,7 +3930,7 @@ async function callGemini(
         // 503/502/504 — сервер тимчасово недоступний, пробуємо наступний ключ
         if (status === 503 || status === 502 || status === 504) {
           had503 = true;
-          if (lockKey) {
+          if (lockKey || provider === "gemini") {
             return `⏳ Сервіс ${providerLabel} тимчасово недоступний (${status}). Спробуйте через хвилину.`;
           }
           currentKeyIndex = (keyIdx + 1) % keys.length;
