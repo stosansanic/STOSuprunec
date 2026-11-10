@@ -1,0 +1,715 @@
+.post-arxiv-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+  backdrop-filter: blur(3px);
+  animation: postOverlayFadeIn 0.3s ease-out;
+}
+
+.post-arxiv-modal {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  animation: postModalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow: hidden;
+
+  .post-arxiv-header {
+    padding: 14px 18px;
+    background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-radius: 12px 12px 0 0;
+
+    .post-arxiv-header-row {
+      display: flex;
+      //justify-content: space-between;
+      align-items: center;
+      width: 100%;
+
+      h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #ffffff;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+      }
+    }
+
+    .post-arxiv-header-date {
+      margin: 0;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 400;
+      white-space: nowrap;
+    }
+
+    // Status button in header
+    .post-arxiv-status-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 130px;
+      padding: 5px 12px;
+      border: none;
+      border-radius: 16px;
+      background: #ffffff;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      color: #333;
+      transition: all 0.2s;
+      white-space: nowrap;
+      margin-left: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      &:hover {
+        background: #f5f5f5;
+      }
+    }
+
+    .post-arxiv-close {
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      font-size: 20px;
+      color: #ffffff;
+      cursor: pointer;
+      padding: 4px 10px;
+      line-height: 1;
+      border-radius: 6px;
+      transition: background 0.2s;
+      margin-left: 20px;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: red;
+      }
+    }
+  }
+
+  .post-arxiv-body {
+    padding: 14px 18px;
+    overflow-y: auto;
+
+    // Label row with mini button
+    .post-arxiv-label-row {
+      display: flex;
+      justify-content: space-between;
+      // align-items: center;
+      margin-bottom: 4px;
+
+      label {
+        margin-bottom: 0;
+      }
+    }
+
+    // Mini button for creating act
+    .post-arxiv-mini-btn {
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid #2e7d32;
+      background: #fff;
+      color: #2e7d32;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+
+      &:hover {
+        background: #2e7d32;
+        color: #fff;
+      }
+    }
+
+    // Group for act search mini and button
+    .post-arxiv-act-search-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .post-arxiv-act-search-mini {
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      font-size: 11px;
+      width: 70px;
+      transition: all 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: #388e3c;
+        box-shadow: 0 0 0 2px rgba(56, 142, 60, 0.15);
+      }
+
+      &::placeholder {
+        color: #aaa;
+        font-size: 10px;
+      }
+    }
+
+
+    .post-arxiv-form-group {
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      label {
+        font-size: 0.8rem;
+        color: #555;
+        margin-bottom: 4px;
+        font-weight: 500;
+
+        .required {
+          color: #e53935;
+          font-weight: 600;
+        }
+
+        .optional {
+          color: #999;
+          font-weight: 400;
+          font-size: 0.75rem;
+        }
+      }
+
+      input,
+      select,
+      textarea {
+        padding: 8px 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 13px;
+        transition: all 0.2s;
+
+        &:focus {
+          outline: none;
+          border-color: #388e3c;
+          box-shadow: 0 0 0 2px rgba(56, 142, 60, 0.15);
+        }
+
+        &::placeholder {
+          color: #aaa;
+        }
+      }
+
+      input[type="time"] {
+        padding: 6px 8px;
+        width: 100%;
+      }
+
+      textarea {
+        resize: none;
+        overflow: hidden;
+        min-height: 36px;
+        max-height: 120px;
+        line-height: 1.4;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+        font-family: inherit;
+      }
+
+      &.post-arxiv-autocomplete-wrapper {
+        position: relative;
+
+        .post-arxiv-autocomplete-dropdown {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: #f5fffe;
+          border: 1px solid #388e3c;
+          border-radius: 6px;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+          max-height: 135px;
+          overflow-y: auto;
+          z-index: 1001;
+          display: none;
+          margin-top: 2px;
+
+          &.post-arxiv-autocomplete-dropdown-up {
+            top: auto;
+            bottom: 100%;
+            margin-top: 0;
+            margin-bottom: 2px;
+            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+          }
+
+          .post-arxiv-autocomplete-option {
+            padding: 8px 10px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(56, 142, 60, 0.15);
+            color: #333;
+            transition: background 0.15s;
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            &:hover {
+              background: #e8f5e9;
+            }
+
+            .post-arxiv-autocomplete-option-main {
+              font-weight: 500;
+              font-size: 13px;
+              color: #333;
+            }
+
+            .post-arxiv-autocomplete-option-sub {
+              font-size: 11px;
+              color: #666;
+              margin-top: 1px;
+            }
+          }
+        }
+
+        // Acts dropdown з додатковими налаштуваннями
+        &.post-arxiv-acts-dropdown {
+          margin-top: 6px;
+          background: #f9fffe;
+          border-color: #66bb6a;
+        }
+      }
+    }
+
+    // Row for side-by-side fields
+    .post-arxiv-form-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+
+      .post-arxiv-form-group {
+        margin-bottom: 0;
+      }
+
+      .post-arxiv-car-field {
+        flex: 1.5;
+      }
+
+      .post-arxiv-number-field {
+        flex: 1;
+      }
+    }
+
+    // Time row styling
+    .post-arxiv-time-row {
+      display: flex;
+      gap: 12px;
+
+      .post-arxiv-time-field {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8f9fa;
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+
+        .post-arxiv-time-label {
+          font-size: 0.75rem;
+          color: #666;
+          white-space: nowrap;
+          min-width: 50px;
+        }
+
+        .post-arxiv-time-selects {
+          display: flex;
+          align-items: center;
+          gap: 2px;
+
+          select {
+            border: none;
+            background: transparent;
+            padding: 4px 2px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            text-align: center;
+            min-width: 30px;
+
+            &:focus {
+              outline: none;
+            }
+          }
+
+          .post-arxiv-time-colon {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+          }
+        }
+      }
+    }
+  }
+
+  .post-arxiv-footer {
+    padding: 12px 18px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    background: #fafafa;
+    border-radius: 0 0 12px 12px;
+
+    .post-btn {
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+
+      &.post-btn-secondary {
+        background-color: #ffffff;
+        color: #555;
+        border-color: #ddd;
+
+        &:hover {
+          background-color: #f5f5f5;
+          border-color: #ccc;
+        }
+      }
+
+      &.post-btn-primary {
+        background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+        color: white;
+        min-width: 80px;
+
+        &:hover {
+          background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+          box-shadow: 0 2px 8px rgba(56, 142, 60, 0.3);
+        }
+      }
+
+      // Keep legacy class support
+      &.post-btn-blue {
+        background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+        color: white;
+        min-width: 80px;
+
+        &:hover {
+          background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+          box-shadow: 0 2px 8px rgba(56, 142, 60, 0.3);
+        }
+      }
+    }
+  }
+}
+
+@keyframes postOverlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes postModalSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-25px) scale(0.95);
+  }
+  70% {
+    transform: translateY(2px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes postPulseBtn {
+  0% { transform: scale(1); box-shadow: 0 2px 8px rgba(56, 142, 60, 0.3); }
+  50% { transform: scale(1.03); box-shadow: 0 4px 15px rgba(56, 142, 60, 0.5); }
+  100% { transform: scale(1); box-shadow: 0 2px 8px rgba(56, 142, 60, 0.3); }
+}
+
+.post-arxiv-footer {
+  .post-btn-primary {
+    animation: postPulseBtn 2s infinite ease-in-out;
+    &:hover {
+      animation-play-state: paused;
+    }
+  }
+}
+
+/* Success Checkmark Animation */
+.success-animation-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  text-align: center;
+  animation: postOverlayFadeIn 0.3s ease-out;
+
+  svg {
+    width: 80px;
+    height: 80px;
+    display: block;
+    margin: 0 auto 20px;
+  }
+
+  .checkmark {
+    stroke-width: 3;
+    stroke-miterlimit: 10;
+    stroke: #4CAF50;
+    fill: none;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: checkmark-draw 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards 0.2s;
+  }
+
+  .checkmark-circle {
+    stroke-width: 3;
+    stroke-miterlimit: 10;
+    stroke: #4CAF50;
+    fill: none;
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: checkmark-circle-draw 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  }
+
+  h3 {
+    margin: 0;
+    color: #2e7d32;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+}
+
+@keyframes checkmark-draw {
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes checkmark-circle-draw {
+  100% { stroke-dashoffset: 0; }
+}
+
+// --- МОДАЛКА ВИБОРУ АКТУ ---
+.post-act-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+  backdrop-filter: blur(5px);
+}
+
+.post-act-modal {
+  background: white;
+  border-radius: 16px;
+  width: 92%;
+  max-width: 420px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  animation: postModalSlideIn 0.25s ease-out;
+  overflow: visible;
+
+  .post-act-modal-header {
+    padding: 18px 22px;
+    background: linear-gradient(135deg, #1565c0 0%, #1e88e5 100%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 16px 16px 0 0;
+
+    h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .post-act-close {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      font-size: 22px;
+      color: #ffffff;
+      cursor: pointer;
+      padding: 6px 12px;
+      line-height: 1;
+      border-radius: 8px;
+      transition: all 0.2s;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.35);
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  .post-act-modal-body {
+    padding: 20px 22px 24px;
+
+    .post-act-form-group {
+      margin-bottom: 16px;
+
+      label {
+        display: block;
+        font-size: 0.9rem;
+        color: #333;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+
+      .post-act-autocomplete-wrapper {
+        position: relative;
+
+        input {
+          width: 100%;
+          padding: 12px 16px;
+          border: 2px solid #e0e0e0;
+          border-radius: 10px;
+          font-size: 15px;
+          font-weight: 500;
+          transition: all 0.2s;
+          background: #fafafa;
+
+          &:focus {
+            outline: none;
+            border-color: #1e88e5;
+            box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.15);
+            background: white;
+          }
+
+          &::placeholder {
+            color: #999;
+            font-size: 14px;
+            font-weight: 400;
+          }
+        }
+
+        .post-act-autocomplete-dropdown {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: white;
+          border: 2px solid #1e88e5;
+          border-radius: 10px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+          // Показуємо 3 елементи (висота ~180px)
+          max-height: 180px;
+          overflow-y: auto;
+          z-index: 1101;
+          display: none;
+          margin-top: 6px;
+
+          // Кастомний скролбар
+          &::-webkit-scrollbar {
+            width: 8px;
+          }
+
+          &::-webkit-scrollbar-track {
+            background: #f5f5f5;
+            border-radius: 0 10px 10px 0;
+          }
+
+          &::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #1e88e5 0%, #1565c0 100%);
+            border-radius: 4px;
+
+            &:hover {
+              background: linear-gradient(180deg, #1565c0 0%, #0d47a1 100%);
+            }
+          }
+
+          .post-act-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #e8e8e8;
+            transition: all 0.15s;
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            &:hover {
+              background: linear-gradient(90deg, #e3f2fd 0%, #bbdefb 100%);
+            }
+
+            .post-act-option-main {
+              font-weight: 700;
+              font-size: 15px;
+              color: #1565c0;
+              margin-bottom: 4px;
+            }
+
+            .post-act-option-sub {
+              font-size: 13px;
+              color: #444;
+              font-weight: 500;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+          }
+
+          .post-act-no-results {
+            padding: 28px 16px;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            font-style: italic;
+          }
+        }
+      }
+    }
+
+    .post-act-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 24px;
+
+      .post-act-create-btn {
+        padding: 12px 32px;
+        background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.35);
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(46, 125, 50, 0.45);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+      }
+    }
+  }
+}

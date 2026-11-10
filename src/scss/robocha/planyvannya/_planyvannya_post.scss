@@ -1,0 +1,367 @@
+// _nalachtuvannay_post.scss
+// Стилі для модалки створення нового поста
+
+// --- ЗМІННІ ---
+$primary-blue: #004d26;
+$border-gray: #ddd;
+$text-dark: #333;
+$white: #fff;
+
+// --- POST MODAL ---
+.post-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: postModalFadeIn 0.2s;
+}
+
+@keyframes postModalFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.post-modal {
+  background: $white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 400px;
+  max-width: 90vw;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: postModalSlideUp 0.2s;
+}
+
+@keyframes postModalSlideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.post-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.post-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: $primary-blue;
+  margin: 0;
+}
+
+.post-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+
+  &:hover {
+    color: $text-dark;
+  }
+}
+
+.post-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.post-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.post-form-label {
+  font-weight: 600;
+  font-size: 13px;
+  color: #495057;
+}
+
+.post-form-input {
+  padding: 10px 12px;
+  border: 1px solid $border-gray;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-blue;
+    box-shadow: 0 0 0 3px rgba(0, 77, 38, 0.1);
+  }
+}
+
+.post-modal-footer {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.post-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  flex: 1;
+  transition: all 0.2s;
+}
+
+.post-btn-primary {
+  background: $primary-blue;
+  color: $white;
+
+  &:hover {
+    background: #003d1f;
+  }
+}
+
+.post-btn-secondary {
+  background: #e9ecef;
+  color: #495057;
+
+  &:hover {
+    background: #dee2e6;
+  }
+}
+
+// --- DRAG & DROP FIX ---
+// Фіксуємо позицію заголовка секції при перетягуванні
+.post-section {
+  position: relative;
+
+  .post-section-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: inherit;
+    pointer-events: auto;
+
+    // Забороняємо будь-які трансформації заголовка
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: -1;
+      background: inherit;
+    }
+  }
+
+  // При перетягуванні секції заголовок залишається на місці
+  &.dragging {
+    .post-section-header {
+      position: sticky !important;
+      top: 0 !important;
+      transform: none !important;
+      opacity: 1 !important;
+    }
+  }
+
+  // Контент секції
+  .post-section-content {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Запобігаємо зміщенню при перетягуванні рядків всередині секції
+.post-unified-row {
+  position: relative;
+
+  &.dragging {
+    opacity: 0.5;
+    cursor: move;
+
+    // Заголовок батьківської секції залишається на місці
+    ~.post-section-header {
+      position: sticky !important;
+      top: 0 !important;
+      transform: none !important;
+    }
+  }
+
+  &.drag-over {
+    border-top: 2px solid $primary-blue;
+  }
+}
+
+// --- NEW STYLES FOR LOCK & TOGGLE ---
+
+.post-edit-mode-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding: 0;
+  margin-left: 12px;
+
+  span {
+    display: block;
+    line-height: 1;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+    pointer-events: none;
+  }
+
+  .icon-view {
+    display: block;
+  }
+
+  .icon-edit {
+    display: none;
+  }
+
+  &:hover {
+    transform: scale(1.2) rotate(-5deg);
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.2));
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  &.active {
+    .icon-view {
+      display: none;
+    }
+
+    .icon-edit {
+      display: block;
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    &:hover {
+      filter: drop-shadow(0 0 8px rgba(255, 200, 0, 0.5));
+    }
+  }
+}
+
+.post-mode-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 16px;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.post-modal-controls {
+  &.visible {
+    .post-mode-toggle-btn {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: all;
+    }
+  }
+}
+
+.post-mode-toggle-btn {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 25px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 115px;
+  width: 115px;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: $white;
+
+  &.post-mode--add {
+    background: rgba(40, 167, 69, 0.15);
+    border-color: rgba(40, 167, 69, 0.3);
+    color: #28a745;
+
+    &:hover {
+      background: rgba(40, 167, 69, 0.25);
+      border-color: rgba(40, 167, 69, 0.4);
+    }
+  }
+
+  &.post-mode--edit {
+    background: rgba(255, 193, 7, 0.15);
+    border-color: rgba(255, 193, 7, 0.3);
+    color: #ffc107;
+
+    &:hover {
+      background: rgba(255, 193, 7, 0.25);
+      border-color: rgba(255, 193, 7, 0.4);
+    }
+  }
+
+  &.post-mode--delete {
+    background: rgba(220, 53, 69, 0.15);
+    border-color: rgba(220, 53, 69, 0.3);
+    color: #dc3545;
+
+    &:hover {
+      background: rgba(220, 53, 69, 0.25);
+      border-color: rgba(220, 53, 69, 0.4);
+    }
+  }
+}
+
+.post-btn-blue {
+  background: #007bff !important;
+  color: #fff !important;
+
+  &:hover {
+    background: #0056b3 !important;
+  }
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

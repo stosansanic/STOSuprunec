@@ -1,0 +1,1603 @@
+.modal-settings {
+  .nova-poshta-setting {
+    flex-shrink: 0;
+
+    &[hidden] { display: none; }
+
+    .label-text { display: flex; align-items: center; gap: 10px; }
+    .toggle-switch { position: relative; }
+    .toggle-switch input {
+      display: block;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      opacity: 0;
+    }
+    input:focus-visible + .slider { outline: 2px solid #177245; outline-offset: 3px; }
+    input:disabled ~ span { opacity: 0.55; cursor: wait; }
+  }
+
+  .database-export-control {
+    margin: 15px 0;
+    padding: 16px;
+    border: 1px solid #cbded5;
+    border-radius: 12px;
+    background: #f3faf7;
+    &[hidden] { display: none; }
+    button { width: 100%; padding: 12px; border: 0; border-radius: 10px; background: #216344; color: white; font: inherit; cursor: pointer; }
+    button:hover { background: #194e35; }
+    button:focus-visible { outline: 3px solid #587edb; outline-offset: 2px; }
+    p { margin: 8px 0 0; font-size: 12px; line-height: 1.5; color: #425b4e; }
+  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 10px 0;
+
+  &.hidden {
+    display: none;
+  }
+
+  .modal-window {
+    background: #fff;
+    /* Фон завжди білий */
+    padding: 2rem;
+    border-radius: 10px;
+    max-width: 700px;
+    max-height: 90vh;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .role-toggle-button {
+    width: 100%;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+
+    &:hover {
+      box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+    }
+  }
+
+  #role-toggles-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1;
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 10px;
+
+      &:hover {
+        background: #555;
+      }
+    }
+  }
+
+  .admin-scroll-wrapper {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 10px;
+
+      &:hover {
+        background: #555;
+      }
+    }
+  }
+
+  #main-toggles-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #e6fafd;
+    }
+
+    input {
+      display: none;
+    }
+
+    .slider {
+      width: 40px;
+      height: 20px;
+      background-color: #ccc;
+      border-radius: 20px;
+      margin-right: 10px;
+      position: relative;
+      transition: background-color 0.2s ease;
+      flex-shrink: 0;
+
+      &::before {
+        content: "";
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        background: white;
+        border-radius: 50%;
+        top: 1px;
+        left: 1px;
+        transition: transform 0.3s ease;
+      }
+    }
+
+    .label-text {
+      font-size: 0.95rem;
+      user-select: none;
+      line-height: 1.3;
+    }
+
+    input:checked+.slider {
+      background-color: #4caf50;
+    }
+
+    input:checked+.slider::before {
+      transform: translateX(20px);
+    }
+
+    &.active {
+      background-color: #d9fbe3;
+    }
+
+    // Спеціальні стилі для перемикача знижки
+    &.discount {
+      .slider {
+        background-color: #2196f3; // Синій коли OFF (false)
+      }
+
+      input:checked+.slider {
+        background-color: #4caf50; // Зелений коли ON (true)
+      }
+
+      &.active {
+        background-color: #d9fbe3;
+      }
+
+      &:not(.active) {
+        background-color: #e3f2fd; // Світло-синій фон коли OFF
+      }
+
+      .discount-status {
+        margin-left: auto;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      &.active .discount-status {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      &:not(.active) .discount-status {
+        background-color: #2196f3;
+        color: white;
+      }
+    }
+  }
+
+  .percentage-control {
+    margin: 15px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    border-radius: 12px;
+    border: 1px solid #d1d9e6;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .percentage-label {
+    display: flex;
+    flex-direction: column;
+    cursor: default;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .percentage-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+
+  // Контейнер для скролу складів (показуємо 6, потім скрол)
+  .percentage-rows-wrapper {
+    flex: 1;
+    min-height: 0;
+    max-height: 280px; // ~6 рядків по ~46px
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 5px;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #e8ecf1;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #3498db;
+      border-radius: 3px;
+
+      &:hover {
+        background: #2980b9;
+      }
+    }
+  }
+
+  .percentage-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .percentage-number {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2c3e50;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .add-percentage-btn,
+  .remove-percentage-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .add-percentage-btn {
+    background: #2ecc71;
+    color: white;
+
+    &:hover {
+      background: #27ae60;
+      transform: scale(1.1);
+    }
+  }
+
+  .remove-percentage-btn {
+    background: #e74c3c;
+    color: white;
+
+    &:hover {
+      background: #c0392b;
+      transform: scale(1.1);
+    }
+  }
+
+  .unfreeze-percentage-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    background: #95a5a6;
+    color: white;
+
+    &:hover {
+      background: #7f8c8d;
+      transform: scale(1.1);
+    }
+  }
+
+  // Контейнер для кнопок заморозки/видалення
+  .percentage-buttons-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  // Кнопка повного видалення складу (хрестик)
+  .delete-percentage-btn {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: none;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    background: #e74c3c;
+    color: white;
+    line-height: 1;
+    position: absolute;
+    top: -8px;
+    right: -4px;
+    z-index: 1;
+
+    &:hover {
+      background: #c0392b;
+      transform: scale(1.15);
+    }
+  }
+
+  // Заморожений (неактивний) склад
+  .percentage-row.frozen {
+    opacity: 0.5;
+
+    .percentage-number {
+      color: #95a5a6;
+    }
+
+    .percentage-slider {
+      background: linear-gradient(to right,
+          #bdc3c7 0%,
+          #95a5a6 100%) !important;
+      cursor: not-allowed;
+    }
+
+    .percentage-value-display {
+      border-color: #95a5a6;
+      background: #ecf0f1;
+    }
+
+    .percentage-input {
+      color: #95a5a6;
+    }
+
+    .percent-sign {
+      color: #95a5a6;
+    }
+  }
+
+  #additional-percentage-rows {
+    margin-top: 5px;
+  }
+
+  .percentage-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+  }
+
+  .percentage-slider,
+  #percentage-slider {
+    flex: 1;
+    height: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: linear-gradient(to right, #3498db 0%, #2ecc71 100%);
+    border-radius: 10px;
+    outline: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+    }
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border: 3px solid #3498db;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+      &:hover {
+        transform: scale(1.15);
+        border-color: #2ecc71;
+        box-shadow: 0 3px 10px rgba(52, 152, 219, 0.4);
+      }
+
+      &:active {
+        transform: scale(1.05);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+      }
+    }
+
+    &::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border: 3px solid #3498db;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+      &:hover {
+        transform: scale(1.15);
+        border-color: #2ecc71;
+        box-shadow: 0 3px 10px rgba(52, 152, 219, 0.4);
+      }
+
+      &:active {
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  .percentage-value-display {
+    min-width: 80px;
+    padding: 8px 12px;
+    background: white;
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: #2ecc71;
+      box-shadow: 0 3px 8px rgba(52, 152, 219, 0.2);
+    }
+  }
+
+  .percentage-input,
+  #percentage-input {
+    width: 45px;
+    border: none;
+    outline: none;
+    text-align: right;
+    font-weight: 700;
+    font-size: 18px;
+    color: #2c3e50;
+    background: transparent;
+    padding: 0;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
+
+  .percent-sign {
+    font-weight: 700;
+    font-size: 18px;
+    color: #2c3e50;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+    flex-shrink: 0;
+
+    #modal-ok-button,
+    #modal-cancel-button {
+      padding: 0.5rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+    }
+
+    #modal-ok-button {
+      background-color: #4caf50;
+      color: #fff;
+
+      &:hover {
+        background-color: #3da744;
+      }
+    }
+
+    #modal-cancel-button {
+      background-color: #ddd;
+      color: #333;
+
+      &:hover {
+        background-color: #dd0e0e;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .modal-window {
+      max-width: 95%;
+      padding: 1.5rem;
+    }
+
+    #role-toggles-container {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .modal-window {
+      padding: 1rem;
+    }
+
+    .percentage-control {
+      padding: 15px;
+      margin: 15px 0;
+    }
+
+    .percentage-input-wrapper {
+      gap: 10px;
+    }
+
+    .percentage-value-display {
+      min-width: 50px;
+      padding: 6px 12px;
+      font-size: 16px;
+    }
+
+    #percentage-slider {
+
+      &::-webkit-slider-thumb,
+      &::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .toggle-switch {
+      padding: 0.4rem 0.8rem;
+
+      .label-text {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  // Додайте цей CSS в ваш modal-settings SCSS
+
+  .settings-divider {
+    height: 1px;
+    background: linear-gradient(to right,
+        transparent,
+        #d0d0d0 30%,
+        #d0d0d0 70%,
+        transparent);
+    margin: 12px 0;
+    flex-shrink: 0;
+  }
+
+  // Стилі для секції "Загальні"
+  .general-settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px 0;
+  }
+
+  .general-input-group,
+  .general-color-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .general-label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: default;
+  }
+
+  .general-label-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+
+  .general-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    color: #333;
+    background: #fff;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: #607d8b;
+      box-shadow: 0 0 0 3px rgba(96, 125, 139, 0.15);
+    }
+
+    &::placeholder {
+      color: #999;
+    }
+  }
+
+  // ── Логотип: обгортка з іконкою всередині ──────────────────
+  .logo-input-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .logo-url-input {
+    padding-right: 48px !important;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
+
+    &--success {
+      border-color: #2ecc71 !important;
+      box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2) !important;
+    }
+  }
+
+  .logo-upload-icon {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #78909c 0%, #607d8b 100%);
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    color: white;
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(96, 125, 139, 0.35);
+
+    svg {
+      width: 17px;
+      height: 17px;
+      transition: transform 0.3s ease;
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, #607d8b 0%, #455a64 100%);
+      box-shadow: 0 4px 12px rgba(96, 125, 139, 0.45);
+      transform: translateY(-50%) scale(1.08);
+
+      svg {
+        transform: rotate(-20deg);
+      }
+    }
+
+    &:active {
+      transform: translateY(-50%) scale(0.96);
+    }
+
+    &--loading {
+      background: linear-gradient(135deg, #ff8c00 0%, #ff5722 100%);
+      box-shadow: 0 4px 12px rgba(255, 87, 34, 0.4);
+      pointer-events: none;
+
+      svg {
+        animation: logo-icon-spin 0.8s linear infinite;
+      }
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: translateY(-50%);
+    }
+  }
+
+  @keyframes logo-icon-spin {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  // SMS text settings styles
+  .sms-text-group {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #dee2e6;
+  }
+
+  .sms-group-label {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  // Лічильник символів SMS
+  .sms-char-counter {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: #e8f5e9;
+    color: #2e7d32;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+
+    &.ok {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    &.warning {
+      background: #fff3e0;
+      color: #e65100;
+      animation: pulse-warning 1.5s ease-in-out infinite;
+    }
+  }
+
+  @keyframes pulse-warning {
+
+    0%,
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(230, 81, 0, 0.3);
+    }
+
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 0 8px 2px rgba(230, 81, 0, 0.2);
+    }
+  }
+
+  .sms-preview {
+    background: #fff;
+    border: 2px dashed #607d8b;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    color: #2c3e50;
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    flex-direction: column;
+    /* Текст буде йти один під одним */
+    align-items: flex-start;
+    /* Вирівнювання по лівому краю */
+
+    .sms-text-before-preview,
+    .sms-text-after-preview {
+      color: #495057;
+      outline: none;
+      border-bottom: 1px dashed transparent;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      min-width: 20px;
+
+      &:hover {
+        background: rgba(96, 125, 139, 0.08);
+        border-bottom-color: #607d8b;
+      }
+
+      &:focus {
+        background: rgba(96, 125, 139, 0.12);
+        border-bottom-color: #607d8b;
+        box-shadow: 0 2px 4px rgba(96, 125, 139, 0.15);
+      }
+
+      &:empty::before {
+        content: "текст...";
+        color: #adb5bd;
+        font-style: italic;
+      }
+    }
+
+    .sms-sum-example {
+      font-weight: 700;
+      color: #28a745;
+      background: rgba(40, 167, 69, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+      user-select: none;
+      cursor: default;
+    }
+  }
+
+  .color-label {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .color-picker-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .color-picker {
+    width: 50px;
+    height: 40px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 2px;
+    background: #fff;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: #607d8b;
+      transform: scale(1.05);
+    }
+
+    &::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    &::-webkit-color-swatch {
+      border: none;
+      border-radius: 4px;
+    }
+
+    &::-moz-color-swatch {
+      border: none;
+      border-radius: 4px;
+    }
+  }
+
+  .color-value {
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: #455a64;
+    background: #f5f5f5;
+    padding: 6px 10px;
+    border-radius: 6px;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  .reset-colors-wrapper {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .reset-colors-btn {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #78909c 0%, #607d8b 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(96, 125, 139, 0.3);
+
+    &:hover {
+      background: linear-gradient(135deg, #607d8b 0%, #455a64 100%);
+      box-shadow: 0 4px 12px rgba(96, 125, 139, 0.4);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba(96, 125, 139, 0.3);
+    }
+  }
+
+  // ── Повзунки розміру шрифту ────────────────────────────────
+  .font-size-group {
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8eaf6 100%);
+    border-radius: 12px;
+    padding: 14px 16px;
+    border: 1px solid #c5cae9;
+  }
+
+  .font-size-slider-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 8px;
+    padding: 4px 0;
+  }
+
+  .font-size-slider {
+    flex: 1;
+    height: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: linear-gradient(to right, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    outline: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.35);
+    }
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border: 3px solid #667eea;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+
+      &:hover {
+        transform: scale(1.15);
+        border-color: #764ba2;
+        box-shadow: 0 3px 10px rgba(102, 126, 234, 0.45);
+      }
+
+      &:active {
+        transform: scale(1.05);
+      }
+    }
+
+    &::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border: 3px solid #667eea;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    }
+  }
+
+  .font-size-bubble {
+    min-width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    user-select: none;
+
+    // Варіант для offset-повзунка (помаранчевий, показує +/-)
+    &--offset {
+      min-width: 52px;
+      background: linear-gradient(135deg, #ff8c00 0%, #ff5722 100%);
+      box-shadow: 0 3px 10px rgba(255, 87, 34, 0.4);
+    }
+  }
+
+  // Offset-повзунок — помаранчевий трек
+  .font-size-slider--offset {
+    background: linear-gradient(to right, #ff5722 0%, #ff8c00 100%);
+
+    &::-webkit-slider-thumb {
+      border-color: #ff5722;
+
+      &:hover {
+        border-color: #e64a19;
+        box-shadow: 0 3px 10px rgba(255, 87, 34, 0.45);
+      }
+    }
+
+    &::-moz-range-thumb {
+      border-color: #ff5722;
+    }
+  }
+
+  // Група для offset (з трохи іншим фоном)
+  .font-size-group--offset {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    border-color: #ffcc80;
+  }
+
+  @media (max-width: 480px) {
+    .general-input {
+      padding: 10px 14px;
+      font-size: 14px;
+    }
+
+    .color-label {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .color-picker-wrapper {
+      width: 100%;
+      justify-content: flex-start;
+    }
+
+    .reset-colors-btn {
+      width: 100%;
+    }
+  }
+
+  // ============================================================
+  // AI SETTINGS SECTION
+  // ============================================================
+
+  .ai-settings-section {
+    margin-top: 16px;
+    padding: 16px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eaf6 100%);
+    border-radius: 12px;
+    border: 2px dashed #667eea;
+  }
+
+  .ai-settings-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+
+    .ai-icon {
+      font-size: 22px;
+    }
+
+    .ai-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  }
+
+  .ai-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  }
+
+  .ai-toggle-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #444;
+  }
+
+  .ai-toggle-switch {
+    position: relative;
+    width: 48px;
+    height: 26px;
+
+    input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+
+      &:checked+.ai-toggle-slider {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        &::before {
+          transform: translateX(22px);
+        }
+      }
+    }
+  }
+
+  .ai-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #ccc;
+    border-radius: 26px;
+    transition: 0.3s;
+
+    &::before {
+      content: "";
+      position: absolute;
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .ai-configure-btn {
+    width: 100%;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    &:hover:not(:disabled) {
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  .ai-info-text {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 6px;
+    font-size: 12px;
+    color: #667eea;
+    text-align: center;
+    font-weight: 500;
+  }
+}
+
+// ============================================================
+// AI PRO KEYS MODAL  (redesigned)
+// ============================================================
+
+.ai-pro-keys-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 15, 30, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  animation: fadeInOverlay 0.2s ease;
+
+  &.hidden {
+    display: none;
+  }
+
+  @keyframes fadeInOverlay {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  // ─── Window ────────────────────────────────────────────────
+  .ai-pro-keys-window {
+    background: linear-gradient(145deg, #ffffff 0%, #f0f4ff 100%);
+    padding: 1.6rem 1.8rem 1.4rem;
+    border-radius: 18px;
+    max-width: 480px;
+    width: 92%;
+    box-shadow:
+      0 8px 32px rgba(102, 126, 234, 0.18),
+      0 2px 8px rgba(0, 0, 0, 0.12);
+    border: 1.5px solid rgba(102, 126, 234, 0.3);
+    animation: slideUpModal 0.25s ease;
+  }
+
+  @keyframes slideUpModal {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  // ─── Header ────────────────────────────────────────────────
+  .ai-pro-keys-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.9rem;
+  }
+
+  .ai-pro-keys-icon {
+    font-size: 26px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(102, 126, 234, 0.4));
+  }
+
+  .ai-pro-keys-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.2px;
+  }
+
+  // ─── Link ──────────────────────────────────────────────────
+  .ai-pro-keys-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 1.2rem;
+    padding: 6px 12px 6px 8px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+    border: 1px solid rgba(102, 126, 234, 0.25);
+    border-radius: 20px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #5c6bc0;
+    text-decoration: none;
+    transition: all 0.25s ease;
+
+    .ai-pro-keys-link-icon {
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.18), rgba(118, 75, 162, 0.18));
+      border-color: rgba(102, 126, 234, 0.5);
+      color: #3949ab;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(102, 126, 234, 0.2);
+    }
+  }
+
+  // ─── Inputs list ───────────────────────────────────────────
+  .ai-pro-keys-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    max-height: 52vh;
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-bottom: 1rem;
+
+    // Custom scrollbar
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 4px;
+    }
+  }
+
+  // ─── Single key row (compact) ──────────────────────────────
+  .ai-pro-key-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px 5px 8px;
+    background: #fff;
+    border: 1.5px solid #e8eaf6;
+    border-radius: 10px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      border-color: rgba(102, 126, 234, 0.4);
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+    }
+
+    &:focus-within {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+    }
+  }
+
+  .ai-pro-key-num {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    user-select: none;
+  }
+
+  .ai-pro-key-provider {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #f4f6ff;
+    font-size: 13px;
+    user-select: none;
+  }
+
+  .ai-pro-key-input {
+    flex: 1;
+    min-width: 0;
+    padding: 5px 10px;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    color: #2c3e50;
+    background: transparent;
+    letter-spacing: 0.3px;
+
+    &::placeholder {
+      color: #bbb;
+      font-family: inherit;
+    }
+  }
+
+  .ai-pro-key-delete {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 50%;
+    font-size: 13px;
+    color: #b0b0b0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
+
+    &:hover {
+      background: #ffe8e8;
+      color: #e53935;
+      transform: scale(1.1);
+    }
+  }
+
+  // ─── Дублікат ключа (підсвічення) ──────────────────────────
+  .ai-pro-key-duplicate {
+    background: rgba(229, 57, 53, 0.08) !important;
+    border-color: #ef9a9a !important;
+    color: #c62828;
+    animation: duplicateShake 0.3s ease;
+
+    &::placeholder {
+      color: #ef9a9a;
+    }
+  }
+
+  @keyframes duplicateShake {
+
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+
+    25% {
+      transform: translateX(-4px);
+    }
+
+    75% {
+      transform: translateX(4px);
+    }
+  }
+
+  // Рядок з дублікатом — підсвічуємо також рамку рядка
+  .ai-pro-key-row:has(.ai-pro-key-duplicate) {
+    border-color: rgba(229, 57, 53, 0.35) !important;
+    background: rgba(229, 57, 53, 0.03);
+  }
+
+  // ─── Add button ────────────────────────────────────────────
+  .ai-pro-add-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 7px 14px;
+    border: 1.5px dashed rgba(102, 126, 234, 0.45);
+    border-radius: 10px;
+    background: transparent;
+    color: #667eea;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 2px;
+
+    .ai-pro-add-icon {
+      font-size: 17px;
+      line-height: 1;
+      font-weight: 400;
+    }
+
+    &:hover {
+      background: rgba(102, 126, 234, 0.08);
+      border-color: #667eea;
+      color: #5060d0;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(102, 126, 234, 0.15);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  // ─── Actions ───────────────────────────────────────────────
+  .ai-pro-keys-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(102, 126, 234, 0.12);
+
+    button {
+      flex: 1;
+      padding: 7px 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    #ai-pro-keys-ok {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+
+      &:hover {
+        box-shadow: 0 5px 16px rgba(102, 126, 234, 0.45);
+        transform: translateY(-1px);
+      }
+
+      &:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 6px rgba(102, 126, 234, 0.25);
+      }
+    }
+
+    #ai-pro-keys-cancel {
+      background: #f0f0f0;
+      color: #555;
+
+      &:hover {
+        background: #ffe8e8;
+        color: #c62828;
+      }
+    }
+  }
+}

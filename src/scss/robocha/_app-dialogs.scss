@@ -1,0 +1,60 @@
+.sto-toast, .sto-message-dialog {
+  box-sizing: border-box; font-family: system-ui, sans-serif; color: #234238;
+  background: #f9fcfa; border: 1px solid #cee3d7; border-radius: 20px;
+  box-shadow: 0 16px 50px #133b2826;
+  p { margin: 6px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.5; }
+  button { font: inherit; cursor: pointer; }
+  button:focus-visible { outline: 3px solid #529e78; outline-offset: 3px; }
+}
+.sto-message-icon {
+  display: inline-grid; place-items: center; width: 38px; height: 38px;
+  flex-shrink: 0; border-radius: 12px; background: #e2f1e8; color: #287249;
+  font-weight: 700; font-size: 23px;
+}
+.sto-toast {
+  position: fixed; inset: 16px 16px auto auto; margin: 0; padding: 18px;
+  width: min(420px, calc(100vw - 32px)); max-height: 40vh; overflow: auto;
+  z-index: 2147483647; display: flex; align-items: flex-start; gap: 12px;
+  animation: sto-message-in .18s ease-out;
+  transition: width .5s cubic-bezier(.22, 1, .36, 1),
+    padding .5s ease, gap .5s ease, border-radius .5s ease, box-shadow .5s ease;
+  > div { flex: 1; min-width: 0; }
+  strong { font-size: 15px; } p { font-size: 14px; }
+  p { transition: margin-top .5s ease; }
+  .sto-message-icon {
+    transition: width .5s ease, height .5s ease, border-radius .5s ease,
+      font-size .5s ease, background-color .5s ease, color .5s ease;
+  }
+  .sto-toast-close { border: 0; background: transparent; color: #64786e; font-size: 24px; padding: 0 4px; }
+  &.sto-message-success {
+    // Keep the right edge anchored while the card becomes 40% narrower.
+    width: min(252px, calc(100vw - 32px));
+    padding: 12px; gap: 10px; border-radius: 14px;
+    box-shadow: 0 8px 24px #133b2820;
+    .sto-message-icon { width: 30px; height: 30px; border-radius: 10px; font-size: 20px; }
+    .sto-toast-close { flex-shrink: 0; min-width: 32px; min-height: 32px; line-height: 1; }
+    p { margin-top: 3px; }
+  }
+  &.sto-message-error .sto-message-icon { background: #fde9e9; color: #b83e3e; }
+  &.sto-message-warning .sto-message-icon { background: #fff1d4; color: #956310; }
+  &.sto-message-info .sto-message-icon { background: #e7effb; color: #37699e; }
+}
+.sto-message-dialog {
+  padding: 28px; width: min(440px, calc(100vw - 32px)); max-height: 85dvh;
+  text-align: center; margin: auto;
+  &::backdrop { background: #13281b70; backdrop-filter: blur(4px); }
+  h3 { margin: 16px 0 10px; font-size: 22px; }
+  p { color: #52665c; font-size: 16px; }
+}
+.sto-message-actions {
+  display: flex; gap: 12px; margin-top: 24px;
+  button { flex: 1; padding: 12px 16px; border: 0; border-radius: 12px; color: white; background: linear-gradient(135deg, #39895b, #256c45); }
+  .sto-message-cancel { color: #435e50; background: #e7eee9; }
+}
+@keyframes sto-message-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .sto-toast {
+    animation: none;
+    &, .sto-message-icon, p { transition: none; }
+  }
+}

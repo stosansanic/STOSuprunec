@@ -1,0 +1,739 @@
+// ============================================================================
+// МОДАЛЬНЕ ВІКНО ВХОДУ — Низький ПРЕМІАЛЬНИЙ ДИЗАЙН
+// ============================================================================
+
+// ───── ОВЕРЛЕЙ ─────
+.login-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  opacity: 0;
+  animation: loginModalFadeIn 0.3s ease forwards;
+}
+
+@keyframes loginModalFadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+// ───── КОНТЕНТ МОДАЛКИ ─────
+.login-modal-content {
+  background: linear-gradient(
+    155deg,
+    rgba(240, 253, 250, 0.92) 0%,
+    rgba(236, 254, 255, 0.94) 40%,
+    rgba(239, 246, 255, 0.92) 100%
+  );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 28px 28px 24px;
+  border-radius: 18px;
+  min-width: 300px;
+  max-width: 340px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  // Тонка рамка
+  border: 1px solid rgba(148, 210, 210, 0.35);
+
+  // Тінь
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.12),
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+
+  // Пружинна анімація
+  animation: loginModalBounceIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transform: scale(0.9) translateY(16px);
+  opacity: 0;
+
+  // Декоративна лінія зверху
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 15%;
+    right: 15%;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(34, 197, 167, 0.5),
+      rgba(56, 189, 248, 0.5),
+      transparent
+    );
+    border-radius: 0 0 3px 3px;
+  }
+}
+
+@keyframes loginModalBounceIn {
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+// ───── ПЛАВАЮЧА ІКОНКА ─────
+.login-modal-icon {
+  font-size: 36px;
+  display: block;
+  margin-bottom: 6px;
+  animation: loginIconFloat 3s ease-in-out infinite;
+}
+
+@keyframes loginIconFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+// ───── ЗАГОЛОВОК ─────
+.login-modal-title {
+  margin: 0 0 4px 0;
+  color: #1e293b;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+// ───── ПІДЗАГОЛОВОК ─────
+.login-modal-subtitle {
+  color: rgba(71, 85, 105, 0.7);
+  font-size: 12px;
+  margin-bottom: 18px;
+  font-weight: 400;
+}
+
+// ───── ІНПУТ ─────
+.login-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid rgba(148, 210, 210, 0.4);
+  border-radius: 10px;
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  box-sizing: border-box;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.65);
+  color: #1e293b;
+  outline: none;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
+
+  &::placeholder {
+    color: rgba(100, 116, 139, 0.45);
+  }
+
+  // Select-специфічні стилі
+  &:is(select) {
+    cursor: pointer;
+    appearance: none;
+    text-align-last: center;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px;
+    padding-right: 36px;
+
+    option {
+      background: #ffffff;
+      color: #1e293b;
+      font-weight: 500;
+      padding: 8px;
+    }
+
+    & option[value=""] {
+      color: rgba(100, 116, 139, 0.6);
+    }
+  }
+
+  // Фокус — м'яке бірюзове світіння
+  &:focus {
+    border-color: #2dd4bf;
+    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15);
+    background: rgba(255, 255, 255, 0.85);
+  }
+
+  // Стан помилки
+  &.input-error {
+    border-color: #f87171 !important;
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15) !important;
+    animation: loginShake 0.45s ease;
+  }
+
+  // Стан успіху
+  &.input-success {
+    border-color: #34d399 !important;
+    box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.15) !important;
+  }
+}
+
+// Shake-анімація при помилці
+@keyframes loginShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  15% {
+    transform: translateX(-6px);
+  }
+
+  30% {
+    transform: translateX(6px);
+  }
+
+  45% {
+    transform: translateX(-4px);
+  }
+
+  60% {
+    transform: translateX(4px);
+  }
+
+  75% {
+    transform: translateX(-2px);
+  }
+
+  90% {
+    transform: translateX(2px);
+  }
+}
+
+// ───── ПОВІДОМЛЕННЯ ПРО ПОМИЛКУ ─────
+.login-error-message {
+  color: #ef4444;
+  margin: 4px 0 2px;
+  font-size: 11px;
+  font-weight: 500;
+  min-height: 16px;
+  transition: opacity 0.25s ease;
+}
+
+// ───── КНОПКА ─────
+.login-button {
+  width: 100%;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  margin-top: 10px;
+  position: relative;
+  overflow: hidden;
+  color: white;
+
+  // Градієнт бірюзово-блакитний
+  background: linear-gradient(135deg, #2dd4bf 0%, #38bdf8 100%);
+
+  // Тінь
+  box-shadow:
+    0 3px 12px rgba(45, 212, 191, 0.3),
+    0 1px 3px rgba(0, 0, 0, 0.08);
+
+  transition:
+    transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.25s ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow:
+      0 6px 20px rgba(45, 212, 191, 0.35),
+      0 2px 6px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #5eead4 0%, #7dd3fc 100%);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+    box-shadow:
+      0 2px 6px rgba(45, 212, 191, 0.2),
+      0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// ============================================================================
+// ТЕМНИЙ ВАРІАНТ — МОДАЛКА ВХОДУ В СИСТЕМУ
+// ============================================================================
+
+.login-modal--dark {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.login-modal-content--dark {
+  background: linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  backdrop-filter: none;
+  padding: 44px 40px 36px;
+  border-radius: 24px;
+  min-width: 380px;
+  max-width: 90vw;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.5),
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  &::before {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(99, 102, 241, 0.6),
+      transparent
+    );
+  }
+
+  .login-modal-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+
+  .login-modal-title {
+    color: #e2e8f0;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .login-modal-subtitle {
+    color: rgba(148, 163, 184, 0.8);
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+
+  // Прибираємо зовнішній світлий кант, який приходить з глобального .custom-dropdown
+  .custom-dropdown {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .login-input {
+    padding: 14px 16px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #e2e8f0;
+    margin: 0 0 8px 0;
+
+    &::placeholder {
+      color: rgba(148, 163, 184, 0.5);
+    }
+
+    &:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    &.input-error {
+      border-color: #f87171 !important;
+      box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2) !important;
+    }
+
+    &.input-success {
+      border-color: #4ade80 !important;
+      box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2) !important;
+    }
+
+    &:is(select) {
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 16px;
+
+      option {
+        background: #1a1a2e;
+        color: #e2e8f0;
+      }
+
+      & option[value=""] {
+        color: rgba(148, 163, 184, 0.5);
+      }
+    }
+  }
+
+  .login-error-message {
+    font-size: 13px;
+    margin: 8px 0 4px;
+  }
+
+  // Тригер кастомного dropdown всередині темної модалки
+  .custom-dropdown-trigger {
+    background-color: #16213e !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(148, 163, 184, 0.6) !important;
+
+    &.has-value,
+    &.open {
+      color: #e2e8f0 !important;
+    }
+
+    &:hover:not([disabled]) {
+      background-color: #1e2d52 !important;
+    }
+
+    &.open {
+      background-color: #1e2d52 !important;
+    }
+  }
+
+  .login-button {
+    padding: 14px 30px;
+    border-radius: 12px;
+    font-size: 16px;
+    margin-top: 16px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    box-shadow:
+      0 4px 16px rgba(99, 102, 241, 0.4),
+      0 2px 4px rgba(0, 0, 0, 0.2);
+
+    &:hover:not(:disabled) {
+      box-shadow:
+        0 8px 24px rgba(99, 102, 241, 0.5),
+        0 4px 8px rgba(0, 0, 0, 0.2);
+      background: linear-gradient(135deg, #7577f5 0%, #9d7af8 100%);
+    }
+  }
+
+  .login-spinner {
+    width: 20px;
+    height: 20px;
+    border-width: 3px;
+  }
+}
+
+// ============================================================================
+// КАСТОМНИЙ ВИПАДАЮЧИЙ СПИСОК (CUSTOM DROPDOWN — portal)
+// Скоупимо під .login-modal-content, щоб не ламати .custom-dropdown в інших модалках
+// ============================================================================
+
+.login-modal-content {
+  .custom-dropdown {
+    position: relative;
+    width: 100%;
+    margin-bottom: 10px;
+
+    &-hidden {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+    }
+
+    // ─── КНОПКА-ТРИГЕР ───
+    &-trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      text-align: left;
+      background-color: #16213e;
+      background-image: none;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-size: 16px;
+      font-family: inherit;
+      color: rgba(148, 163, 184, 0.6);
+      transition:
+        border-color 0.25s ease,
+        background-color 0.25s ease,
+        box-shadow 0.25s ease,
+        color 0.25s ease;
+      box-sizing: border-box;
+      -webkit-appearance: none;
+      appearance: none;
+
+      // Якщо обрано значення — текст світлий
+      &.has-value {
+        color: #e2e8f0;
+      }
+
+      &:hover:not([disabled]) {
+        border-color: rgba(99, 102, 241, 0.55);
+        background-color: #1e2d52;
+        color: #cbd5e1;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22);
+        background-color: #1e2d52;
+        color: #e2e8f0;
+      }
+
+      &[disabled] {
+        opacity: 0.45;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
+      // Стан відкритого списку
+      &.open {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22);
+        color: #e2e8f0;
+
+        .custom-dropdown-trigger-icon {
+          transform: rotate(180deg);
+          color: #818cf8;
+        }
+      }
+
+      // Стан помилки / успіху
+      &.input-error {
+        border-color: #f87171 !important;
+        box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.18) !important;
+        animation: loginShake 0.45s ease;
+      }
+
+      &.input-success {
+        border-color: #34d399 !important;
+        box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.18) !important;
+      }
+    }
+
+    &-trigger-text {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: inherit;
+      text-align: center;
+
+      &.selected {
+        color: #e2e8f0;
+        font-weight: 500;
+      }
+    }
+
+    &-trigger-icon {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      color: rgba(148, 163, 184, 0.5);
+      transition:
+        transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+        color 0.25s ease;
+
+      svg {
+        width: 17px;
+        height: 17px;
+      }
+    }
+  }
+}
+
+// ─── ВИПАДАЮЧИЙ СПИСОК (прикріплений до body) ───
+.custom-dropdown-list {
+  position: fixed;
+  z-index: 99999;
+  padding: 6px 0;
+  margin: 0;
+  list-style: none;
+  background: #12172b;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: 12px;
+  box-shadow:
+    0 24px 56px rgba(0, 0, 0, 0.6),
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+  max-height: 260px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px) scale(0.98);
+  transform-origin: top center;
+  transition:
+    opacity 0.22s ease,
+    visibility 0.22s ease,
+    transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+  }
+
+  // Стилізований скролбар
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    margin: 6px 0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #6366f1, #8b5cf6);
+    border-radius: 4px;
+  }
+}
+
+// ─── ЕЛЕМЕНТ СПИСКУ (тільки всередині login dropdown-list) ───
+.custom-dropdown-list .custom-dropdown-item {
+  padding: 11px 18px;
+  color: #94a3b8;
+  font-size: 15px;
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    padding-left 0.15s ease;
+
+  // Ліва підсмужка
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 20%;
+    bottom: 20%;
+    width: 3px;
+    border-radius: 0 2px 2px 0;
+    background: #6366f1;
+    opacity: 0;
+    transform: scaleY(0.4);
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  &:hover {
+    color: #e2e8f0;
+    background: rgba(99, 102, 241, 0.1);
+    padding-left: 22px;
+
+    &::before {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+  }
+
+  // Клавіатурна навігація
+  &.highlighted {
+    color: #fff;
+    background: rgba(99, 102, 241, 0.16);
+    padding-left: 22px;
+
+    &::before {
+      opacity: 1;
+      transform: scaleY(1);
+      background: #818cf8;
+    }
+  }
+
+  // Вибраний
+  &.active {
+    color: #fff;
+    background: rgba(99, 102, 241, 0.14);
+    font-weight: 500;
+    padding-left: 22px;
+
+    &::before {
+      opacity: 1;
+      transform: scaleY(1);
+      background: linear-gradient(180deg, #22c55e, #16a34a);
+    }
+
+    &::after {
+      content: "✓";
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #22c55e;
+      font-size: 13px;
+      font-weight: 700;
+    }
+  }
+}
+
+// ───── СПІННЕР ЗАВАНТАЖЕННЯ ─────
+.login-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: loginSpin 0.7s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes loginSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ───── АНІМАЦІЯ УСПІХУ ─────
+.login-success-anim {
+  animation: loginSuccessPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes loginSuccessPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// ============================================================================
+// ДОПОМІЖНІ КЛАСИ
+// ============================================================================
+
+.table-placeholder {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.hidden {
+  display: none !important;
+}

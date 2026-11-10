@@ -1,0 +1,88 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Build output with sensitive keys
+assets/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+node_modules/
+dist/
+
+# Windows reserved filenames
+nul
+
+.env
+.env.local
+
+# Deploy scripts (sensitive data)
+deploy-STO-*.ps1
+deploy-vercel.ps1
+.vercel
+.env*.local
+SUPABASE_REDIRECT_SETUP.md
+MIGRATION_README.md
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Setup and Documentation Files (not for public repository)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Configuration files with sensitive data
+CURRENT_CONFIG.txt
+
+# Setup scripts and templates
+setup_new_project.ps1
+CONFIG_TEMPLATE.txt
+
+# Documentation files
+README_CLONE.md
+SETUP_README.md
+QUICK_START.md
+SETUP_FILES_INFO.md
+
+# Visual guides (generated images)
+setup_config_guide*.png
+project_clone_workflow*.png
+
+.vercel
+.env*.local
+
+# Supabase temp files
+supabase/.temp/
+
+.vercel
+.env*.local
+MIGRATION_README.md
+.vercel
+.env*.local
+
+# Local credentials and tooling
+.env.*
+!.env.example
+.codex/
+.wrangler/
+# Empty files left by pasted terminal commands
+/Downloading
+/Overwriting
+/cross-env
+/sto@0.0.0

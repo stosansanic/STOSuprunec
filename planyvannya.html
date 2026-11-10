@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Планувальник</title>
+
+  <!-- 🔒 Захист від кешування -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
+  <!-- 🔒 Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' https://*.supabase.co https://accounts.google.com https://apis.google.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://apis.google.com https://www.googleapis.com; frame-src 'self' https://accounts.google.com https://content.googleapis.com; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; img-src 'self' data: https:;">
+
+  <!-- 🔒 Перевірка Google сесії -->
+  <script type="module" src="./src/ts/roboha/planyvannya/planyvannya_session_guard.ts"></script>
+
+  <link rel="stylesheet" href="./src/scss/main.scss" />
+  <link rel="icon" type="image/svg+xml" href="/logo.jpg" />
+</head>
+
+<body>
+  <div class="post-planning-container" id="postPlanningContainer">
+    <header class="post-header" id="postHeader">
+      <nav class="post-nav" id="postNav">
+        <a href="main.html" class="post-nav-link post-active" id="postNavLinkHome">🛠️←
+          СТО</a>
+
+        <div class="post-header-calendar-nav">
+          <button class="post-week-btn" id="postVoiceBtn" title="Голосове введення запланованості" type="button"
+            hidden style="display: none;">🎙️</button>
+          <button class="post-week-btn" id="postWeekBtn">Тиждень</button>
+          <button class="post-today-btn" id="postTodayBtn">Сьогодні</button>
+          <button class="post-calendar-drawer-btn" id="postCalendarDrawerBtn" type="button"
+            aria-controls="postMiniCalendar" aria-expanded="false">📅 Календар</button>
+          <button class="post-nav-arrow" id="headerNavPrev">‹</button>
+          <div class="post-current-date" id="postHeaderDateDisplay"></div>
+          <button class="post-nav-arrow" id="headerNavNext">›</button>
+        </div>
+      </nav>
+    </header>
+
+    <div class="post-main-content">
+
+      <div class="post-scheduler-wrapper" id="postSchedulerWrapper">
+
+        <div class="post-sticky-header" style="display:none">
+          <div class="post-header-corner">
+          </div>
+
+          <div class="post-time-header" id="postTimeHeader">
+            <div class="post-time-cell hour-cell">8</div>
+            <div class="post-time-cell min-cell">30</div>
+            <div class="post-time-cell hour-cell">9</div>
+            <div class="post-time-cell min-cell">30</div>
+            <div class="post-time-cell hour-cell">10</div>
+            <div class="post-time-cell min-cell">30</div>
+            <div class="post-time-cell hour-cell">11</div>
+            <div class="post-time-cell min-cell">30</div>
+            <div class="post-time-cell hour-cell">12</div>
+            <div class="post-time-cell min-cell">30</div>
+            <div class="post-time-cell hour-cell">13</div>
+            <div class="post-time-cell min-cell">30</div>
+            <div class="post-time-cell hour-cell">14</div>
+            <div class="post-time-cell min-cell">30</div>
+            <div class="post-time-cell hour-cell">15</div>
+            <div class="post-time-cell min-cell">30</div>
+            <div class="post-time-cell hour-cell">16</div>
+            <div class="post-time-cell min-cell">30</div>
+            <div class="post-time-cell hour-cell">17</div>
+            <div class="post-time-cell min-cell">30</div>
+            <div class="post-time-cell hour-cell">18</div>
+            <div class="post-time-cell min-cell">30</div>
+            <div class="post-time-cell hour-cell">19</div>
+            <div class="post-time-cell min-cell">30</div>
+          </div>
+        </div>
+
+        <div class="post-scheduler-body" id="postCalendarGrid">
+          <!-- Секції будуть додані через JS -->
+        </div>
+      </div>
+
+      <aside class="post-mini-calendar" id="postMiniCalendar">
+        <div class="post-year-nav" id="postYearNav">
+          <button id="postYearPrev">‹</button>
+          <span id="postYearDisplay">2025</span>
+          <button id="postYearNext">›</button>
+        </div>
+
+        <div id="postCalendarContainer"></div>
+
+        <div class="post-legend" id="postLegend">
+          <div class="post-legend-item">
+            <div class="post-color-box post-scheduled"></div><span>Запланований</span>
+          </div>
+          <div class="post-legend-item">
+            <div class="post-color-box post-in-progress"></div><span>В роботі</span>
+          </div>
+          <div class="post-legend-item">
+            <div class="post-color-box post-repaired"></div><span>Відремонтований</span>
+          </div>
+          <div class="post-legend-item">
+            <div class="post-color-box post-no-show"></div><span>Не приїхав</span>
+          </div>
+        </div>
+      </aside>
+
+      <button class="post-calendar-backdrop" id="postCalendarBackdrop" type="button"
+        aria-label="Закрити календар"></button>
+
+    </div>
+  </div>
+
+  <!-- Модалки створюються динамічно в JS модулях -->
+
+  <script type="module" src="./src/ts/main.ts"></script>
+</body>
+
+</html>

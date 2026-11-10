@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">СТО Супрунець</string>
+    <string name="title_activity_main">СТО Супрунець</string>
+    <string name="package_name">com.sto.suprunec</string>
+    <string name="custom_url_scheme">com.sto.suprunec</string>
+</resources>

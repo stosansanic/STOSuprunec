@@ -1,0 +1,274 @@
+// _pageFormatControls.scss
+
+// --- Панель керування розміром тексту (вертикальна, справа по середині) ---
+.page-format-toolbar {
+  position: fixed;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  z-index: 10001;
+  background: rgba(30, 30, 30, 0.95);
+  border-radius: 10px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  width: auto;
+
+  .pf-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: space-between;
+  }
+
+  .pf-label {
+    color: #bbb;
+    font-size: 11px;
+    white-space: nowrap;
+    min-width: 60px;
+  }
+
+  .pf-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid #555;
+    background: #333;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    line-height: 1;
+    padding: 0;
+    flex-shrink: 0;
+
+    &:hover {
+      background: #555;
+      border-color: #888;
+    }
+
+    &:active {
+      transform: scale(0.9);
+      background: #666;
+    }
+  }
+
+  .pf-value {
+    color: white;
+    font-size: 11px;
+    min-width: 32px;
+    text-align: center;
+    font-weight: bold;
+    font-family: monospace;
+  }
+
+  .pf-divider {
+    height: 1px;
+    background: #555;
+    margin: 2px 0;
+  }
+
+  .pf-joystick {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+
+    .pf-joy-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .pf-joy-label {
+      color: #999;
+      font-size: 9px;
+      white-space: nowrap;
+    }
+
+    .pf-joy-title {
+      color: #aaa;
+      font-size: 9px;
+      text-align: center;
+      margin-bottom: 2px;
+    }
+
+    .pf-joy-icon {
+      color: #777;
+      font-size: 14px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .pf-joy-btn {
+      width: 22px;
+      height: 22px;
+      font-size: 10px;
+    }
+
+    .pf-joy-val {
+      color: #4fc3f7;
+      font-size: 10px;
+      font-family: monospace;
+      font-weight: bold;
+      text-align: center;
+      min-width: 30px;
+    }
+
+    .pf-joy-val-side {
+      min-width: 28px;
+    }
+  }
+}
+
+// --- Фонова область сторінки ---
+.page-background {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: rgba(240, 248, 255, 0.15);
+  border-left: 2px solid rgba(100, 149, 237, 0.25);
+  border-right: 2px solid rgba(100, 149, 237, 0.25);
+  z-index: 1;
+  pointer-events: none;
+
+  .page-number {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: rgba(100, 149, 237, 0.15);
+    color: #4169e1;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-family: Arial, sans-serif;
+  }
+
+  // Зона нижнього поля PDF (15mm)
+  .page-margin-zone {
+    position: absolute;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+
+    &.page-margin-bottom {
+      bottom: 0;
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        rgba(231, 76, 60, 0.06)
+      );
+      border-top: 1px dotted rgba(231, 76, 60, 0.3);
+    }
+  }
+}
+
+// --- Індикатор розриву сторінки А4 ---
+.page-break-marker {
+  position: absolute;
+  left: -8px;
+  right: -8px;
+  height: 50px;
+  z-index: 150;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  .page-break-bottom {
+    width: 100%;
+    flex: 1;
+    border-bottom: 3px solid #e74c3c;
+    position: relative;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(231, 76, 60, 0.15)
+    );
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+
+    span {
+      background: #e74c3c;
+      color: white;
+      font-size: 9px;
+      font-weight: bold;
+      padding: 3px 12px;
+      border-radius: 8px 8px 0 0;
+      white-space: nowrap;
+      font-family: Arial, sans-serif;
+      letter-spacing: 0.3px;
+      box-shadow: 0 -2px 6px rgba(231, 76, 60, 0.4);
+      margin-bottom: -1px;
+    }
+  }
+
+  .page-break-gap {
+    width: 100%;
+    height: 10px;
+    background: #555;
+    position: relative;
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.5),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.5);
+
+    &::before {
+      content: "✂";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 14px;
+      background: #555;
+      color: #fff;
+      padding: 0 6px;
+      border-radius: 3px;
+    }
+  }
+
+  .page-break-top {
+    width: 100%;
+    flex: 1;
+    border-top: 3px solid #4caf50;
+    position: relative;
+    background: linear-gradient(to top, transparent, rgba(76, 175, 80, 0.15));
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+
+    span {
+      background: #4caf50;
+      color: white;
+      font-size: 9px;
+      font-weight: bold;
+      padding: 3px 12px;
+      border-radius: 0 0 8px 8px;
+      white-space: nowrap;
+      font-family: Arial, sans-serif;
+      letter-spacing: 0.3px;
+      box-shadow: 0 2px 6px rgba(76, 175, 80, 0.4);
+      margin-top: -1px;
+    }
+  }
+}
+
+// --- Друк: ховаємо елементи керування ---
+@media print {
+  .page-format-toolbar,
+  .page-break-marker,
+  .page-background {
+    display: none !important;
+  }
+}

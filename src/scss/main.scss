@@ -1,0 +1,156 @@
+@use "./robocha/tokens";
+@use "./vxid/App";
+@use "./robocha/a11y";
+@use "./robocha/animations";
+@use "./robocha/osnovnui";
+@use "./robocha/menu";
+@use "./robocha/menu-tooltips";
+@use "./robocha/workflows";
+@use "./robocha/toast_access";
+@use "./robocha/tablucya/tablucay";
+@use "./robocha/tablucya/act-counters";
+@use "./robocha/zakaz_narayd/zakaz_narayd";
+@use "./robocha/zakaz_narayd/vikno_vvody_parolu";
+@use "./robocha/zakaz_narayd/vikno_pidtverdchennay_zakruttia_akty";
+@use "./robocha/zakaz_narayd/vikno_slusar_confirm";
+@use "./robocha/redahyvatu_bazu_danux/zberehtu_PIB_avto";
+@use "./robocha/redahyvatu_bazu_danux/redahyvatu_klient_avto";
+@use "./robocha/dodatu_inchi_bazu/dodatu_inchi_bazu_danux";
+@use "./robocha/nalachtuvannay/nalachtuvannay";
+@use "./robocha/tablucya/users";
+@use "./robocha/bukhhalteriya/bukhhalteriya";
+@use "./robocha/bukhhalteriya/analityka";
+@use "./robocha/bukhhalteriya/financialOverview";
+@use "./robocha/dodatu_inchi_bazu/downlExcel";
+@use "./robocha/zakaz_narayd/faktura";
+@use "./robocha/zakaz_narayd/fakturaAct";
+@use "./robocha/zakaz_narayd/fakturaRaxunok";
+@use "./robocha/zakaz_narayd/pageFormatControls";
+@use "./robocha/tablucya/povidomlennya_tablucya";
+@use "./robocha/planyvannya/planyvannya";
+@use "./robocha/planyvannya/planyvannya_post";
+@use "./robocha/ai/ai";
+@use "./robocha/ai/planner";
+@use "./robocha/ai/reminder_toast";
+@use "./robocha/ai/voice_input";
+@use "./robocha/ai/skills";
+@use "./robocha/service_book/service_book";
+@use "./robocha/offline/offline";
+
+.scroll-to-top-button {
+  position: fixed;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: max(82px, calc(env(safe-area-inset-bottom) + 82px));
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ffe7c6 0%, #ffc27b 55%, #ffac58 100%);
+  color: #613315;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow:
+    0 7px 20px rgba(97, 51, 21, 0.22),
+    inset 0 0 0 3px rgba(255, 255, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(14px) scale(0.88);
+  transition:
+    opacity 0.2s ease,
+    transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1.2),
+    box-shadow 0.22s ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -20%;
+    background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.55) 50%, transparent 65%);
+    transform: translateX(-100%);
+    transition: transform 0.55s ease;
+    pointer-events: none;
+  }
+
+  svg {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    pointer-events: none;
+    transition: transform 0.2s ease;
+  }
+}
+
+.scroll-to-top-button__ripple {
+  position: absolute;
+  inset: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scroll-to-top-button.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .scroll-to-top-button.visible:hover {
+    box-shadow:
+      0 10px 26px rgba(156, 81, 19, 0.28),
+      0 0 0 4px rgba(255, 193, 119, 0.2),
+      inset 0 0 0 3px rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px) scale(1.04);
+
+    &::before { transform: translateX(100%); }
+    svg { transform: translateY(-2px); }
+  }
+}
+
+.scroll-to-top-button.visible:active {
+  transform: translateY(1px) scale(0.92);
+  transition-duration: 0.1s;
+}
+
+.scroll-to-top-button:focus-visible {
+  outline: 3px solid #613315;
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-to-top-button,
+  .scroll-to-top-button::before,
+  .scroll-to-top-button svg {
+    transition: none;
+  }
+
+  .scroll-to-top-button::before { display: none; }
+  .scroll-to-top-button.visible,
+  .scroll-to-top-button.visible:hover,
+  .scroll-to-top-button.visible:active,
+  .scroll-to-top-button.visible svg {
+    transform: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .scroll-to-top-button {
+    right: max(14px, env(safe-area-inset-right));
+    bottom: max(74px, calc(env(safe-area-inset-bottom) + 74px));
+    width: 48px;
+    height: 48px;
+    svg { width: 22px; height: 22px; }
+  }
+}

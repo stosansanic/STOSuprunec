@@ -1,0 +1,420 @@
+// ═══════════════════════════════════════════════════════════
+// 🧩 Скіли AI — CRUD інтерфейс в модалці налаштувань
+// ═══════════════════════════════════════════════════════════
+
+.skills-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.skills-header {
+  text-align: center;
+
+  h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    color: #263238;
+  }
+
+  .skills-description {
+    font-size: 13px;
+    color: #78909c;
+    margin: 0 0 12px;
+    line-height: 1.4;
+
+    .skills-status-title {
+      color: #607d8b;
+      font-weight: 700;
+    }
+
+    .skills-status-empty {
+      color: #90a4ae;
+      font-style: italic;
+    }
+
+    .skills-status-list {
+      display: inline;
+    }
+
+    .skills-status-chip {
+      display: inline-block;
+      margin: 2px 4px 0 0;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      line-height: 1.2;
+      font-weight: 600;
+
+      &--active {
+        background: #dcfce7;
+        color: #15803d;
+      }
+
+      &--inactive {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+    }
+  }
+}
+
+.skills-add-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #00bcd4, #0097a7);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 10px rgba(0, 188, 212, 0.3);
+
+  &:hover {
+    background: linear-gradient(135deg, #0097a7, #00838f);
+    box-shadow: 0 5px 14px rgba(0, 188, 212, 0.4);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// ─── Список карток ──────────────────────────────────────────
+
+.skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skills-loading,
+.skills-empty {
+  text-align: center;
+  color: #90a4ae;
+  font-size: 14px;
+  padding: 24px 0;
+}
+
+// ─── Картка скіла ───────────────────────────────────────────
+
+.skill-card {
+  position: relative;
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 14px 16px 12px;
+  transition: all 0.25s ease;
+
+  &.active {
+    border-color: #00bcd4;
+    box-shadow: 0 2px 8px rgba(0, 188, 212, 0.12);
+  }
+
+  &.inactive {
+    border-color: #cfd8dc;
+    opacity: 0.55;
+  }
+}
+
+.skill-card-index {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #111;
+  background: #f5f5f5;
+  border: 1px solid #d4d4d4;
+  line-height: 1;
+}
+
+.skill-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.skill-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-left: 28px;
+}
+
+.skill-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: #263238;
+}
+
+.skill-category {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #e0f7fa;
+  color: #00838f;
+  font-weight: 600;
+}
+
+.skill-priority {
+  font-size: 11px;
+  color: #ff9800;
+  font-weight: 600;
+}
+
+.skill-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.skill-edit-btn,
+.skill-delete-btn {
+  position: relative;
+  overflow: visible;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #eceff1;
+  }
+}
+
+.skill-delete-btn--counting {
+  &:hover .ai-delete-countdown {
+    background: #22c55e;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.55);
+  }
+}
+
+// ─── Toggle перемикач ───────────────────────────────────────
+
+.skill-toggle {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+}
+
+.skill-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #cfd8dc;
+  border-radius: 22px;
+  transition: 0.3s;
+
+  &::before {
+    content: "";
+    position: absolute;
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+
+  input:checked + & {
+    background: #00bcd4;
+  }
+
+  input:checked + &::before {
+    transform: translateX(18px);
+  }
+}
+
+// ─── Keywords та preview ────────────────────────────────────
+
+.skill-keywords {
+  font-size: 12px;
+  color: #607d8b;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.skill-prompt-preview {
+  font-size: 12px;
+  color: #90a4ae;
+  margin-top: 4px;
+  line-height: 1.35;
+  font-style: italic;
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+// ─── Редактор скіла (оверлей) ───────────────────────────────
+
+.skill-editor-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 16px;
+}
+
+.skill-editor {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 560px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+
+  h3 {
+    margin: 0 0 16px;
+    font-size: 17px;
+    color: #263238;
+    text-align: center;
+  }
+}
+
+.skill-editor-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #455a64;
+  }
+
+  input,
+  select,
+  textarea {
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #333;
+    background: #fff;
+    transition:
+      border-color 0.25s,
+      box-shadow 0.25s;
+    font-family: inherit;
+
+    &:focus {
+      outline: none;
+      border-color: #00bcd4;
+      box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.15);
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.45;
+  }
+}
+
+.skill-editor-row {
+  display: flex;
+  gap: 12px;
+
+  .skill-editor-field {
+    flex: 1;
+  }
+}
+
+.skill-hint {
+  font-weight: 400;
+  color: #90a4ae;
+  font-size: 11px;
+}
+
+.skill-prompt-counter {
+  font-size: 11px;
+  color: #90a4ae;
+  text-align: right;
+  margin-top: 2px;
+}
+
+.skill-editor-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.skill-btn-save,
+.skill-btn-cancel {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.skill-btn-save {
+  color: #fff;
+  background: linear-gradient(135deg, #00bcd4, #0097a7);
+  box-shadow: 0 3px 10px rgba(0, 188, 212, 0.3);
+
+  &:hover {
+    background: linear-gradient(135deg, #0097a7, #00838f);
+    transform: translateY(-1px);
+  }
+}
+
+.skill-btn-cancel {
+  color: #607d8b;
+  background: #eceff1;
+
+  &:hover {
+    background: #cfd8dc;
+  }
+}
+
+// ─── Адаптив ────────────────────────────────────────────────
+
+@media (max-width: 480px) {
+  .skill-editor {
+    padding: 16px;
+  }
+
+  .skill-editor-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .skill-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

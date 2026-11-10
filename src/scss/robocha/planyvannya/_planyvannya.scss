@@ -1,0 +1,2665 @@
+// --- ЗМІННІ ---
+$primary-blue: #004d26;
+$light-gray: #f5f5f5;
+$border-gray: #ddd;
+$border-gray1: #693333;
+$border-dark: #bbb;
+$text-dark: #333;
+$white: #fff;
+$red: #fa5252;
+$red-hover: #c92a2a;
+$yellow: #fab005;
+
+// Кольори календаря
+$today-bg: #004d26;
+$selected-bg: #ffe082;
+
+// Розміри
+$header-height: 45px;
+$row-height: 70px;
+$sidebar-width: 30%;
+
+// --- БАЗОВІ СТИЛІ ---
+.post-planning-container {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+  font-size: 14px;
+  color: $text-dark;
+  background: $light-gray;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+}
+
+// --- HEADER ---
+.post-header {
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  background: $primary-blue;
+  color: $white;
+  height: 50px;
+  flex-shrink: 0;
+  z-index: 200;
+
+  .post-nav {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    width: 100%;
+
+    .post-nav-link {
+      padding: 8px 16px;
+      color: $white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.15;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      &.post-active {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    .post-header-calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto;
+
+      .post-week-btn {
+        padding: 6px 12px;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+        color: $white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+        font-size: 13px;
+        font-weight: 500;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.25);
+        }
+
+        &.active {
+          background: rgba(255, 255, 255, 0.35);
+          border-color: rgba(255, 255, 255, 0.6);
+          box-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+        }
+      }
+
+      .post-today-btn {
+        padding: 6px 12px;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+        color: $white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.25);
+        }
+      }
+
+      .post-nav-arrow {
+        background: transparent;
+        border: none;
+        color: $white;
+        font-size: 24px;
+        cursor: pointer;
+        transition: transform 0.2s;
+
+        &:hover {
+          transform: scale(1.2);
+        }
+      }
+
+      .post-current-date {
+        font-weight: 600;
+        min-width: 200px;
+        text-align: center;
+      }
+    }
+  }
+}
+
+#postNavLinkHome {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.15;
+}
+
+// --- MAIN CONTENT ---
+.post-main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  height: calc(100vh - 50px);
+}
+
+// 1. ГОЛОВНИЙ WRAPPER
+.post-scheduler-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: $white;
+  position: relative;
+  border-right: 1px solid $border-gray;
+
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $light-gray;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 5px;
+    border: 2px solid $light-gray;
+  }
+}
+
+// 2. STICKY HEADER
+.post-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 102;
+  background: $white;
+  display: flex;
+  border-bottom: 1px solid $border-dark;
+  min-height: $header-height;
+
+  .post-header-corner {
+    width: $sidebar-width;
+    min-width: $sidebar-width;
+    flex-shrink: 0;
+    background: #f8f9fa;
+    border-right: 1px solid $border-gray;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #888;
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+
+  .post-time-header {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(24, 1fr);
+    position: relative;
+    background: #fff;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: calc(var(--past-percentage, 0) * 100%);
+      background: rgba(230, 230, 250, 0.5);
+      border-right: 2px solid #ff0000;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .post-time-cell {
+      display: flex;
+      position: relative;
+      height: 100%;
+
+      &.hour-cell {
+        background: $white;
+        color: $text-dark;
+        font-size: 15px;
+        font-weight: 400;
+        align-items: center;
+        justify-content: flex-start;
+        border-right: 1px dashed #eee;
+      }
+
+      &.min-cell {
+        font-size: 11px;
+        font-weight: 400;
+        align-items: flex-start;
+        padding-top: 4px;
+        justify-content: flex-start;
+        border-right: 1px solid $border-dark;
+      }
+
+      // Обідня перерва 13:00-13:30 (клітинки 11 та 12: 13:00 та 13:30)
+      &:nth-child(11),
+      &:nth-child(12) {
+        background: #ffe0b2;
+      }
+
+      &:last-child {
+        border-right: none;
+      }
+    }
+  }
+}
+
+// 3. ТІЛО ТАБЛИЦІ
+.post-scheduler-body {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  // Background grid styling removed, now handled by .post-grid-background
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: $sidebar-width;
+    width: calc(var(--past-percentage, 0) * (100% - #{$sidebar-width}));
+    background: rgba(230, 230, 250, 0.5);
+    border-right: 2px solid #ff0000;
+    pointer-events: none;
+    z-index: 100;
+  }
+}
+
+.post-grid-background {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: $sidebar-width;
+  right: 0;
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  pointer-events: none;
+  z-index: 1; // Behind content but visible
+
+  div {
+    border-right: 1px dashed #eee;
+    height: 100%;
+
+    &:nth-child(even) {
+      border-right: 1px solid $border-dark;
+    }
+
+    // Обідня перерва 13:00-13:30 (клітинки 11 та 12)
+    &:nth-child(11),
+    &:nth-child(12) {
+      background: #ffe0b2;
+    }
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+}
+
+.post-section-header {
+  position: sticky;
+  top: $header-height;
+  z-index: 101;
+  background: #dbe6e3;
+  color: #0d8212;
+  padding: 0 16px;
+  font-weight: 700;
+  font-size: 13px;
+  border-bottom: 1px solid $border-gray;
+  border-top: 1px solid $border-gray1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  height: 32px;
+
+  .post-section-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .post-section-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .post-delete-btn {
+    background: $red;
+    border: none;
+    color: $white;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    &:hover {
+      background: $red-hover;
+      transform: scale(1.1);
+    }
+  }
+
+  .post-toggle-btn {
+    background: none;
+    border: none;
+    font-size: 10px;
+    cursor: pointer;
+    color: inherit;
+    transition: transform 0.2s;
+
+    &.collapsed {
+      transform: rotate(-90deg);
+    }
+  }
+}
+
+.post-section-content.hidden {
+  display: none;
+}
+
+// Тижневий вид: група секції та контент
+
+.post-week-section-content {
+  &.hidden {
+    display: none;
+  }
+}
+
+// РЯДОК
+.post-unified-row {
+  display: flex;
+  height: $row-height;
+  border-bottom: 1px solid $border-gray;
+  background: transparent;
+  position: relative;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.015);
+
+    .post-row-label {
+      background: #f1f3f5;
+      color: $primary-blue;
+    }
+  }
+
+  .post-row-label {
+    width: $sidebar-width;
+    min-width: $sidebar-width;
+    flex-shrink: 0;
+    border-right: 3px solid $primary-blue;
+    padding: 4px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #f8f9fa;
+    z-index: 20;
+
+    .post-post-delete-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .post-row-label-content {
+      flex: 1;
+    }
+
+    .post-post-title {
+      font-weight: 500;
+      font-size: 14px;
+      margin-bottom: 4px;
+      color: $text-dark;
+    }
+
+    .post-post-subtitle {
+      font-size: 12px;
+      color: #005fff;
+    }
+
+    .post-post-delete-btn {
+      background: $red;
+      border: none;
+      color: $white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      &:hover {
+        background: $red-hover;
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  .post-row-track {
+    flex: 1;
+    display: block; // Changed from none to allow interaction
+    position: relative;
+    height: 100%;
+    // grid-template-columns: repeat(24, 1fr); // moved to grid class usage if needed, or kept here if we want grid layout
+  }
+}
+
+// КНОПКИ ДОДАВАННЯ
+.post-add-post-btn,
+.post-add-section-btn {
+  background: $white;
+  border: 2px dashed $border-gray;
+  border-radius: 6px;
+  color: #888;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s;
+  position: relative;
+  z-index: 100;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.post-add-post-btn {
+  padding: 8px;
+  margin: 8px;
+  width: calc(100% - 16px);
+  font-size: 13px;
+
+  &:hover {
+    border-color: $primary-blue;
+    color: $primary-blue;
+    background: #f0fdf4;
+  }
+}
+
+.post-add-section-btn {
+  padding: 12px;
+  margin: 16px;
+  font-size: 14px;
+  font-weight: 600;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    border-color: $primary-blue;
+    color: $primary-blue;
+    background: #f0fdf4;
+  }
+}
+
+// EDIT MODE
+.post-scheduler-wrapper.edit-mode {
+  .post-delete-btn,
+  .post-post-delete-btn,
+  .post-add-post-btn,
+  .post-add-section-btn {
+    display: flex;
+  }
+
+  .post-row-track {
+    display: grid;
+  }
+
+  // Draggable елементи в режимі редагування (денний вид)
+  .post-section-header {
+    cursor: grab;
+    user-select: none;
+
+    &:hover {
+      background: #c9ddd7;
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  .post-row-label {
+    cursor: grab;
+    user-select: none;
+
+    &:hover {
+      background: #f0fdf4 !important;
+      border-right-color: $primary-blue !important;
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  // Draggable елементи в режимі редагування (тижневий вид)
+  .post-week-section-header {
+    cursor: grab;
+    user-select: none;
+
+    &:hover {
+      background: #c9ddd7;
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  .post-week-row-label {
+    cursor: grab;
+    user-select: none;
+
+    &:hover {
+      background: #f0fdf4 !important;
+      border-right-color: $primary-blue !important;
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+}
+
+// DRAG PLACEHOLDERS
+.post-drag-placeholder {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 77, 38, 0.1),
+    rgba(0, 77, 38, 0.05)
+  );
+  border: 2px dashed $primary-blue;
+  border-radius: 6px;
+  transition: height 0.2s ease;
+  box-sizing: border-box;
+}
+
+.post-section-placeholder {
+  margin: 4px 0;
+  min-height: 60px;
+}
+
+.post-post-placeholder {
+  margin: 2px 0;
+  min-height: 50px;
+}
+
+// DRAGGING STATE
+.post-section-group.dragging,
+.post-unified-row.dragging,
+.post-week-section-group.dragging,
+.post-week-row.dragging {
+  opacity: 0.95;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  background: #ffebee; // Світло-червоний фон
+  border: 2px solid #f44336; // Червона рамка
+  border-radius: 8px;
+  overflow: hidden;
+  transform: scaleX(0.98); // Зменшення по ширині, висота незмінна
+  transition: none;
+  cursor: grabbing !important;
+}
+
+.post-section-group.dragging {
+  .post-section-header {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+  }
+}
+
+.post-week-section-group.dragging {
+  .post-week-section-header {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+  }
+}
+
+.post-unified-row.dragging {
+  transform: scaleX(0.98); // Зменшення по ширині, висота незмінна
+  background: #ffcdd2; // Яскравіший червоний для рядка
+
+  .post-row-label {
+    background: #ef5350 !important; // Червоний фон для лейбла
+    color: $white !important;
+    border-right-color: #c62828 !important;
+
+    .post-post-title,
+    .post-post-subtitle {
+      color: $white !important;
+    }
+  }
+}
+
+.post-week-row.dragging {
+  transform: scaleX(0.98);
+  background: #ffcdd2;
+
+  .post-week-row-label {
+    background: #ef5350 !important;
+    color: $white !important;
+    border-right-color: #c62828 !important;
+
+    .post-post-title,
+    .post-post-subtitle {
+      color: $white !important;
+    }
+  }
+}
+
+// 5. ПРАВА КОЛОНКА (Міні календар)
+.post-mini-calendar {
+  width: 200px;
+  background: $white;
+  border-left: 1px solid $border-gray;
+  padding: 24px;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+
+  .post-year-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+
+    button {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    span {
+      font-weight: 700;
+    }
+  }
+
+  #postCalendarContainer {
+    width: 100%;
+    min-height: 250px;
+    flex-shrink: 0;
+  }
+
+  .post-month-calendar {
+    margin-bottom: 30px;
+
+    h3 {
+      font-size: 14px;
+      margin-bottom: 15px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: $primary-blue;
+    }
+
+    .post-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-weight: 700;
+      color: #adb5bd;
+      margin-bottom: 5px;
+    }
+
+    .post-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+
+      .day-container {
+        aspect-ratio: 1;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        overflow: hidden;
+        border-radius: 50%;
+
+        &.post-weekend {
+          background: #fff3e0;
+        }
+
+        .day-occupancy-indicator {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        span {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          pointer-events: none;
+
+          &.post-today {
+            background: transparent;
+            color: #000;
+            border: 2.5px solid #0d8212;
+            box-sizing: border-box;
+            font-size: 11px;
+            font-weight: 700;
+          }
+
+          &.post-selected-date {
+            background: transparent;
+            color: #000;
+            border: 2.5px solid #005fff;
+            box-sizing: border-box;
+            font-size: 11px;
+            font-weight: 700;
+          }
+        }
+      }
+
+      // Старий span для днів без даних (пусті клітинки)
+      > span:not(.day-container span) {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+
+  .post-legend {
+    margin-top: 15px;
+    padding-top: 20px;
+    border-top: 1px solid $border-gray;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+
+    .post-legend-item {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+
+      .post-color-box {
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+
+        &.post-scheduled {
+          background: #ffefb3;
+        }
+
+        &.post-no-show {
+          background: #ffb3b3;
+        }
+
+        &.post-in-progress {
+          background: #b3e6cc;
+        }
+
+        &.post-repaired {
+          background: #e6e6e6;
+        }
+      }
+    }
+  }
+
+  // --- ВСТАВЛЕНО В ПРАВИЛЬНЕ МІСЦЕ (ВСЕРЕДИНІ sidebar) ---
+  .post-edit-mode-btn {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: none;
+    outline: none;
+    box-shadow: none;
+
+    margin-top: 20px;
+    // Змінюємо width на auto, щоб кнопка займала мінімум місця
+    width: auto;
+    // Притискаємо кнопку до правого краю
+    margin-left: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 28px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    // Додаємо padding: 0, щоб точно прибрати зайву область кліку
+    padding: 0;
+
+    span {
+      display: block;
+      line-height: 1;
+      filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+      // Додаємо pointer-events: none, щоб клік проходив крізь span на кнопку
+      pointer-events: none;
+    }
+
+    .icon-view {
+      display: block;
+    }
+
+    .icon-edit {
+      display: none;
+    }
+
+    &:hover {
+      transform: scale(1.2) rotate(-5deg);
+      filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.2));
+    }
+
+    &:active {
+      transform: scale(0.9);
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &.active {
+      .icon-view {
+        display: none;
+      }
+
+      .icon-edit {
+        display: block;
+        animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      &:hover {
+        filter: drop-shadow(0 0 8px rgba(255, 200, 0, 0.5));
+      }
+    }
+  }
+}
+
+// Анімація для кнопки
+@keyframes popIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// --- MODAL ---
+.post-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 103;
+  animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.post-modal {
+  background: $white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 400px;
+  max-width: 90vw;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.2s;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.post-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  // margin-bottom: 20px;
+}
+
+.post-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: $primary-blue;
+  margin: 0;
+}
+
+.post-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: $text-dark;
+  }
+}
+
+.post-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.post-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.post-form-label {
+  font-weight: 600;
+  font-size: 13px;
+  color: #495057;
+}
+
+.post-form-input {
+  padding: 10px 12px;
+  border: 1px solid $border-gray;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-blue;
+    box-shadow: 0 0 0 3px rgba(0, 77, 38, 0.1);
+  }
+}
+
+.post-modal-footer {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.post-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  flex: 1;
+  transition: all 0.2s;
+}
+
+.post-btn-primary {
+  background: $primary-blue;
+  color: $white;
+
+  &:hover {
+    background: #003d1f;
+  }
+}
+
+.post-btn-secondary {
+  background: #e9ecef;
+  color: #495057;
+
+  &:hover {
+    background: #dee2e6;
+  }
+}
+
+// --- CONFIRMATION DIALOG ---
+.post-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease;
+}
+
+.post-confirm-modal {
+  background: $white;
+  border-radius: 16px;
+  padding: 32px;
+  min-width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-align: center;
+}
+
+.post-confirm-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: $text-dark;
+  margin-bottom: 24px;
+}
+
+.post-confirm-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.post-confirm-btn {
+  padding: 12px 32px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+
+  &.post-confirm-yes {
+    background: $primary-blue;
+    color: $white;
+
+    &:hover {
+      background: #003d1f;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 77, 38, 0.3);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  &.post-confirm-no {
+    background: #e9ecef;
+    color: #495057;
+
+    &:hover {
+      background: #dee2e6;
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// --- AUTOCOMPLETE DROPDOWN ---
+.post-autocomplete-wrapper {
+  position: relative;
+}
+
+.post-autocomplete-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: $white;
+  border: 1px solid $border-gray;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: -4px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f3f5;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #ced4da;
+    border-radius: 3px;
+
+    &:hover {
+      background: #adb5bd;
+    }
+  }
+}
+
+.post-autocomplete-option {
+  padding: 10px 14px;
+  font-size: 14px;
+  color: $text-dark;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+  &:last-child {
+    border-bottom: none;
+    border-radius: 0 0 8px 8px;
+  }
+
+  &:hover,
+  &.active {
+    background: linear-gradient(
+      135deg,
+      rgba(0, 77, 38, 0.08),
+      rgba(0, 77, 38, 0.04)
+    );
+    color: $primary-blue;
+  }
+
+  &.active {
+    background: linear-gradient(
+      135deg,
+      rgba(0, 77, 38, 0.12),
+      rgba(0, 77, 38, 0.06)
+    );
+    font-weight: 500;
+  }
+}
+
+// ===========================
+// ТИЖНЕВИЙ ВИД (WEEK VIEW)
+// ===========================
+
+.post-scheduler-wrapper.week-view-mode {
+  .post-scheduler-body {
+    &::after {
+      display: none; // Прибираємо червону лінію часу в тижневому виді
+    }
+  }
+}
+
+// ==========================================
+// ТИЖНЕВИЙ ВИД — ДНІ ЗВЕРХУ, ГОДИНИ ГОРИЗОНТАЛЬНО
+// ==========================================
+
+.post-week-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+// === Шапка: кут + 7 колонок днів (кожна з годинами) ===
+.post-week-header {
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 102;
+  background: $white;
+  border-bottom: 2px solid $border-dark;
+  flex-shrink: 0;
+}
+
+.post-week-corner {
+  width: 150px;
+  min-width: 150px;
+  background: #f8f9fa;
+  border-right: 1px solid $border-gray;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #888;
+  font-size: 11px;
+}
+
+// Контейнер 7 колонок днів у шапці
+.post-week-days-header {
+  flex: 1;
+  display: flex;
+  min-width: 0;
+}
+
+// Одна колонка дня в шапці
+.post-week-day-col-header {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-right: 2px solid $border-dark;
+  min-width: 0;
+
+  &:last-child {
+    border-right: none;
+  }
+
+  &.post-week-today {
+    background: #e8f5e9;
+  }
+
+  &.post-week-weekend {
+    background: #fff8e1;
+  }
+}
+
+// Назва дня (ПН 2, ВТ 3, ...) — клікабельна
+.post-week-day-title {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #555;
+  padding: 4px 2px 2px;
+  cursor: pointer;
+  user-select: none;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+
+  &:hover {
+    background: #f0fdf4;
+  }
+
+  .post-week-today & {
+    color: $primary-blue;
+    font-weight: 800;
+  }
+
+  .post-week-weekend & {
+    color: #b77000;
+  }
+}
+
+// Годинна шкала всередині кожного дня
+.post-week-hours-row {
+  display: flex;
+  min-width: 0;
+  border-top: 1px solid $border-gray;
+}
+
+.post-week-hour-cell {
+  flex: 1;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 600;
+  color: #777;
+  border-left: 1px solid $border-gray;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  padding: 1px 0;
+
+  // Минула година (лавандовий фон)
+  &.hour-past {
+    background: rgba(230, 230, 250, 0.6);
+    color: #999;
+  }
+
+  // Поточна година (червона полоска)
+  &.hour-current {
+    background: #ff0000;
+    color: $white;
+    font-weight: 700;
+  }
+
+  // Майбутня година (легкий зелений)
+  &.hour-future {
+    background: rgba(200, 240, 210, 0.35);
+  }
+
+  // Обідня година 13:00 — колір як у вихідних
+  &.hour-lunch {
+    background: #fff3cd;
+    color: #b77000;
+    font-weight: 700;
+  }
+
+  // Зайнята година (є запланований запис) — підсвічуємо
+  &.hour-occupied {
+    background: rgba(255, 200, 50, 0.22);
+    border-left-color: rgba(200, 140, 0, 0.35);
+    color: #7a5800;
+    font-weight: 700;
+    position: relative;
+  }
+
+  // Активна drag-виділена година — зелена підсвітка в реальному часі
+  &.hour-drag-active {
+    background: rgba(34, 197, 94, 0.25);
+    border-left-color: rgba(34, 197, 94, 0.6);
+    color: #166534;
+    font-weight: 700;
+    font-size: 9px;
+    transition: background 0.05s ease;
+  }
+
+  // Мітка з часом в осередку (початок/кінець запису)
+  .hour-time-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: #6b4f00;
+    line-height: 1;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0;
+
+    sup {
+      font-size: 6px;
+      font-weight: 600;
+      vertical-align: super;
+      line-height: 1;
+      color: #8a6500;
+    }
+  }
+}
+
+// === Тіло тижневого виду ===
+.post-week-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+// === Секція (заголовок) ===
+.post-week-section-header {
+  background: #dbe6e3;
+  color: #0d8212;
+  padding: 0 16px;
+  font-weight: 700;
+  font-size: 13px;
+  border-bottom: 1px solid $border-gray;
+  border-top: 1px solid $border-gray1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  height: 32px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  .post-week-section-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .post-week-section-header-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .post-delete-btn {
+    background: $red;
+    border: none;
+    color: $white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    &:hover {
+      background: $red-hover;
+      transform: scale(1.1);
+    }
+  }
+
+  .post-toggle-btn {
+    background: none;
+    border: none;
+    font-size: 10px;
+    cursor: pointer;
+    color: inherit;
+    transition: transform 0.2s;
+
+    &.collapsed {
+      transform: rotate(-90deg);
+    }
+  }
+}
+
+// === Рядок слюсаря (лейбл + 7 треків) ===
+.post-week-row {
+  display: flex;
+  border-bottom: 1px solid $border-gray;
+  background: $white;
+  min-height: 72px;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.01);
+  }
+}
+
+// Лейбл слюсаря (зліва)
+.post-week-row-label {
+  width: 150px;
+  min-width: 150px;
+  border-right: 3px solid $primary-blue;
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #f8f9fa;
+  z-index: 10;
+
+  .post-week-label-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+  }
+
+  .post-week-label-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .post-post-title {
+    font-weight: 500;
+    font-size: 12px;
+    margin-bottom: 1px;
+    color: $text-dark;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .post-post-subtitle {
+    font-size: 10px;
+    color: #005fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .post-post-delete-btn {
+    background: $red;
+    border: none;
+    color: $white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    &:hover {
+      background: $red-hover;
+      transform: scale(1.1);
+    }
+  }
+}
+
+// Контейнер 7 треків поруч
+.post-week-row-tracks {
+  flex: 1;
+  display: flex;
+  min-width: 0;
+}
+
+// Горизонтальний таймлайн-трек (один день для одного слюсаря)
+.post-week-day-track {
+  flex: 1;
+  position: relative;
+  min-height: 72px;
+  overflow: visible;
+  cursor: default;
+  background: $white;
+  touch-action: pan-y;
+  user-select: none;
+
+  &.post-week-today {
+    background: rgba(0, 77, 38, 0.02);
+  }
+
+  &.post-week-weekend {
+    background: #fffdf5;
+  }
+
+  // Розділювач між днями
+  &.post-week-day-border {
+    border-right: 2px solid $border-dark;
+  }
+
+  // Drop target підсвічування
+  &.week-drop-target {
+    background: rgba(64, 192, 87, 0.1) !important;
+    box-shadow: inset 0 0 0 2px rgba(64, 192, 87, 0.4);
+  }
+}
+
+// Обідня смуга в треку (13:00–14:00) — той самий колір що вихідні
+.post-week-lunch-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(255, 243, 205, 0.7);
+  pointer-events: none;
+  z-index: 1;
+  border-left: 1px dashed #e0bc5a;
+  border-right: 1px dashed #e0bc5a;
+}
+
+// Вертикальні часові мітки (пунктирні лінії)
+.post-week-time-mark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 1px dashed #e0e0e0;
+  pointer-events: none;
+  z-index: 0;
+
+  &.half {
+    border-left-color: #f0f0f0;
+  }
+}
+
+// Накладка «минулий час» (лавандовий, як в денному виді)
+.post-week-past-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(230, 230, 250, 0.5);
+  pointer-events: none;
+  z-index: 1;
+}
+
+// Накладка «майбутній час» (легкий зелений тон)
+.post-week-future-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(200, 240, 210, 0.25);
+  pointer-events: none;
+  z-index: 1;
+}
+
+// Червона лінія поточного часу (без крапок)
+.post-week-time-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #ff0000;
+  z-index: 12;
+  pointer-events: none;
+}
+
+// === Блок бронювання (вертикальний контент з емодзі) ===
+.post-week-block {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  border-radius: 4px;
+  padding: 2px 4px;
+  color: $white;
+  font-size: 10px;
+  overflow: hidden;
+  cursor: grab;
+  z-index: 5;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    z-index: 100;
+    overflow: visible;
+  }
+
+  // Минулий запис — лавандова накладка (100%) покриває весь блок через overlay
+  // opacity/filter прибрано — overlay є єдиним візуальним індикатором
+  &.week-block-past,
+  & {
+    // При наведенні — прибираємо overlay (і повністю, і частково минулий), щоб побачити повний колір
+    &:hover .week-block-past-overlay {
+      opacity: 0;
+    }
+  }
+
+  // Лавандова накладка «минулий час»:
+  //   width: 100%  → повністю минулий блок
+  //   width: X%    → частково минулий (до поточного моменту)
+  // Права частина блоку (майбутня) залишається чистою — без накладки
+  .week-block-past-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background: rgba(210, 210, 245, 0.65);
+    pointer-events: none;
+    z-index: 2;
+    transition: opacity 0.25s ease;
+    // border-radius задається в JS для 100% і лише лівий для часткового
+  }
+
+  // Resize handles (лівий і правий)
+  .week-resize-handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    cursor: ew-resize;
+    z-index: 55;
+    background-color: transparent;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.45);
+    }
+
+    &.left {
+      left: 0;
+      border-radius: 4px 0 0 4px;
+    }
+
+    &.right {
+      right: 0;
+      border-radius: 0 4px 4px 0;
+    }
+  }
+
+  // Стан перетягування
+  &.week-dragging-active {
+    position: fixed;
+    z-index: 2000;
+    opacity: 0.85;
+    cursor: grabbing;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    pointer-events: none;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+  }
+
+  // Валідність drop
+  &.week-drag-valid {
+    background-color: #40c057 !important;
+    border-color: #2b8a3e !important;
+  }
+
+  &.week-drag-invalid {
+    background-color: #fa5252 !important;
+    border-color: #c92a2a !important;
+  }
+
+  .post-week-block-line {
+    font-size: 9px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0.95;
+    line-height: 1.3;
+    flex-shrink: 0;
+  }
+
+  // Кружечок з номером акту
+  .post-week-act-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    color: #1e293b;
+    font-size: 7.5px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    z-index: 10;
+    padding: 0 2px;
+    line-height: 1;
+    transition:
+      transform 0.15s,
+      box-shadow 0.15s;
+
+    // Красивий CSS-тултіп замість браузерного title
+    &::before {
+      content: attr(data-act-label);
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      color: #cbd5e1;
+      font-size: 10px;
+      font-weight: 500;
+      white-space: nowrap;
+      padding: 4px 9px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      pointer-events: none;
+      opacity: 0;
+      transition:
+        opacity 0.15s ease,
+        transform 0.15s ease;
+      transform: translateX(-50%) translateY(4px);
+      z-index: 200;
+    }
+
+    // Стрілочка вниз
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: calc(100% + 2px);
+      left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: #334155;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      z-index: 200;
+    }
+
+    &:hover {
+      transform: scale(1.2);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+
+      &::before,
+      &::after {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      &::after {
+        transform: translateX(-50%);
+      }
+    }
+  }
+
+  // Тултіп при наведенні
+  .post-week-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #f1f5f9;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: normal; // дозволяємо перенос рядків
+    width: 260px; // фіксована ширина тултіпу
+    z-index: 1000;
+    pointer-events: none;
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.35),
+      0 2px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    min-width: 180px;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: #334155;
+    }
+
+    &.tooltip-below {
+      bottom: auto;
+      top: calc(100% + 8px);
+
+      &::after {
+        top: auto;
+        bottom: 100%;
+        border-top-color: transparent;
+        border-bottom-color: #1e293b;
+      }
+    }
+  }
+
+  &:hover .post-week-tooltip {
+    display: block;
+    animation: weekTooltipFadeIn 0.2s ease;
+  }
+
+  .post-week-tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 0;
+
+    strong {
+      color: #fff;
+      font-size: 13px;
+    }
+
+    .pw-tip-emoji {
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+
+    .pw-tip-number {
+      color: #93c5fd;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .pw-tip-phone {
+      color: #6ee7b7;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    // Часовий діапазон + тривалість (підкреслено)
+    .pw-tip-time-range {
+      text-decoration: underline;
+      text-decoration-color: rgba(255, 255, 255, 0.4);
+      text-underline-offset: 2px;
+      color: #fde68a;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+  }
+
+  // ── ПІБ + Авто — білий ──────────────────────────────────
+  .pw-tip-client {
+    color: #ffffff !important;
+    font-size: 13px;
+  }
+
+  .pw-tip-car {
+    color: #ffffff;
+    font-weight: 500;
+  }
+
+  // ── Статус — кольори як у блоках планування ──────────────
+  .pw-tip-status-row {
+    &[data-status="Запланований"] .pw-tip-status {
+      color: #fef08a; // світло-жовтий (як #e6a700 в блоці)
+      font-weight: 600;
+    }
+
+    &[data-status="В роботі"] .pw-tip-status {
+      color: #86efac; // світло-зелений (як #2e7d32)
+      font-weight: 600;
+    }
+
+    &[data-status="Відремонтований"] .pw-tip-status {
+      color: #d1d5db; // світло-сірий (як #757575)
+      font-weight: 600;
+    }
+
+    &[data-status="Не приїхав"] .pw-tip-status {
+      color: #fca5a5; // світло-червоний (як #e53935)
+      font-weight: 600;
+    }
+
+    &[data-status="Оплачено"] .pw-tip-status {
+      color: #6ee7b7; // смарагдовий
+      font-weight: 600;
+    }
+  }
+
+  // ── Коментар — білий ─────────────────────────────────────
+  .pw-tip-comment {
+    color: #ffffff;
+    font-style: italic;
+    opacity: 0.9;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.5;
+  }
+
+  // ── Акт — тьмяний сірий з підкресленням ──────────────────
+  .pw-tip-act {
+    color: #94a3b8;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+  }
+
+  // ── Хто записав — персиковий / amber ─────────────────────
+  .pw-tip-author {
+    color: #fdba74; // orange-300 — тепло, але ненав'язливо
+    font-weight: 500;
+    font-size: 11.5px;
+  }
+}
+
+@keyframes weekTooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+// Виділення при drag-to-create (горизонтальне)
+.post-week-selection {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 77, 38, 0.2);
+  border: 2px solid $primary-blue;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 15;
+  display: none;
+}
+
+.post-calendar-drawer-btn,
+.post-calendar-backdrop {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .post-planning-container {
+    height: 100dvh;
+    background: #eef3f1;
+  }
+
+  .post-header {
+    height: auto;
+    min-height: 48px;
+    padding: 6px 10px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.14);
+
+    .post-nav {
+      gap: 6px;
+      flex-wrap: wrap;
+
+      .post-nav-link {
+        min-height: 36px;
+        padding: 7px 10px;
+        border-radius: 10px;
+        font-size: 13px;
+      }
+
+      .post-header-calendar-nav {
+        display: grid;
+        grid-template-columns: auto auto auto auto 36px minmax(140px, 1fr) 36px;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+        margin-left: 0;
+
+        .post-week-btn,
+        .post-today-btn,
+        .post-calendar-drawer-btn,
+        .post-nav-arrow {
+          min-height: 36px;
+          border-radius: 10px;
+        }
+
+        .post-week-btn,
+        .post-today-btn,
+        .post-calendar-drawer-btn {
+          justify-content: center;
+          padding: 6px 8px;
+          white-space: nowrap;
+          font-size: 12px;
+        }
+
+        .post-current-date {
+          min-width: 0;
+          padding: 0 4px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-size: 13px;
+        }
+      }
+    }
+  }
+
+  .post-calendar-drawer-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: $white;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+
+    &:hover,
+    &[aria-expanded="true"] {
+      background: rgba(255, 255, 255, 0.28);
+      border-color: rgba(255, 255, 255, 0.55);
+    }
+  }
+
+  .post-main-content {
+    position: relative;
+    height: auto;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .post-scheduler-wrapper {
+    width: 100%;
+    min-width: 0;
+    border-right: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .post-scheduler-body,
+  .post-sticky-header {
+    min-width: 920px;
+  }
+
+  .post-week-container {
+    min-width: 1040px;
+  }
+
+  .post-week-body {
+    overflow: visible;
+  }
+
+  .post-week-row-label {
+    width: 135px;
+    min-width: 135px;
+  }
+
+  .post-week-corner {
+    width: 135px;
+    min-width: 135px;
+  }
+
+  .post-week-day-col-header {
+    min-width: 118px;
+  }
+
+  .post-week-day-track {
+    min-width: 118px;
+  }
+
+  .post-mini-calendar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(380px, 92vw);
+    height: 100dvh;
+    padding: 18px;
+    transform: translateX(104%);
+    transition: transform 0.24s ease;
+    z-index: 900;
+    border-left: 0;
+    box-shadow: -18px 0 36px rgba(15, 23, 42, 0.22);
+  }
+
+  .post-calendar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 850;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.38);
+    border: 0;
+    cursor: pointer;
+  }
+
+  .post-planning-container.post-calendar-open {
+    .post-mini-calendar {
+      transform: translateX(0);
+    }
+
+    .post-calendar-backdrop {
+      display: block;
+    }
+  }
+
+  .post-month-calendar {
+    background: #fff;
+    border: 1px solid #e4ece8;
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  }
+
+  .post-legend {
+    background: #f8fbfa;
+    border: 1px solid #e4ece8;
+    border-radius: 14px;
+    padding: 12px;
+  }
+
+  .post-arxiv-modal,
+  .post-act-modal,
+  .post-modal {
+    max-width: calc(100vw - 24px);
+  }
+}
+
+@media (max-width: 700px) {
+  .post-header {
+    padding: 6px;
+
+    .post-nav {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 5px;
+
+      .post-nav-link {
+        grid-column: 1 / 4;
+        grid-row: 1;
+        width: 100%;
+        height: 100%;
+        justify-content: center;
+        text-align: center;
+        min-height: 34px;
+        padding: 6px 8px;
+        font-size: 12px;
+        border-radius: 8px;
+      }
+
+      .post-header-calendar-nav {
+        display: contents;
+        gap: 5px;
+
+        #postVoiceBtn {
+          grid-column: 1 / 4;
+          grid-row: 2;
+        }
+
+        #postVoiceBtn[hidden] {
+          display: none !important;
+        }
+
+        #postWeekBtn {
+          grid-column: 1 / 5;
+          grid-row: 2;
+        }
+
+        #postTodayBtn {
+          grid-column: 5 / 9;
+          grid-row: 2;
+        }
+
+        #postCalendarDrawerBtn {
+          grid-column: 9 / 13;
+          grid-row: 2;
+        }
+
+        #headerNavPrev {
+          grid-column: 4 / 5;
+          grid-row: 1;
+          justify-self: stretch;
+        }
+
+        .post-current-date {
+          grid-column: 5 / 12;
+          grid-row: 1;
+          justify-self: stretch;
+          width: 100%;
+          min-width: 0;
+          min-height: 34px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(255, 255, 255, 0.12);
+          border-radius: 8px;
+          font-size: 12px;
+        }
+
+        #headerNavNext {
+          grid-column: 12 / 13;
+          grid-row: 1;
+          justify-self: stretch;
+        }
+
+        #postVoiceBtn:not([hidden]) + #postWeekBtn {
+          grid-column: 4 / 7;
+        }
+
+        #postVoiceBtn:not([hidden]) + #postWeekBtn + #postTodayBtn {
+          grid-column: 7 / 10;
+        }
+
+        #postVoiceBtn:not([hidden]) + #postWeekBtn + #postTodayBtn + #postCalendarDrawerBtn {
+          grid-column: 10 / 13;
+        }
+
+        .post-week-btn,
+        .post-today-btn,
+        .post-calendar-drawer-btn,
+        .post-nav-arrow {
+          width: 100%;
+          padding: 6px;
+          min-height: 34px;
+          font-size: 12px;
+        }
+
+        .post-nav-arrow {
+          width: 100%;
+          padding-left: 0;
+          padding-right: 0;
+        }
+      }
+    }
+  }
+
+  .post-scheduler-wrapper {
+    background: #fff;
+  }
+
+  .post-scheduler-body,
+  .post-sticky-header {
+    min-width: 840px;
+  }
+
+  .post-week-container {
+    min-width: 980px;
+  }
+
+  .post-unified-row {
+    height: 82px;
+  }
+
+  .post-unified-row .post-row-label {
+    width: 170px;
+    min-width: 170px;
+    padding: 8px 10px;
+  }
+
+  .post-section-header,
+  .post-week-section-header {
+    min-height: 38px;
+    height: auto;
+    padding: 7px 10px;
+  }
+
+  .post-week-row {
+    min-height: 84px;
+  }
+
+  .post-week-row-label {
+    width: 126px;
+    min-width: 126px;
+    padding: 6px 8px;
+  }
+
+  .post-week-corner {
+    width: 126px;
+    min-width: 126px;
+  }
+
+  .post-week-day-col-header {
+    min-width: 112px;
+  }
+
+  .post-week-day-track {
+    min-width: 112px;
+    min-height: 84px;
+  }
+
+  .post-week-block {
+    min-width: 28px;
+    padding: 3px 4px;
+    border-radius: 6px;
+
+    .post-week-tooltip {
+      display: none !important;
+    }
+  }
+
+  .post-week-block-line {
+    font-size: 8.5px;
+  }
+
+  .post-mini-calendar {
+    width: min(360px, 94vw);
+    padding: 14px;
+  }
+
+  .post-mini-calendar .post-year-nav {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    margin: -14px -14px 12px;
+    padding: 14px;
+    background: #fff;
+    border-bottom: 1px solid #e4ece8;
+  }
+
+  .post-arxiv-modal-overlay,
+  .post-act-modal-overlay,
+  .post-modal-overlay {
+    align-items: flex-start;
+    padding: 8px;
+    overflow-y: auto;
+  }
+
+  .post-arxiv-modal,
+  .post-act-modal,
+  .post-modal {
+    width: 100%;
+    max-width: none;
+    max-height: calc(100dvh - 16px);
+    border-radius: 14px;
+  }
+
+  .post-arxiv-modal .post-arxiv-header,
+  .post-act-modal .post-act-modal-header,
+  .post-modal-header {
+    border-radius: 14px 14px 0 0;
+  }
+
+  .post-arxiv-modal .post-arxiv-body,
+  .post-act-modal .post-act-modal-body,
+  .post-modal-body {
+    padding: 14px;
+  }
+
+  .post-arxiv-modal .post-arxiv-form-row,
+  .post-arxiv-modal .post-arxiv-time-row,
+  .post-modal-footer,
+  .post-arxiv-footer {
+    flex-direction: column;
+  }
+
+  .post-arxiv-modal input,
+  .post-arxiv-modal select,
+  .post-arxiv-modal textarea,
+  .post-modal input,
+  .post-modal select,
+  .post-modal textarea {
+    min-height: 42px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .post-header {
+    padding: 4px;
+
+    .post-nav {
+      gap: 4px;
+
+      .post-nav-link {
+        min-height: 32px;
+        padding: 5px 6px;
+        font-size: 11px;
+      }
+
+      .post-header-calendar-nav {
+        gap: 4px;
+
+        .post-current-date {
+          font-size: 11px;
+          min-height: 32px;
+          width: 100%;
+        }
+
+        .post-week-btn,
+        .post-today-btn,
+        .post-calendar-drawer-btn,
+        .post-nav-arrow {
+          min-height: 32px;
+          width: 100%;
+          padding: 5px;
+          font-size: 11px;
+        }
+
+        .post-nav-arrow {
+          width: 34px;
+        }
+      }
+    }
+  }
+
+  .post-scheduler-body,
+  .post-sticky-header {
+    min-width: 780px;
+  }
+
+  .post-week-container {
+    min-width: 920px;
+  }
+
+  .post-week-row-label {
+    width: 116px;
+    min-width: 116px;
+  }
+
+  .post-week-corner {
+    width: 116px;
+    min-width: 116px;
+  }
+
+  .post-week-day-col-header {
+    min-width: 104px;
+  }
+
+  .post-week-day-track {
+    min-width: 104px;
+  }
+}
+
+@media (min-width: 701px) and (max-width: 1100px) {
+  .post-header {
+    min-height: 42px;
+    padding: 4px 6px;
+
+    .post-nav {
+      display: grid;
+      grid-template-columns:
+        minmax(46px, 0.75fr)
+        minmax(44px, 0.55fr)
+        minmax(58px, 0.65fr)
+        minmax(76px, 0.8fr)
+        24px
+        minmax(86px, 1.1fr)
+        24px;
+      align-items: center;
+      gap: 4px;
+      width: 100%;
+      flex-wrap: nowrap;
+      overflow: hidden;
+
+      .post-nav-link {
+        grid-column: 1;
+        grid-row: 1;
+        width: 100%;
+        min-width: 0;
+        min-height: 34px;
+        height: 34px;
+        padding: 4px 5px;
+        justify-content: center;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .post-header-calendar-nav {
+        display: contents;
+
+        #postVoiceBtn[hidden] {
+          display: none !important;
+        }
+
+        #postWeekBtn {
+          grid-column: 2;
+          grid-row: 1;
+        }
+
+        #postTodayBtn {
+          grid-column: 3;
+          grid-row: 1;
+        }
+
+        #postCalendarDrawerBtn {
+          grid-column: 4;
+          grid-row: 1;
+        }
+
+        #headerNavPrev {
+          grid-column: 5;
+          grid-row: 1;
+          justify-self: stretch;
+        }
+
+        .post-current-date {
+          grid-column: 6;
+          grid-row: 1;
+          justify-self: stretch;
+          width: 100%;
+          min-width: 0;
+          min-height: 34px;
+          padding: 0 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(255, 255, 255, 0.12);
+          border-radius: 8px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-size: 11px;
+        }
+
+        #headerNavNext {
+          grid-column: 7;
+          grid-row: 1;
+          justify-self: stretch;
+        }
+
+        .post-week-btn,
+        .post-today-btn,
+        .post-calendar-drawer-btn,
+        .post-nav-arrow {
+          width: 100%;
+          min-width: 0;
+          min-height: 34px;
+          height: 34px;
+          padding: 4px 5px;
+          font-size: 11px;
+          line-height: 1;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .post-nav-arrow {
+          padding: 0;
+          font-size: 18px;
+        }
+      }
+    }
+  }
+}

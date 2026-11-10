@@ -1,0 +1,211 @@
+// Follow the open dialogs instead of overwriting another modal's scroll lock.
+html:has(.workflow-dialog[open]),
+body:has(.workflow-dialog[open]) {
+  overflow: hidden !important;
+}
+
+.workflow-dialog {
+  position: fixed; inset: 0; margin: auto; box-sizing: border-box;
+  width: min(960px, calc(100vw - 24px)); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px);
+  overflow: auto; overscroll-behavior: contain;
+  padding: 0; border: 1px solid #c9ded6; border-radius: 20px;
+  color: #203e32; background: #f8fbfa; box-shadow: 0 24px 70px #102e3640;
+  font: 15px/1.5 system-ui, sans-serif;
+  &::backdrop { background: #142b3866; }
+  > header { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px; background: #e7f3ed; }
+  h2 { margin: 0; font-size: 20px; } h3 { font-size: 17px; }
+  button { padding: 9px 14px; min-height: 42px; border: 1px solid #b7d0c4; border-radius: 12px; background: #fff; color: #234d3a; cursor: pointer; font: inherit; }
+  button:hover { background: #e4f2eb; } button:disabled { opacity: .55; cursor: wait; }
+  :focus-visible { outline: 3px solid #587edb; outline-offset: 2px; }
+  .workflow-content { padding: 0 20px 20px; }
+  &.workflow-invoice-dialog { width: 90vw; max-width: 90vw; }
+  .workflow-message { padding: 0 20px; white-space: pre-wrap; color: #855313; }
+  .workflow-invoice-action {
+    display: block; width: 100%; box-sizing: border-box; margin-top: 12px; padding: 12px 16px;
+    border: 1px solid #a8d5b3; border-radius: 13px; background: #e3f4e7; color: #245c35;
+    font-weight: 650; box-shadow: 0 2px 5px #245c3512;
+    transition: transform .16s ease, background-color .16s ease, border-color .16s ease, box-shadow .16s ease;
+  }
+  .workflow-invoice-action:hover:not(:disabled) {
+    border-color: #8bc69a; background: #d2ebd8; box-shadow: 0 5px 12px #245c3520; transform: translateY(-1px);
+  }
+  .workflow-invoice-action:active:not(:disabled) { background: #c2e3cb; box-shadow: 0 1px 3px #245c3520; transform: translateY(1px) scale(.99); }
+  .workflow-invoice-action:disabled {
+    border-color: #d5dadd; background: #eceff1; color: #879198;
+    box-shadow: none; opacity: 1; cursor: not-allowed; transform: none;
+  }
+  .workflow-invoice-cancel { margin-top: 8px; }
+  .workflow-invoice-file {
+    display: block; box-sizing: border-box; width: 100%; min-height: 58px; margin-top: 12px; padding: 8px;
+    border: 1px dashed #a8c9b4; border-radius: 13px; background: #fff; color: #526b5b;
+    cursor: pointer; transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
+  }
+  .workflow-invoice-file:hover { border-color: #78af88; background: #f7fcf8; }
+  .workflow-invoice-file:focus-visible { border-color: #78af88; box-shadow: 0 0 0 3px #78af8833; outline: none; }
+  .workflow-invoice-file::file-selector-button {
+    margin-right: 12px; padding: 9px 13px; border: 1px solid #b1d8ba; border-radius: 9px;
+    background: #e7f5ea; color: #285e39; font: inherit; font-weight: 650; cursor: pointer;
+    transition: transform .16s ease, background-color .16s ease, border-color .16s ease;
+  }
+  .workflow-invoice-file:hover::file-selector-button { border-color: #91c69d; background: #d8eedc; }
+  .workflow-invoice-file:active::file-selector-button { transform: scale(.97); }
+  .workflow-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .workflow-card { margin: 12px 0; padding: 14px; border: 1px solid #cbded5; border-radius: 14px; background: white; overflow-wrap: anywhere; }
+  .workflow-card p { white-space: pre-wrap; margin: 5px 0; }
+  .workflow-invoice-total-summary {
+    margin: 12px 0; padding: 12px 14px; border: 1px solid #dce8e1; border-radius: 12px;
+    background: #fff; color: #385044; font-weight: 550;
+    transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+  }
+  .workflow-invoice-total-summary.workflow-invoice-total-mismatch { border-color: #efb9b7; background: #fff1f0; color: #883b3b; }
+  .workflow-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 16px 0; }
+  .workflow-invoice-form {
+    grid-template-columns: minmax(165px, 1.8fr) minmax(120px, 1.25fr) minmax(125px, 1fr) minmax(85px, .65fr) minmax(115px, .9fr) minmax(155px, 1.5fr);
+    align-items: end;
+    gap: 10px;
+    margin: 12px 0 18px;
+  }
+  .workflow-invoice-form label { min-width: 0; font-size: 14px; }
+  .workflow-invoice-form input:not([type=checkbox]), .workflow-invoice-form select { min-height: 44px; }
+  .workflow-invoice-form input.shop-input-Excel { text-align: left; }
+  .workflow-invoice-field { overflow-wrap: anywhere; }
+  .workflow-status-control { position: relative; width: 100%; }
+  button.workflow-status-trigger {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    width: 100%; min-height: 44px; padding: 8px 12px; border: 1px solid #b9cbdc;
+    border-radius: 11px; background: #fff; color: #496171; font: inherit; text-align: left;
+    box-shadow: 0 1px 2px #18324a12; transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+  }
+  button.workflow-status-trigger:hover { background: #fff; border-color: #7da5f8; }
+  button.workflow-status-trigger:focus-visible { border-color: #4f83f5; box-shadow: 0 0 0 3px #4f83f533; }
+  .workflow-status-arrow { flex: 0 0 8px; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); }
+  .workflow-status-menu {
+    position: absolute; z-index: 5; top: calc(100% + 5px); left: 0; right: 0;
+    display: grid; gap: 2px; padding: 7px; border: 1px solid #a8c4fb; border-radius: 13px;
+    background: #fff; box-shadow: 0 12px 28px #182e4933;
+  }
+  .workflow-status-menu[hidden] { display: none; }
+  button.workflow-status-option { width: 100%; min-height: 38px; padding: 6px 10px; border: 0; border-radius: 8px; background: transparent; font: inherit; font-weight: 650; text-align: left; cursor: pointer; }
+  button.workflow-status-option:hover, button.workflow-status-option:focus-visible { background: #eef3ff; outline: none; }
+  .workflow-status-placeholder { color: #526578; }
+  .workflow-status-order { color: #f0646c; }
+  .workflow-status-ordered { color: #4e78e8; }
+  .workflow-status-arrived { color: #347448; }
+  button.workflow-status-trigger.workflow-status-order { border-color: #f2b4b6; background: #fff1f0; }
+  button.workflow-status-trigger.workflow-status-ordered { border-color: #b8cafa; background: #eef3ff; }
+  button.workflow-status-trigger.workflow-status-arrived { border-color: #b5d7bd; background: #edf8ef; }
+  .workflow-status-option[aria-selected="true"] { background: #f0f4ff; }
+  label.workflow-acknowledge {
+    position: relative;
+    display: grid; grid-template-columns: 76px minmax(0, 1fr); align-items: center; gap: 12px;
+    margin: 12px 0; padding: 12px 14px; border: 1px solid #f1b7b8; border-radius: 14px;
+    background: #fff1f0; color: #37483e; cursor: pointer; transition: background .2s ease, border-color .2s ease;
+  }
+  .workflow-acknowledge:has(input:checked) { border-color: #add5b5; background: #edf8ef; }
+  .workflow-acknowledge input[type=checkbox] {
+    position: absolute; left: 14px; top: 50%; width: 1px; height: 1px; margin: 0; opacity: 0;
+  }
+  .workflow-acknowledge-track {
+    position: relative; display: block; width: 72px; height: 34px; border-radius: 999px;
+    background: #f4b9b8; box-shadow: inset 0 1px 3px #752c2c2b; transition: background .2s ease;
+  }
+  .workflow-acknowledge-track::after {
+    content: ""; position: absolute; top: 4px; left: 4px; width: 26px; height: 26px; border-radius: 50%;
+    background: #fff; box-shadow: 0 2px 5px #233b3540; transition: transform .2s ease;
+  }
+  .workflow-acknowledge:has(input:checked) .workflow-acknowledge-track { background: #9dd2a8; }
+  .workflow-acknowledge:has(input:checked) .workflow-acknowledge-track::after { transform: translateX(38px); }
+  .workflow-acknowledge:has(input:focus-visible) .workflow-acknowledge-track { outline: 3px solid #587edb; outline-offset: 3px; }
+  .workflow-acknowledge-text { line-height: 1.4; }
+  label { display: flex; flex-direction: column; gap: 4px; }
+  input:not([type=checkbox]), textarea, select { box-sizing: border-box; width: 100%; min-width: 0; padding: 10px; border: 1px solid #aac6b8; border-radius: 9px; color: #243f33; background: #fff; font: inherit; }
+  textarea { min-height: 80px; resize: vertical; }
+  .workflow-wide { grid-column: 1 / -1; }
+  .workflow-scroll { overflow-x: auto; }
+  .workflow-scroll table { min-width: 800px; }
+  &.workflow-invoice-dialog .workflow-scroll table { width: 100%; min-width: 0; table-layout: fixed; }
+  &.workflow-invoice-dialog .workflow-scroll th,
+  &.workflow-invoice-dialog .workflow-scroll td { overflow-wrap: anywhere; }
+  &.workflow-invoice-dialog .workflow-scroll th:nth-child(1), &.workflow-invoice-dialog .workflow-scroll td:nth-child(1) { width: 5%; }
+  &.workflow-invoice-dialog .workflow-scroll th:nth-child(2), &.workflow-invoice-dialog .workflow-scroll td:nth-child(2) { width: 13%; }
+  &.workflow-invoice-dialog .workflow-scroll th:nth-child(3), &.workflow-invoice-dialog .workflow-scroll td:nth-child(3) { width: 27%; }
+  &.workflow-invoice-dialog .workflow-scroll th:nth-child(4), &.workflow-invoice-dialog .workflow-scroll td:nth-child(4) { width: 8%; }
+  &.workflow-invoice-dialog .workflow-scroll th:nth-child(5), &.workflow-invoice-dialog .workflow-scroll td:nth-child(5) { width: 13%; }
+  &.workflow-invoice-dialog .workflow-scroll th:nth-child(6), &.workflow-invoice-dialog .workflow-scroll td:nth-child(6) { width: 11%; }
+  &.workflow-invoice-dialog .workflow-scroll th:nth-child(7), &.workflow-invoice-dialog .workflow-scroll td:nth-child(7) { width: 23%; }
+  &.workflow-invoice-dialog .workflow-scroll td input { box-sizing: border-box; width: 100%; min-width: 0; }
+  &.workflow-invoice-dialog .workflow-scroll td input.unit-input-Excel {
+    padding-right: 28px; cursor: pointer;
+    background-color: #fff;
+    background-image: linear-gradient(45deg, transparent 50%, #60786b 50%), linear-gradient(135deg, #60786b 50%, transparent 50%);
+    background-position: calc(100% - 14px) 55%, calc(100% - 9px) 55%;
+    background-size: 5px 5px; background-repeat: no-repeat;
+  }
+  &.workflow-invoice-dialog .workflow-scroll td:nth-child(3) textarea {
+    box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; padding: 10px;
+    overflow: hidden; resize: none; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.35;
+  }
+  table { width: 100%; border-collapse: collapse; } th, td { border-bottom: 1px solid #dae4df; padding: 8px; text-align: left; }
+  .workflow-warning { background: #fff1cc; }
+  @media (max-width: 900px) { .workflow-invoice-form { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 1024px) {
+    &.workflow-invoice-dialog {
+      width: calc(100vw - 16px); max-width: calc(100vw - 16px); max-height: calc(100dvh - 16px);
+      .workflow-scroll th:nth-child(1), .workflow-scroll td:nth-child(1) { width: 5%; }
+      .workflow-scroll th:nth-child(2), .workflow-scroll td:nth-child(2) { width: 13%; }
+      .workflow-scroll th:nth-child(3), .workflow-scroll td:nth-child(3) { width: 23%; }
+      .workflow-scroll th:nth-child(4), .workflow-scroll td:nth-child(4) { width: 10%; }
+      .workflow-scroll th:nth-child(5), .workflow-scroll td:nth-child(5) { width: 15%; }
+      .workflow-scroll th:nth-child(6), .workflow-scroll td:nth-child(6) { width: 13%; }
+      .workflow-scroll th:nth-child(7), .workflow-scroll td:nth-child(7) { width: 21%; }
+    }
+  }
+  @media (max-width: 600px) {
+    &.workflow-invoice-dialog { width: calc(100vw - 12px); max-width: calc(100vw - 12px); max-height: calc(100dvh - 12px); }
+    .workflow-form { grid-template-columns: 1fr; }
+    .workflow-acknowledge { grid-template-columns: 72px minmax(0, 1fr); gap: 10px; padding: 10px; }
+    > header, .workflow-content { padding: 12px; }
+    &.workflow-invoice-dialog {
+      .workflow-scroll { overflow: visible; }
+      .workflow-scroll table, .workflow-scroll tbody { display: block; width: 100%; min-width: 0; }
+      .workflow-scroll thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+      .workflow-scroll tbody tr {
+        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;
+        margin: 0 0 10px; padding: 12px; border: 1px solid #dce8e1; border-radius: 13px; background: #fff;
+      }
+      .workflow-scroll tbody tr.workflow-warning { border-color: #ecd78e; background: #fff9e6; }
+      .workflow-scroll td {
+        display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 0; border: 0;
+      }
+      .workflow-scroll td::before { color: #61736a; font-size: 11px; font-weight: 650; line-height: 1.25; }
+      .workflow-scroll td:nth-child(1) { grid-column: 1 / -1; flex-direction: row; align-items: center; font-weight: 700; }
+      .workflow-scroll td:nth-child(1)::before { content: "Рядок"; margin-right: 5px; }
+      .workflow-scroll td:nth-child(2)::before { content: "Каталог"; }
+      .workflow-scroll td:nth-child(3) { grid-column: 1 / -1; }
+      .workflow-scroll td:nth-child(3)::before { content: "Деталь"; }
+      .workflow-scroll td:nth-child(4)::before { content: "Кількість"; }
+      .workflow-scroll td:nth-child(5)::before { content: "Закуп. ціна/од."; }
+      .workflow-scroll td:nth-child(6)::before { content: "Одиниця"; }
+      .workflow-scroll td:nth-child(7) { grid-column: 1 / -1; overflow-wrap: anywhere; }
+      .workflow-scroll td:nth-child(7)::before { content: "Із складу"; }
+      .workflow-scroll td:nth-child(7):empty { display: none; }
+      .workflow-scroll td input, .workflow-scroll td textarea { min-height: 40px; padding: 8px; }
+    }
+  }
+}
+.workflow-confirmation-dialog {
+  position: fixed; inset: 0; margin: auto; box-sizing: border-box;
+  width: min(396px, calc(100vw - 28px)); max-width: calc(100vw - 28px);
+  max-height: calc(100dvh - 28px); padding: 0; overflow: visible;
+  border: 0; border-radius: 18px; background: transparent;
+}
+.workflow-confirmation-dialog::backdrop { background: #142b3866; backdrop-filter: blur(4px); }
+.workflow-confirmation-dialog .login-modal-content { box-sizing: border-box; width: 100%; min-width: 0; max-width: 396px; }
+.workflow-confirmation-actions { display: flex; gap: 12px; justify-content: center; margin-top: 16px; }
+.workflow-confirmation-actions .login-button { flex: 1 1 0; min-width: 0; margin-top: 0; }
+.workflow-confirmation-actions .workflow-confirmation-cancel {
+  background: linear-gradient(135deg, #94a3b8 0%, #a1b0c4 100%);
+  box-shadow: 0 3px 12px #94a3b840, 0 1px 3px #0000000f;
+}
+.workshop-history-button { border: 1px solid #bdd5c8; border-radius: 12px; background: #edf7f0; color: #285c3e; padding: 9px 12px; cursor: pointer; }
+@media print { .workflow-dialog { display: none !important; } }

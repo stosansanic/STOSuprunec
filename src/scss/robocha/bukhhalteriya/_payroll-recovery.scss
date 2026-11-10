@@ -1,0 +1,70 @@
+@use "../workflows";
+
+.payroll-recovery-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 14px;
+  padding: 14px 16px;
+  border: 1px solid #e9ca80;
+  border-radius: 12px;
+  background: #fff8e5;
+  color: #644714;
+  font: 14px/1.5 system-ui, sans-serif;
+
+  p { margin: 0; }
+  button {
+    flex-shrink: 0;
+    min-height: 42px;
+    padding: 9px 14px;
+    border: 1px solid #b58e3d;
+    border-radius: 9px;
+    color: #644714;
+    background: #fff;
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+    &:hover { background: #fff0c7; }
+    &:focus-visible { outline: 3px solid #587edb; outline-offset: 2px; }
+  }
+}
+
+.workflow-dialog.payroll-recovery-dialog {
+  width: min(740px, calc(100vw - 24px));
+
+  .payroll-recovery-intro { margin: 12px 0; color: #52685d; }
+  .payroll-recovery-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+  .payroll-recovery-list { display: grid; gap: 10px; }
+  .payroll-recovery-empty { padding: 16px 0; color: #52685d; }
+  .payroll-recovery-act {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px 14px;
+    padding: 14px;
+    border: 1px solid #cbded5;
+    border-radius: 12px;
+    background: #fff;
+    overflow-wrap: anywhere;
+
+    h3 { margin: 0 0 4px; }
+    &[data-status="error"] { border-color: #e4aaa4; background: #fff8f7; }
+    &[data-status="recovered"] { border-color: #9bc9a7; background: #f2faf4; }
+    > button { max-width: 215px; }
+  }
+  .payroll-recovery-act-meta { margin: 3px 0; color: #52685d; font-size: 13px; }
+  .payroll-recovery-act-result { grid-column: 1 / -1; margin: 0; white-space: pre-wrap; }
+  [data-status="error"] .payroll-recovery-act-result { color: #973d32; }
+  [data-status="recovered"] .payroll-recovery-act-result { color: #28633c; }
+}
+
+@media (max-width: 560px) {
+  .payroll-recovery-banner { flex-direction: column; align-items: stretch; gap: 10px; }
+  .workflow-dialog.payroll-recovery-dialog .payroll-recovery-act {
+    grid-template-columns: minmax(0, 1fr);
+    > button { width: 100%; max-width: none; }
+  }
+}
+
+@media print { .payroll-recovery-banner { display: none !important; } }

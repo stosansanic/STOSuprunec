@@ -1,0 +1,9 @@
+{
+  "canonicalSource": "D:/Alim/Proekt/Основа проектів/8 зменьшує вихідний трафік.sql",
+  "canonicalSourceSha256": "32294fe788304ca5f8344d5ab7a4e5310f74a01f680c4aa1fd5a1f4149f16d0e",
+  "file8Sha256": "31b50f136637e37a96c90dfb338111f466a8b415ca489cc2cd6b026b5f4d86b0",
+  "sqlFile": "9.4 Атлас — фонові нагадування.sql",
+  "sqlSha256": "feb823d461dcce3e9d628bf30973c8ad658b0b20881aaa9f93efa9a3fdef08c8",
+  "edgeSha256": "b6cb5cc9406a423a7f9343bd3113863ada6c5d754ed9882b6451dd48754ab79b",
+  "migration": "supabase/migrations/20261023114017_atlas_background_efficiency.sql"
+}

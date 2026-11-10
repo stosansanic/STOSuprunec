@@ -1,0 +1,8 @@
+{
+  "canonicalSource": "D:/Alim/Proekt/Основа проектів/8 зменьшує вихідний трафік.sql",
+  "canonicalSourceSha256": "715b6269b201992edcb65d2bc6fee8b22e30fd3fe33e5c6acc64206241a9db07",
+  "file8Sha256": "4551e2d3adcddcf5e73ae841e2a4711ba09a5360d8c8488ce247adddde305b42",
+  "migration": "20261106071013_payroll_work_edit_preserve_payments.sql",
+  "migrationSha256": "f0188293d43911a29a75d6f78f31bfdff811c5ac796d1fd222450bb5409f9574",
+  "sqlSha256": "ff6af747c350f87417c1e8e827f4b36a681534cb097589507cc7694f6096f3c4"
+}

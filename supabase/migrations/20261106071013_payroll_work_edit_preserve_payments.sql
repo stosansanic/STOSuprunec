@@ -1,0 +1,299 @@
+-- Rename/remove/restore paid work while retaining its immutable payroll identity.
+-- Only guards are replaced. Existing atomic writers, leases, RLS and freeze checks remain.
+begin;
+
+do $$ begin
+ if to_regprocedure('public.payroll_accrual_ledger_preserved(jsonb,jsonb,jsonb)') is null
+  or to_regprocedure('public.payroll_paid_header_adjustment_preserved(jsonb,jsonb)') is null
+  or to_regprocedure('public.assert_payroll_paid_preserved(jsonb,jsonb)') is null then
+  raise exception 'Спочатку встановіть пакет зарплат та історії виплат від 20.10.2026.';
+ end if;
+end $$;
+
+create or replace function public.payroll_paid_work_adjustment_preserved(
+ p_previous jsonb,p_next jsonb,p_header jsonb default null)
+returns boolean language plpgsql immutable security invoker set search_path=pg_catalog as $$
+declare price double precision; quantity double precision; wage double precision; total double precision;
+ field_name text; old_amount double precision; next_amount double precision;
+ trim_pattern text:=U&'^[[:space:]\00A0\1680\2000-\200A\2028\2029\202F\205F\3000\FEFF]+|[[:space:]\00A0\1680\2000-\200A\2028\2029\202F\205F\3000\FEFF]+$';
+begin
+ if p_previous=p_next then return true;end if;
+ if jsonb_typeof(p_previous) is distinct from 'object' or jsonb_typeof(p_next) is distinct from 'object'
+  or coalesce(jsonb_typeof(p_previous->'recordId'),'null') not in ('number','string')
+  or nullif(regexp_replace(p_previous->>'recordId',trim_pattern,'','g'),'') is null
+  or jsonb_typeof(p_previous->'Робота') is distinct from 'string' or nullif(regexp_replace(p_previous->>'Робота',trim_pattern,'','g'),'') is null
+  or jsonb_typeof(p_next->'Робота') is distinct from 'string' or nullif(regexp_replace(p_next->>'Робота',trim_pattern,'','g'),'') is null
+  or (p_previous-array['Ціна','Кількість','Зарплата','Сума','Робота','__payroll_payments','__payroll_removed','__payroll_act_record_id']) is distinct from
+   (p_next-array['Ціна','Кількість','Зарплата','Сума','Робота','__payroll_payments','__payroll_removed','__payroll_act_record_id'])
+  or (p_previous?'Сума') is distinct from (p_next?'Сума') then return false;end if;
+ if p_next?'__payroll_act_record_id' and (jsonb_typeof(p_next->'__payroll_act_record_id') is distinct from 'string'
+  or nullif(regexp_replace(p_next->>'__payroll_act_record_id',trim_pattern,'','g'),'') is null
+  or p_next->>'__payroll_act_record_id' is distinct from regexp_replace(p_next->>'__payroll_act_record_id',trim_pattern,'','g')) then return false;end if;
+ if p_next?'__payroll_removed' and p_next->'__payroll_removed' is distinct from 'true'::jsonb then return false;end if;
+ foreach field_name in array array['Ціна','Кількість','Зарплата'] loop
+  old_amount:=public.traffic_payroll_payment_number(p_previous->field_name);
+  next_amount:=public.traffic_payroll_payment_number(p_next->field_name);
+  if old_amount is null or next_amount is null then return false;end if;
+  if old_amount<>next_amount and jsonb_typeof(p_next->field_name) is distinct from 'number' then return false;end if;
+ end loop;
+ price:=public.traffic_payroll_payment_number(p_next->'Ціна');
+ quantity:=public.traffic_payroll_payment_number(p_next->'Кількість');
+ wage:=public.traffic_payroll_payment_number(p_next->'Зарплата');
+ if price is null or price<0 or quantity is null or wage is null or wage<0 then return false;end if;
+ if quantity<0 and quantity<>public.traffic_payroll_payment_number(p_previous->'Кількість') then return false;end if;
+ total:=price*quantity;
+ if total::text in ('NaN','Infinity','-Infinity') then return false;end if;
+ if p_previous?'Сума' and (public.traffic_payroll_payment_number(p_next->'Сума') is null
+  or (public.traffic_payroll_payment_number(p_next->'Сума') is distinct from public.traffic_payroll_payment_number(p_previous->'Сума')
+   and jsonb_typeof(p_next->'Сума') is distinct from 'number')
+  or public.traffic_payroll_payment_number(p_next->'Сума')<>total) then return false;end if;
+ if p_next->'__payroll_removed'='true'::jsonb and (
+  jsonb_typeof(p_next->'Кількість') is distinct from 'number' or quantity<>0
+  or jsonb_typeof(p_next->'Зарплата') is distinct from 'number' or wage<>0
+  or (p_next?'Сума' and (jsonb_typeof(p_next->'Сума') is distinct from 'number'
+   or public.traffic_payroll_payment_number(p_next->'Сума') is distinct from 0::double precision))) then return false;end if;
+ -- The old earned amount must be materialized before zeroing a legacy paid row.
+ -- A rename/alias-only edit may retain the original marker without adding events.
+ return public.payroll_accrual_ledger_preserved(p_previous,p_next,p_header);
+exception when others then return false;
+end $$;
+
+create or replace function public.payroll_paid_header_adjustment_preserved(p_previous jsonb,p_next jsonb)
+returns boolean language plpgsql immutable security invoker set search_path=pg_catalog as $$
+declare numeric_keys text[]:=array['СуммаРоботи','СуммаЗапчастин','МаржаДляЗарплати','ЗарплатаРоботи',
+ 'ЗарплатаЗапчастин','ЗарплатаЗапчастистів','Зарплата','Знижка','__payroll_percent','__payroll_percent_work','__payroll_percent_parts'];
+ allowed_keys text[]; field_name text; amount double precision; old_rows jsonb; next_rows jsonb;
+ total double precision:=0; price double precision; quantity double precision; wage double precision;
+ mechanic boolean; item jsonb; matched jsonb; matches integer;
+ trim_pattern text:=U&'^[[:space:]\00A0\1680\2000-\200A\2028\2029\202F\205F\3000\FEFF]+|[[:space:]\00A0\1680\2000-\200A\2028\2029\202F\205F\3000\FEFF]+$';
+begin
+ if p_previous=p_next then return true;end if;
+ if jsonb_typeof(p_previous) is distinct from 'object' or jsonb_typeof(p_next) is distinct from 'object' then return false;end if;
+ if (p_previous-array['Клієнт','Автомобіль','ДатаЗакриття','__payroll_input'])=
+  (p_next-array['Клієнт','Автомобіль','ДатаЗакриття','__payroll_input']) then return true;end if;
+ old_rows:=coalesce(nullif(p_previous->'Записи','null'::jsonb),'[]'::jsonb);
+ next_rows:=coalesce(nullif(p_next->'Записи','null'::jsonb),'[]'::jsonb);
+ if jsonb_typeof(old_rows) is distinct from 'array' or jsonb_typeof(next_rows) is distinct from 'array' then return false;end if;
+ mechanic:=jsonb_typeof(p_previous->'Записи')='array';
+ if mechanic then
+  if jsonb_typeof(p_next->'Записи') is distinct from 'array' then return false;end if;
+  numeric_keys:=array['СуммаРоботи'];
+ else
+  if p_next?'Записи' then return false;end if;
+  if (p_previous?'Зарплата') is distinct from (p_next?'Зарплата')
+   or (p_previous?'СуммаРоботи') is distinct from (p_next?'СуммаРоботи')
+   or (p_previous?'СуммаЗапчастин') is distinct from (p_next?'СуммаЗапчастин')
+   or (not(p_previous?'СуммаРоботи') and p_previous?'СуммаЗапчастин'
+    and (p_previous?'ЗарплатаРоботи') is distinct from (p_next?'ЗарплатаРоботи')) then return false;end if;
+ end if;
+ allowed_keys:=numeric_keys||array['Клієнт','Автомобіль','ДатаЗакриття','__payroll_input','__payroll_payments','Записи'];
+ if (p_previous-allowed_keys) is distinct from (p_next-allowed_keys) then return false;end if;
+ foreach field_name in array numeric_keys loop
+  if not(p_next?field_name) then continue;end if;
+  amount:=public.traffic_payroll_payment_number(p_next->field_name);
+  if amount is null then return false;end if;
+  if field_name like 'Зарплата%' and amount<0 then return false;end if;
+  if (field_name like '__payroll_percent%' or field_name='Знижка') and (amount<0 or amount>100) then return false;end if;
+ end loop;
+ if mechanic then
+  if (p_previous?'__payroll_payments') is distinct from (p_next?'__payroll_payments')
+   or p_previous->'__payroll_payments' is distinct from p_next->'__payroll_payments' then return false;end if;
+  -- Payment identity is recordId, never array position or the current act-row alias.
+  for item in select value from jsonb_array_elements(old_rows) loop
+   if not(item?'__payroll_payments') and public.traffic_payroll_legacy_payment_date(item,p_previous)='' then continue;end if;
+   select count(*) into matches from jsonb_array_elements(next_rows)r
+    where case when nullif(item->>'recordId','') is not null then r->>'recordId'=item->>'recordId' else r=item end;
+   if matches<>1 then return false;end if;
+   select value into matched from jsonb_array_elements(next_rows)
+    where case when nullif(item->>'recordId','') is not null then value->>'recordId'=item->>'recordId' else value=item end;
+   if not public.payroll_paid_work_adjustment_preserved(item,matched,p_previous) then return false;end if;
+  end loop;
+  for item in select value from jsonb_array_elements(next_rows) loop
+   select count(*) into matches from jsonb_array_elements(old_rows)r
+    where case when nullif(item->>'recordId','') is not null then r->>'recordId'=item->>'recordId' else r=item end;
+   if matches>1 then return false;end if;
+   if matches=0 then
+    if coalesce(jsonb_typeof(item->'recordId'),'null') not in ('string','number')
+     or nullif(regexp_replace(item->>'recordId',trim_pattern,'','g'),'') is null
+     or jsonb_typeof(item->'Робота') is distinct from 'string' or nullif(regexp_replace(item->>'Робота',trim_pattern,'','g'),'') is null
+     or item?'__payroll_removed' or item?'__payroll_act_record_id' then return false;end if;
+    price:=public.traffic_payroll_payment_number(item->'Ціна');
+    quantity:=public.traffic_payroll_payment_number(item->'Кількість');
+    wage:=public.traffic_payroll_payment_number(item->'Зарплата');
+    if price is null or price<0 or quantity is null or quantity<0 or wage is null or wage<0 then return false;end if;
+    if public.traffic_payroll_legacy_payment_date(item)<>'' then return false;end if;
+    -- An explicit empty ledger prevents inheritance of a historical header payment.
+    if public.traffic_payroll_legacy_payment_date(p_previous)<>'' then
+     if item->'__payroll_payments' is distinct from '[]'::jsonb then return false;end if;
+    elsif item?'__payroll_payments' then return false;end if;
+   end if;
+   price:=public.traffic_payroll_payment_number(item->'Ціна');
+   quantity:=public.traffic_payroll_payment_number(item->'Кількість');
+   if price is null or price<0 or quantity is null then return false;end if;
+   total:=total+price*quantity;
+  end loop;
+  return coalesce(public.traffic_payroll_payment_number(p_next->'СуммаРоботи')=
+   greatest(0,public.traffic_payroll_payment_round(total)),false);
+ end if;
+ return public.payroll_accrual_ledger_preserved(p_previous,p_next);
+exception when others then return false;
+end $$;
+
+create or replace function public.assert_payroll_paid_preserved(p_expected jsonb,p_desired jsonb)
+returns void language plpgsql immutable security invoker set search_path=pg_catalog as $$
+declare previous jsonb; next_value jsonb; item jsonb; matched jsonb; matches integer;
+ old_protected boolean; row_protected boolean; old_rows jsonb; next_rows jsonb;
+ trim_pattern text:=U&'^[[:space:]\00A0\1680\2000-\200A\2028\2029\202F\205F\3000\FEFF]+|[[:space:]\00A0\1680\2000-\200A\2028\2029\202F\205F\3000\FEFF]+$';
+begin
+ if p_expected=p_desired then return;end if;
+ previous:=p_expected#>'{0,value}';next_value:=p_desired#>'{0,value}';
+ old_rows:=coalesce(nullif(previous->'Записи','null'::jsonb),'[]'::jsonb);
+ next_rows:=coalesce(nullif(next_value->'Записи','null'::jsonb),'[]'::jsonb);
+ -- Validate metadata on every new row, including previously unpaid accruals.
+ for item in select value from jsonb_array_elements(next_rows) loop
+  if item?'__payroll_act_record_id' and (jsonb_typeof(item->'__payroll_act_record_id') is distinct from 'string'
+   or nullif(regexp_replace(item->>'__payroll_act_record_id',trim_pattern,'','g'),'') is null
+   or item->>'__payroll_act_record_id' is distinct from regexp_replace(item->>'__payroll_act_record_id',trim_pattern,'','g')) then
+   raise exception 'Некоректний зв’язок роботи з актом' using errcode='55000';
+  end if;
+  if item?'__payroll_removed' and (item->'__payroll_removed' is distinct from 'true'::jsonb
+   or jsonb_typeof(item->'Кількість') is distinct from 'number'
+   or public.traffic_payroll_payment_number(item->'Кількість') is distinct from 0::double precision
+   or jsonb_typeof(item->'Зарплата') is distinct from 'number'
+   or public.traffic_payroll_payment_number(item->'Зарплата') is distinct from 0::double precision
+   or (item?'Сума' and (jsonb_typeof(item->'Сума') is distinct from 'number'
+    or public.traffic_payroll_payment_number(item->'Сума') is distinct from 0::double precision))) then
+   raise exception 'Видалена робота має нульове нарахування та кількість' using errcode='55000';
+  end if;
+  if item?'__payroll_act_record_id' and exists(select 1 from jsonb_array_elements(old_rows||next_rows)r
+   where regexp_replace(r->>'recordId',trim_pattern,'','g')=item->>'__payroll_act_record_id'
+    and regexp_replace(r->>'recordId',trim_pattern,'','g') is distinct from regexp_replace(item->>'recordId',trim_pattern,'','g')) then
+   raise exception 'Зв’язок роботи неоднозначний: ідентифікатор належить іншій роботі' using errcode='55000';
+  end if;
+ end loop;
+ if exists(select 1 from jsonb_array_elements(next_rows)r
+  where nullif(regexp_replace(coalesce(r->>'__payroll_act_record_id',r->>'recordId'),trim_pattern,'','g'),'') is not null
+  group by regexp_replace(coalesce(r->>'__payroll_act_record_id',r->>'recordId'),trim_pattern,'','g') having count(*)>1) then
+  raise exception 'Повторний зв’язок зарплати з роботою акта' using errcode='55000';
+ end if;
+ if public.traffic_payroll_legacy_payment_date(next_value)<>'' and
+  public.traffic_payroll_legacy_payment_date(previous)='' then
+  raise exception 'Збереження акта не може позначати зарплату виплаченою' using errcode='55000';
+ end if;
+ for item in select value from jsonb_array_elements(next_rows)
+  where public.traffic_payroll_legacy_payment_date(value)<>'' loop
+  select count(*) into matches from jsonb_array_elements(old_rows)r
+   where case when nullif(regexp_replace(item->>'recordId',trim_pattern,'','g'),'') is not null then
+    regexp_replace(r->>'recordId',trim_pattern,'','g')=regexp_replace(item->>'recordId',trim_pattern,'','g')
+    else r=item end
+    and public.traffic_payroll_legacy_payment_date(r)<>'';
+  if matches<>1 then raise exception 'Збереження акта не може створювати позначку виплати роботи' using errcode='55000';end if;
+ end loop;
+ if previous is null then
+  if next_value?'__payroll_payments' or exists(select 1 from jsonb_array_elements(next_rows)r where r?'__payroll_payments') then
+   raise exception 'Нове нарахування не може містити попередні виплати' using errcode='55000';
+  end if;
+  return;
+ end if;
+ old_protected:=previous?'__payroll_payments' or public.traffic_payroll_legacy_payment_date(previous)<>'';
+ if (old_protected or exists(select 1 from jsonb_array_elements(old_rows)r
+  where r?'__payroll_payments' or public.traffic_payroll_legacy_payment_date(r,previous)<>''))
+  and p_expected#>>'{0,date}' is distinct from p_desired#>>'{0,date}' then
+  raise exception 'Дата оплаченої зарплати змінюється. Відновлення зупинено.' using errcode='55000';
+ end if;
+ if old_protected and not public.payroll_paid_header_adjustment_preserved(previous,next_value) then
+  raise exception 'Зміна зарплати не зберігає попередні виплати або склад робіт' using errcode='55000';
+ end if;
+ if not old_protected and next_value?'__payroll_payments' then
+  raise exception 'Нарахування не може створювати виплату' using errcode='55000';
+ end if;
+ for item in select value from jsonb_array_elements(old_rows) loop
+  row_protected:=item?'__payroll_payments' or public.traffic_payroll_legacy_payment_date(item,previous)<>'';
+  if not row_protected then continue;end if;
+  select count(*) into matches from jsonb_array_elements(next_rows)r
+   where case when nullif(item->>'recordId','') is not null then r->>'recordId'=item->>'recordId' else r=item end;
+  if matches<>1 then raise exception 'Оплачена робота видаляється або змінює виконавця' using errcode='55000';end if;
+  select value into matched from jsonb_array_elements(next_rows)
+   where case when nullif(item->>'recordId','') is not null then value->>'recordId'=item->>'recordId' else value=item end;
+  if not public.payroll_paid_work_adjustment_preserved(item,matched,previous) then
+   raise exception 'Оплачена робота не зберігає історію виплат або виконавця' using errcode='55000';
+  end if;
+ end loop;
+ for item in select value from jsonb_array_elements(next_rows) where value?'__payroll_payments' loop
+  select count(*) into matches from jsonb_array_elements(old_rows)r
+   where nullif(item->>'recordId','') is not null and r->>'recordId'=item->>'recordId';
+  -- The only ledger allowed on a new work contains no payment events and blocks
+  -- inheritance from an unchanged historical whole-header payment marker.
+  if matches=0 and nullif(regexp_replace(item->>'recordId',trim_pattern,'','g'),'') is not null
+   and public.traffic_payroll_legacy_payment_date(previous)<>''
+   and item->'__payroll_payments'='[]'::jsonb and public.traffic_payroll_legacy_payment_date(item)='' then continue;end if;
+  if matches<>1 then raise exception 'Нова робота не може створювати історію виплат' using errcode='55000';end if;
+  select value into matched from jsonb_array_elements(old_rows) where value->>'recordId'=item->>'recordId';
+  if not public.payroll_accrual_ledger_preserved(matched,item,previous) then
+   raise exception 'Нарахування не може змінювати історію виплат' using errcode='55000';
+  end if;
+ end loop;
+end $$;
+
+-- Keep the existing application's role contract and caller RLS context.
+revoke all on function public.payroll_paid_work_adjustment_preserved(jsonb,jsonb,jsonb),
+ public.payroll_paid_header_adjustment_preserved(jsonb,jsonb),
+ public.assert_payroll_paid_preserved(jsonb,jsonb) from public;
+grant execute on function public.payroll_paid_work_adjustment_preserved(jsonb,jsonb,jsonb),
+ public.payroll_paid_header_adjustment_preserved(jsonb,jsonb),
+ public.assert_payroll_paid_preserved(jsonb,jsonb) to anon,authenticated;
+
+-- Transactional checks use only synthetic JSON; no business rows are read or changed.
+do $$
+declare original jsonb; renamed jsonb; removed jsonb; restored jsonb; header_paid jsonb;
+ expanded jsonb; invalid jsonb; candidate jsonb; payment_summary jsonb; rejected boolean;
+begin
+ original:='[{"date":"2026-11-01","value":{"Акт":"777","СуммаРоботи":100,"Записи":[{"recordId":"paid-1","workID":"catalog-1","Робота":"Old work","Ціна":100,"Кількість":1,"Зарплата":25,"Розраховано":"01.11.2026"}]}}]'::jsonb;
+ renamed:=jsonb_set(original,'{0,value,Записи,0,Робота}','"Renamed work"'::jsonb);
+ perform public.assert_payroll_paid_preserved(original,renamed);
+ removed:=jsonb_set(renamed,'{0,value,Записи,0}',(renamed#>'{0,value,Записи,0}')||
+  '{"Кількість":0,"Зарплата":0,"__payroll_removed":true,"__payroll_payments":[{"id":"legacy","amount":25,"date":"01.11.2026"}]}'::jsonb);
+ removed:=jsonb_set(removed,'{0,value,СуммаРоботи}','0'::jsonb);
+ perform public.assert_payroll_paid_preserved(renamed,removed);
+ payment_summary:=public.traffic_payroll_payment_summary(removed#>'{0,value,Записи,0}');
+ if payment_summary->>'paidAmount'<>'25' or payment_summary->>'overpaid'<>'25' then raise exception 'Paid removal self-check failed';end if;
+ restored:=jsonb_set(removed,'{0,value,Записи,0}',((removed#>'{0,value,Записи,0}')-'__payroll_removed')||
+  '{"Кількість":1,"Зарплата":40,"__payroll_act_record_id":"new-act-row"}'::jsonb);
+ restored:=jsonb_set(restored,'{0,value,СуммаРоботи}','100'::jsonb);
+ perform public.assert_payroll_paid_preserved(removed,restored);
+ payment_summary:=public.traffic_payroll_payment_summary(restored#>'{0,value,Записи,0}');
+ if payment_summary->>'paidAmount'<>'25' or payment_summary->>'due'<>'15' then raise exception 'Paid restore self-check failed';end if;
+ header_paid:=jsonb_set(original,'{0,value,Записи,0}',(original#>'{0,value,Записи,0}')-'Розраховано');
+ header_paid:=jsonb_set(header_paid,'{0,value,Розраховано}','"01.11.2026"'::jsonb);
+ expanded:=jsonb_set(header_paid,'{0,value,Записи}',
+  '[{"recordId":"new-work","Робота":"New work","Ціна":50,"Кількість":1,"Зарплата":10,"__payroll_payments":[]}]'::jsonb||(header_paid#>'{0,value,Записи}'));
+ expanded:=jsonb_set(expanded,'{0,value,СуммаРоботи}','150'::jsonb);
+ perform public.assert_payroll_paid_preserved(header_paid,expanded);
+ payment_summary:=public.traffic_payroll_payment_summary(expanded#>'{0,value,Записи,0}',expanded#>'{0,value}');
+ if payment_summary->>'paidAmount'<>'0' or payment_summary->>'due'<>'10' then raise exception 'New work inherited payment self-check failed';end if;
+ for candidate in select value from jsonb_array_elements(jsonb_build_array(
+  jsonb_set(removed,'{0,value,Записи,0,__payroll_payments,0,amount}','26'::jsonb),
+  jsonb_set(removed,'{0,value,Записи,0,Зарплата}','1'::jsonb),
+  jsonb_set(removed,'{0,value,Записи,0,__payroll_removed}','false'::jsonb),
+  jsonb_set(renamed,'{0,value,Записи,0,Робота}','" "'::jsonb),
+  jsonb_set(renamed,'{0,value,Записи,0,recordId}','"moved"'::jsonb),
+  jsonb_set(renamed,'{0,value,Записи,0,__payroll_act_record_id}','" "'::jsonb),
+  jsonb_set(renamed,'{0,value,Записи,0,__payroll_act_record_id}','" paid-1 "'::jsonb),
+  jsonb_set(renamed,'{0,value,Записи,0,__payroll_act_record_id}',to_jsonb(chr(9)||'paid-1')),
+  jsonb_set(renamed,'{0,value,Записи}',(renamed#>'{0,value,Записи}')||
+   '[{"recordId":" paid-1 ","Робота":"Conflicting work","Ціна":50,"Кількість":1,"Зарплата":10}]'::jsonb),
+  jsonb_set(renamed,'{0,value,Записи}','[]'::jsonb))) loop
+  rejected:=false;
+  begin perform public.assert_payroll_paid_preserved(original,candidate);
+  exception when sqlstate '55000' then rejected:=true;end;
+  if not rejected then raise exception 'Unsafe paid edit self-check failed';end if;
+ end loop;
+ invalid:=jsonb_set(expanded,'{0,value,Записи,0}',(expanded#>'{0,value,Записи,0}')-'__payroll_payments');
+ rejected:=false;
+ begin perform public.assert_payroll_paid_preserved(header_paid,invalid);
+ exception when sqlstate '55000' then rejected:=true;end;
+ if not rejected then raise exception 'Inherited payment forgery self-check failed';end if;
+end $$;
+
+notify pgrst,'reload schema';
+commit;

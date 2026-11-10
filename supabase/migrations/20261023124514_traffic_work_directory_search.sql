@@ -1,0 +1,79 @@
+-- Work suggestions: unordered words, partial words and common Ukrainian endings.
+-- Exact directory lookup for CRUD keeps its literal normalized comparison.
+begin;
+
+create or replace function public.traffic_work_search_words(p_value text)
+returns text[] language sql immutable security invoker set search_path=pg_catalog,public as $$
+ select coalesce(array_agg(word order by ord),'{}'::text[])
+ from regexp_split_to_table(public.traffic_directory_name(p_value),'[^0-9a-zа-яёіїєґ]+') with ordinality t(word,ord)
+ where word<>'';
+$$;
+
+-- Keep this suffix list and minimum stem length in sync with directoryRead.ts.
+-- This is a bounded ending fold, not a dictionary or an AI request.
+create or replace function public.traffic_work_search_stem(p_word text)
+returns text language sql immutable security invoker set search_path=pg_catalog as $$
+ select case when p_word ~ '^[а-яёіїєґ]+$' and length(stem)>=3 then stem else p_word end
+ from (select regexp_replace(p_word,'(ого|ому|ими|іми|ами|ями|ої|ій|ий|ім|их|іх|ою|ею|єю|ом|ем|ям|ах|ях|а|я|у|ю|і|и|е|о|є)$','') stem) s;
+$$;
+
+create or replace function public.traffic_work_search_matches(p_label text,p_words text[],p_stems text[])
+returns boolean language sql immutable security invoker set search_path=pg_catalog,public as $$
+ with words as materialized (
+  select word,public.traffic_work_search_stem(word) stem
+  from unnest(public.traffic_work_search_words(p_label)) t(word)
+ )
+ select not exists (
+  select 1 from unnest(p_words,p_stems) q(word,stem)
+  where not exists (select 1 from words d where strpos(d.word,q.word)=1 or d.stem=q.stem)
+ );
+$$;
+
+create or replace function public.traffic_directory_page(p_kind text,p_query text default '',p_offset integer default 0,p_exact boolean default false,p_id bigint default null)
+returns jsonb language plpgsql stable security invoker set search_path=pg_catalog,public as $$
+declare id_col text; result jsonb; projection text; label text; search_predicate text;
+ query_words text[]; query_stems text[];
+begin
+ id_col:=case p_kind when 'slyusars' then 'slyusar_id' when 'incomes' then 'income_id' when 'receivers' then 'receiver_id' when 'faktura' then 'faktura_id' when 'works' then 'work_id' when 'shops' then 'shop_id' when 'details' then 'detail_id' end;
+ if id_col is null or p_offset is null or p_offset<0 or (p_id is not null and p_id<=0) then raise exception 'Invalid directory';end if;
+ if p_kind='faktura' then
+  projection:='jsonb_build_object(''faktura_id'',t.faktura_id,''name'',t.name,''oderjyvach'',t.oderjyvach,''prumitka'',t.prumitka,''data'',t.data,''namber'',t.namber)';
+  label:='coalesce(t.oderjyvach,'''')';
+ elsif p_kind in ('works','details') then
+  projection:=format('jsonb_build_object(%L,t.%I,''data'',public.traffic_reference_name(to_jsonb(t.data)))',id_col,id_col);
+  label:='coalesce(public.traffic_reference_name(to_jsonb(t.data)),'''')';
+ else
+  projection:=format('jsonb_build_object(%L,t.%I,''data'',(select coalesce(jsonb_object_agg(key,value),''{}''::jsonb) from jsonb_each(public.sto_read_object_v1(to_jsonb(t.data))) where key=any(%L::text[])))',id_col,id_col,
+   case when p_kind='slyusars' then case when p_id is null then '{Name,Доступ}' else '{Name,Доступ,ПроцентРоботи,ПроцентЗапчастин,Склад,Пароль}' end else '{Name}' end);
+  label:='coalesce(public.sto_read_object_v1(to_jsonb(t.data))->>''Name'','''')';
+ end if;
+ if p_kind='works' and not coalesce(p_exact,false) then
+  -- Parse the query once, not once per candidate row. An empty query remains a
+  -- directory read; punctuation alone must not turn into an unfiltered search.
+  query_words:=public.traffic_work_search_words(p_query);
+  select coalesce(array_agg(public.traffic_work_search_stem(word) order by ord),'{}'::text[])
+   into query_stems from unnest(query_words) with ordinality t(word,ord);
+  search_predicate:=case when cardinality(query_words)=0 and public.traffic_directory_name(p_query)<>'' then 'false'
+   else format('public.traffic_work_search_matches(%s,$5,$6)',label) end;
+ else
+  search_predicate:=format('strpos(public.traffic_directory_name(%s),public.traffic_directory_name($1))>0',label);
+ end if;
+ execute format($query$
+  with matches as materialized (
+   select t.%I id,%s label from public.%I t
+   where ($4 is null or t.%I=$4)
+    and (case when $3 then public.traffic_directory_name(%s)=public.traffic_directory_name($1)
+     else %s end)
+  ), page as (select * from matches order by label,id offset $2 limit 50),
+  serialized as (select p.id,p.label,%s row from page p join public.%I t on t.%I=p.id)
+  select jsonb_build_object('items',coalesce((select jsonb_agg(row order by label,id) from serialized),'[]'::jsonb),
+   'total',(select count(*) from matches))
+ $query$,id_col,label,p_kind,id_col,label,search_predicate,projection,p_kind,id_col)
+ into result using p_query,p_offset,p_exact,p_id,query_words,query_stems;
+ return result;
+end $$;
+
+revoke all on function public.traffic_work_search_words(text),public.traffic_work_search_stem(text),public.traffic_work_search_matches(text,text[],text[]),public.traffic_directory_page(text,text,integer,boolean,bigint) from public;
+grant execute on function public.traffic_work_search_words(text),public.traffic_work_search_stem(text),public.traffic_work_search_matches(text,text[],text[]),public.traffic_directory_page(text,text,integer,boolean,bigint) to anon,authenticated;
+notify pgrst, 'reload schema';
+commit;

@@ -1,0 +1,40 @@
+process.env.TZ='Europe/Kyiv';
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript');
+const {PGlite}=require(process.env.STO_PGLITE_MODULE||'@electric-sql/pglite');
+async function fixture(){const db=new PGlite();await db.exec('create role anon;create role authenticated;create table slyusars(slyusar_id bigint primary key,data jsonb)');const src=fs.readFileSync('supabase/migrations/20261011040000_traffic_act_search.sql','utf8');await db.exec(src.slice(src.indexOf('create or replace function public.traffic_search_truthy('),src.indexOf('create or replace function public.traffic_search_trim(')));const ta=src.indexOf('create or replace function public.traffic_search_trim(');await db.exec(src.slice(ta,src.indexOf('create or replace function',ta+30)));const reports=fs.readFileSync('supabase/migrations/20261005130000_traffic_reports.sql','utf8');await db.exec(reports.slice(0,reports.indexOf('create or replace function public.traffic_accounting_statuses')));await db.exec(fs.readFileSync('supabase/migrations/20261011160000_traffic_analytics_dashboard.sql','utf8')); return db;}
+function mechanicFormula(){const path='src/ts/roboha/bukhhalteriya/analityka.ts',src=fs.readFileSync(path,'utf8'),ast=ts.createSourceFile(path,src,99,true);const fn=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==='calcMechanicStats').getText(ast);const context={};vm.runInNewContext(ts.transpileModule('let cachedDashboard:any=null;let cachedSlyusars:any[]=[],filterDateFrom:Date|null=null,filterDateTo:Date|null=null;'+fn+'\nfunction compute(staff:any[],from:string|null,to:string|null){cachedSlyusars=staff;filterDateFrom=from?new Date(from):null;filterDateTo=to?new Date(to):null;return calcMechanicStats()} ',{compilerOptions:{target:ts.ScriptTarget.ES2020}}).outputText,context);return context.compute;}
+test('analytics mechanics preserve history-date filters, roles, negative/string operands and all-time',async()=>{
+ const db=await fixture();try{
+ const rows=[{Name:'Mechanic',Історія:{'2026-10-11':[{СуммаРоботи:100,Записи:[{Зарплата:25},{Зарплата:-5}]}],'2026-10-10T23:30:00':[{СуммаРоботи:-20,Записи:[]}],bad:[{СуммаРоботи:5}]}},{Name:'Strings',Історія:{'2026-10-11':[{СуммаРоботи:'12.5',Записи:[{Зарплата:'3'},{Зарплата:2}]}]}},{Name:'Receiver',Доступ:'Приймальник',Історія:{'2026-10-11':[{СуммаРоботи:999}]}},{Name:'NoHistory'}];
+ for(let i=0;i<rows.length;i++)await db.query('insert into slyusars values($1,$2)',[i+1,JSON.stringify(rows[i])]);
+ const stored=(await db.query('select * from slyusars order by slyusar_id')).rows;const compute=mechanicFormula();
+ for(const [from,to] of [[null,null],['2026-10-10T21:00:00Z','2026-10-11T20:59:59Z'],[null,'2026-10-10T21:00:00Z'],['2026-10-11T01:00:00Z',null]]){
+ const expected=JSON.parse(JSON.stringify(compute(stored,from,to)));const result=(await db.query('select traffic_analytics_mechanics($1,$2,$3) v',[from,to,'Europe/Kyiv'])).rows[0].v;
+ assert.deepEqual(result.items,expected);assert.ok(!JSON.stringify(result).includes('Історія'));
+ }
+ await db.exec('alter table slyusars enable row level security;grant select on slyusars to authenticated;create policy one on slyusars for select to authenticated using(slyusar_id=1);set role authenticated');
+ assert.equal((await db.query('select traffic_analytics_mechanics() v')).rows[0].v.items.length,1);
+ }finally{await db.close()}
+});
+test('dashboard aggregate matches existing chart/group formulas on actual timestamp schema',async()=>{
+ const db=await fixture();try{
+ await db.exec(`create table acts(act_id int primary key,date_on timestamp,date_off timestamp,client_id int,cars_id int,data jsonb);create table clients(client_id int primary key,data jsonb);create table cars(cars_id int primary key,data jsonb,is_deleted bool);create table vutratu(vutratu_id int primary key,"dataOnn" timestamp,suma numeric,act numeric);create table post_arxiv(post_arxiv_id int primary key,data_on timestamptz,data_off timestamptz,status text);create table post_name(post_id int primary key,name text);insert into post_name values(1,'A'),(2,'B');insert into clients values(1,'{"ПІБ":"Client"}');insert into cars values(1,'{"Авто":"Car","Номер авто":"AA"}',false);`);
+ const bodies=[{'За роботу':100,'За деталі':50,Роботи:[{Робота:'  Заміна масла ',Ціна:20,Кількість:0,Зарплата:5},{Робота:'Гальма',Ціна:-10,Кількість:2,Зарплата:-2}],Деталі:[{Деталь:'Фільтр',Кількість:0,Ціна:12}]},{'За роботу':-10,'За деталі':0,Роботи:[{Робота:'Гальма',Ціна:30,Кількість:2,Зарплата:0}],Деталі:[{Деталь:'Фільтр',Кількість:-2,Ціна:12}]},{'За роботу':0,'За деталі':0},{'За роботу':999,Заморожений:true},{'За роботу':'12','За деталі':3,Роботи:[{Робота:'Інше',Ціна:'2',Кількість:'3'}],Деталі:[{Деталь:'Інше',Кількість:'2',Ціна:5}]}];
+ for(let i=0;i<bodies.length;i++)await db.query('insert into acts values($1,$2,$3,1,1,$4)',[i+1,i===2?'2026-08-01 10:00:00':'2026-10-10 23:30:00',i===2?null:i===1?'2026-10-11 00:00:00':'2026-10-10 23:59:59',JSON.stringify(bodies[i])]);
+ await db.exec("insert into vutratu values(1,'2026-10-10 23:59:59',-10,null),(2,'2026-10-11 00:00:00',-2,0),(3,'2026-09-01',5,null),(4,'2026-10-10',-999,1);insert into post_arxiv values(1,'2026-10-10T05:07Z','2026-10-10T06:05Z','Запланований')");
+ const cachedActs=(await db.query('select to_jsonb(a) v from acts a order by date_on desc,act_id')).rows.map(r=>r.v),cachedVutratu=(await db.query('select to_jsonb(v) v from vutratu v order by "dataOnn" desc,vutratu_id')).rows.map(r=>r.v);
+ const path='src/ts/roboha/bukhhalteriya/analityka.ts',source=fs.readFileSync(path,'utf8'),ast=ts.createSourceFile(path,source,99,true),names=['getFilteredActs','getFilteredVutratu','getActTotal','getClientPIB','getCarNamePlate','calcMonthlyRevenue','calcTopWorks','calcServiceCategories','calcRevenueByDayOfWeek','calcAvgCheckTrend','calcTopClientsBySum','calcTopClientsByFrequency','calcTopCarsBySum','calcTopCarsByFrequency','calcTopPartsBySum','calcTopPartsByFrequency'];
+ const code=ast.statements.filter(n=>ts.isFunctionDeclaration(n)&&names.includes(n.name?.text)).map(n=>n.getText(ast)).join('\n');
+ const ctx={cachedDashboard:null,cachedActs,cachedVutratu,cachedClients:[{client_id:1,data:{ПІБ:'Client'}}],cachedCars:[{cars_id:1,data:{Авто:'Car','Номер авто':'AA'}}],isActFrozen:a=>a.data?.Заморожений===true,filterDateFrom:null,filterDateTo:null};vm.runInNewContext(ts.transpileModule(code,{compilerOptions:{target:ts.ScriptTarget.ES2020}}).outputText,ctx);
+ for(const [from,to] of [[null,null],['2026-10-09T21:00:00Z','2026-10-10T20:59:59Z'],['2026-10-10T21:00:00Z',null]]){
+  ctx.filterDateFrom=from?new Date(from):null;ctx.filterDateTo=to?new Date(to):null;
+  const result=(await db.query('select traffic_analytics_dashboard($1,$2,$3,$4) v',[from,to,'Europe/Kyiv','2026-10-11T12:00Z'])).rows[0].v;
+  const pairs={top_works:'calcTopWorks',categories:'calcServiceCategories',parts_sum:'calcTopPartsBySum',parts_count:'calcTopPartsByFrequency',clients_sum:'calcTopClientsBySum',clients_count:'calcTopClientsByFrequency',cars_sum:'calcTopCarsBySum',cars_count:'calcTopCarsByFrequency'};
+  for(const [key,fn] of Object.entries(pairs))assert.deepEqual(result[key],JSON.parse(JSON.stringify(ctx[fn]())),key+JSON.stringify([from,to]));
+  assert.deepEqual(result.monthly,JSON.parse(JSON.stringify(ctx.calcMonthlyRevenue())).map(({label,...row})=>row));
+  const days=ctx.calcRevenueByDayOfWeek(),ids=[1,2,3,4,5,6,0];for(let i=0;i<7;i++){const actual=result.days.find(d=>d.day===ids[i])||{count:0,revenue:0};assert.equal(actual.count,days[i].count);assert.equal(actual.revenue,days[i].revenue)}
+  assert.equal(result.summary.totalActs,ctx.getFilteredActs().length);assert.ok(!JSON.stringify(result).includes('Роботи'));
+ }
+ await db.exec('alter table acts enable row level security;grant select on acts,clients,cars,vutratu,slyusars,post_arxiv,post_name to authenticated;create policy one on acts for select to authenticated using(act_id=1);set role authenticated');assert.equal((await db.query('select traffic_analytics_dashboard() v')).rows[0].v.summary.totalActs,1);
+ }finally{await db.close()}
+});

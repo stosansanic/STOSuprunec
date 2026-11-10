@@ -1,0 +1,33 @@
+<!-- src/index.html -->
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Вхід</title>
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#177245">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="СТО Супрунець">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/logo.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/jpeg" href="/logo.jpg" />
+  <script type="module" src="/src/ts/vxid/auth.tsx"></script>
+
+</head>
+
+<body class="page-1">
+  <div id="auth">
+    <div class="wrapper">
+      <div>
+        <button id="login" class="button" aria-label="Увійти в систему"><span>Увійти</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="root" style="display: none;"></div>
+</body>
+
+</html>

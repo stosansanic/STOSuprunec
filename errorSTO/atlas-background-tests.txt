@@ -1,0 +1,196 @@
+TAP version 13
+# Subtest: migration is repeatable; private leases do not update public reminders and only one caller wins
+ok 1 - migration is repeatable; private leases do not update public reminders and only one caller wins
+  ---
+  duration_ms: 1657.9651
+  type: 'test'
+  ...
+# Subtest: Cron makes no HTTP calls for future or paused reminders; due work dispatches to its configured project
+ok 2 - Cron makes no HTTP calls for future or paused reminders; due work dispatches to its configured project
+  ---
+  duration_ms: 1231.378
+  type: 'test'
+  ...
+# Subtest: unchanged SQL response is compact; SQL errors remain errors
+ok 3 - unchanged SQL response is compact; SQL errors remain errors
+  ---
+  duration_ms: 1415.6645
+  type: 'test'
+  ...
+# Subtest: app queue survives schedule advancement; recipients and Telegram have independent exactly-once claims
+ok 4 - app queue survives schedule advancement; recipients and Telegram have independent exactly-once claims
+  ---
+  duration_ms: 1476.5181
+  type: 'test'
+  ...
+# Subtest: paused/edited rules cannot queue or checkpoint stale SQL results
+ok 5 - paused/edited rules cannot queue or checkpoint stale SQL results
+  ---
+  duration_ms: 1610.3958
+  type: 'test'
+  ...
+# Subtest: actual Edge delivers both channels independently and never requires an open browser for Telegram
+ok 6 - actual Edge delivers both channels independently and never requires an open browser for Telegram
+  ---
+  duration_ms: 1842.024
+  type: 'test'
+  ...
+# Subtest: existing Cron command and auth survive installation; app JSON event rules do not create HTTP polling
+ok 7 - existing Cron command and auth survive installation; app JSON event rules do not create HTTP polling
+  ---
+  duration_ms: 1408.7807
+  type: 'test'
+  ...
+# Subtest: browser snapshots contain only paged recipient JSON watches, without result metadata or scheduled reminders
+ok 8 - browser snapshots contain only paged recipient JSON watches, without result metadata or scheduled reminders
+  ---
+  duration_ms: 1323.1727
+  type: 'test'
+  ...
+# Subtest: SQL watches do not allocate unconditional row-change streams
+ok 9 - SQL watches do not allocate unconditional row-change streams
+  ---
+  duration_ms: 65.9069
+  type: 'test'
+  ...
+# Subtest: actual Edge handles app-only without bot settings; bad SQL cannot block another reminder
+ok 10 - actual Edge handles app-only without bot settings; bad SQL cannot block another reminder
+  ---
+  duration_ms: 1392.877
+  type: 'test'
+  ...
+# Subtest: legacy result baseline upgrades once without repeat delivery and later stays compact
+ok 11 - legacy result baseline upgrades once without repeat delivery and later stays compact
+  ---
+  duration_ms: 1428.5747
+  type: 'test'
+  ...
+# Subtest: inbox coalesces bursts, stops while hidden and reads cursor pages only on demand
+ok 12 - inbox coalesces bursts, stops while hidden and reads cursor pages only on demand
+  ---
+  duration_ms: 858.3681
+  type: 'test'
+  ...
+# Subtest: only eligible rules allocate streams; same table combines requested events
+ok 13 - only eligible rules allocate streams; same table combines requested events
+  ---
+  duration_ms: 1.7052
+  type: 'test'
+  ...
+# Subtest: rule edits update retained transport; removed callbacks cannot deliver late events
+ok 14 - rule edits update retained transport; removed callbacks cannot deliver late events
+  ---
+  duration_ms: 0.5786
+  type: 'test'
+  ...
+# Subtest: latest callback aggregate chunks ids, and an affected single reminder reads at most one row
+ok 15 - latest callback aggregate chunks ids, and an affected single reminder reads at most one row
+  ---
+  duration_ms: 0.7695
+  type: 'test'
+  ...
+# Subtest: callback fallback is only for a missing RPC; transient errors preserve caller cache
+ok 16 - callback fallback is only for a missing RPC; transient errors preserve caller cache
+  ---
+  duration_ms: 1.7169
+  type: 'test'
+  ...
+# Subtest: missing callback RPC fallback stays complete with skewed histories and caps parallel reads
+ok 17 - missing callback RPC fallback stays complete with skewed histories and caps parallel reads
+  ---
+  duration_ms: 4.5177
+  type: 'test'
+  ...
+# Subtest: background checker patches rules without rereading the list and disposes paused/foreign tables
+ok 18 - background checker patches rules without rereading the list and disposes paused/foreign tables
+  ---
+  duration_ms: 116.4163
+  type: 'test'
+  ...
+# Subtest: an event delivered during the initial snapshot wins over the older snapshot
+ok 19 - an event delivered during the initial snapshot wins over the older snapshot
+  ---
+  duration_ms: 66.191
+  type: 'test'
+  ...
+# Subtest: technical delivery phases cause no callback reads; insert patches locally; update reads only its reminder once
+ok 20 - technical delivery phases cause no callback reads; insert patches locally; update reads only its reminder once
+  ---
+  duration_ms: 59.3741
+  type: 'test'
+  ...
+# Subtest: planner first join during a snapshot schedules one reconciliation of the subscription gap
+ok 21 - planner first join during a snapshot schedules one reconciliation of the subscription gap
+  ---
+  duration_ms: 32.3533
+  type: 'test'
+  ...
+# Subtest: chat first join during its HTTP snapshot defers deletion reconciliation until rows are available
+ok 22 - chat first join during its HTTP snapshot defers deletion reconciliation until rows are available
+  ---
+  duration_ms: 52.1601
+  type: 'test'
+  ...
+# Subtest: chat deletion reconciliation preserves messages after a failed query or an account/chat switch
+ok 23 - chat deletion reconciliation preserves messages after a failed query or an account/chat switch
+  ---
+  duration_ms: 43.2669
+  type: 'test'
+  ...
+# Subtest: 20 concurrent callers send once, recipients and app/telegram remain independent
+ok 24 - 20 concurrent callers send once, recipients and app/telegram remain independent
+  ---
+  duration_ms: 1712.4702
+  type: 'test'
+  ...
+# Subtest: lease recovery rejects stale tokens; ambiguous started sends are never auto-retried
+ok 25 - lease recovery rejects stale tokens; ambiguous started sends are never auto-retried
+  ---
+  duration_ms: 1284.0134
+  type: 'test'
+  ...
+# Subtest: actual Edge sender uses atomic claims and validates Telegram JSON; SQL errors do not advance as false conditions
+ok 26 - actual Edge sender uses atomic claims and validates Telegram JSON; SQL errors do not advance as false conditions
+  ---
+  duration_ms: 1672.121
+  type: 'test'
+  ...
+# Subtest: realtime generations count once; cleanup retains live identities, parent cascade still works
+ok 27 - realtime generations count once; cleanup retains live identities, parent cascade still works
+  ---
+  duration_ms: 1535.5761
+  type: 'test'
+  ...
+# Subtest: recipient resolver forms and changed rule guard preserve intended recipients
+ok 28 - recipient resolver forms and changed rule guard preserve intended recipients
+  ---
+  duration_ms: 1674.5565
+  type: 'test'
+  ...
+# Subtest: server evaluation lease coalesces 20 checks and recovers after crash without claiming app delivery
+ok 29 - server evaluation lease coalesces 20 checks and recovers after crash without claiming app delivery
+  ---
+  duration_ms: 1620.3982
+  type: 'test'
+  ...
+# Subtest: actual Edge handler: empty exits after candidate page; 20 active requests evaluate a rule once
+ok 30 - actual Edge handler: empty exits after candidate page; 20 active requests evaluate a rule once
+  ---
+  duration_ms: 1583.9838
+  type: 'test'
+  ...
+# Subtest: public browser reminder entry points do not start dormant scheduled SQL polling
+ok 31 - public browser reminder entry points do not start dormant scheduled SQL polling
+  ---
+  duration_ms: 24.9596
+  type: 'test'
+  ...
+1..31
+# tests 31
+# suites 0
+# pass 31
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16222.1953

@@ -1,0 +1,30 @@
+{
+  "database": {
+    "file": "01-database-9.1.sql",
+    "sources": [
+      "supabase/setup/traffic-optimization/9.1 Оптимізація PostgREST.sql",
+      "supabase/migrations/20261023114017_atlas_background_efficiency.sql"
+    ],
+    "sha256": "edebcba7b0893691699ed77c7a88a49df4167c7acbcd880887d3482b104fc930"
+  },
+  "nova-poshta": {
+    "file": "02-nova-poshta-index.ts",
+    "sources": [
+      "supabase/functions/nova-poshta/index.ts",
+      "supabase/functions/_shared/nova-poshta-domain.ts"
+    ],
+    "sha256": "21caeb0205292a44f8bf979efb2429e3aa3ee2efdd5ac13f70fabddb2c2ba000",
+    "sdk": "npm:@supabase/supabase-js@2.98.0"
+  },
+  "check-reminders": {
+    "file": "03-check-reminders-index.ts",
+    "sources": [
+      "supabase/functions/check-reminders/index.ts",
+      "supabase/functions/_shared/operationalLog.ts",
+      "supabase/functions/_shared/reminderDelivery.ts",
+      "supabase/functions/check-reminders/resultDigest.ts"
+    ],
+    "sha256": "b6cb5cc9406a423a7f9343bd3113863ada6c5d754ed9882b6451dd48754ab79b",
+    "sdk": "npm:@supabase/supabase-js@2.98.0"
+  }
+}

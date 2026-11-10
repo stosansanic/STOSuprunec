@@ -1,0 +1,11 @@
+// D:\Alim\Проект\Бодя СТО\STO\tsconfig.json
+
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "exclude": ["supabase/functions"]
+}

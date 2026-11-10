@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест XLSX</title>
+
+    <!-- Завантажуємо XLSX з CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        #status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 4px;
+            background: #f0f0f0;
+        }
+
+        .success {
+            background: #d4edda !important;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da !important;
+            color: #721c24;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 Тест завантаження XLSX</h1>
+
+    <div id="status">Очікування...</div>
+
+    <button onclick="testXLSX()">📥 Тестувати створення Excel</button>
+
+    <script>
+        // Перевірка при завантаженні
+        window.addEventListener('load', function () {
+            const statusDiv = document.getElementById('status');
+
+            if (typeof XLSX !== 'undefined') {
+                statusDiv.className = 'success';
+                statusDiv.innerHTML = '✅ Бібліотека XLSX завантажена успішно!<br>Версія: ' + (XLSX.version || 'невідома');
+                console.log('✅ XLSX доступна:', XLSX);
+            } else {
+                statusDiv.className = 'error';
+                statusDiv.innerHTML = '❌ Бібліотека XLSX НЕ завантажена!';
+                console.error('❌ XLSX недоступна');
+            }
+        });
+
+        // Тестова функція
+        function testXLSX() {
+            const statusDiv = document.getElementById('status');
+
+            try {
+                if (typeof XLSX === 'undefined') {
+                    throw new Error('XLSX не завантажена');
+                }
+
+                // Створюємо тестові дані
+                const testData = [
+                    { "Ім'я": "Іван", "Прізвище": "Петренко", "Вік": 30 },
+                    { "Ім'я": "Марія", "Прізвище": "Коваленко", "Вік": 25 },
+                    { "Ім'я": "Олег", "Прізвище": "Сидоренко", "Вік": 35 }
+                ];
+
+                // Створюємо worksheet
+                const worksheet = XLSX.utils.json_to_sheet(testData);
+
+                // Створюємо workbook
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Тест");
+
+                // Налаштування ширини колонок
+                worksheet['!cols'] = [
+                    { wch: 15 },
+                    { wch: 15 },
+                    { wch: 10 }
+                ];
+
+                // Завантажуємо файл
+                const fileName = 'Тест_' + new Date().getTime() + '.xlsx';
+                XLSX.writeFile(workbook, fileName);
+
+                statusDiv.className = 'success';
+                statusDiv.innerHTML = '✅ Excel файл успішно створено і завантажено!<br>Файл: ' + fileName;
+                console.log('✅ Файл створено:', fileName);
+
+            } catch (error) {
+                statusDiv.className = 'error';
+                statusDiv.innerHTML = '❌ Помилка: ' + error.message;
+                console.error('❌ Помилка:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,254 @@
+/* Базові стилі */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Модальне вікно */
+.modal-overlay-create-sakaz_narad {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  overflow: auto;
+}
+
+.modal-content-create-sakaz_narad {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  width: 500px;
+  max-width: 90vw;
+  max-height: 100%;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  font-family: "Segoe UI", sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  overflow-x: auto;
+}
+
+/* Кнопка закриття модального вікна */
+.modal-close-create-sakaz_narad {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  font-size: 20px;
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.modal-close-create-sakaz_narad:hover {
+  color: red;
+  font-weight: bold;
+}
+
+/* Заголовок */
+h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+}
+
+/* Поля форми */
+.field-create-sakaz_narad {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  position: relative;
+}
+
+.field-row-create-sakaz_narad {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.field-row-create-sakaz_narad .field-create-sakaz_narad {
+  flex: 1 1 calc(33.333% - 8px);
+  min-width: 120px;
+}
+
+/* Спеціальні розміри полів */
+.field-create-sakaz_narad.car-input-group {
+  flex: 0 0 55%;
+}
+
+.field-create-sakaz_narad.car-code-input-group {
+  flex: 0 0 25%;
+}
+
+.field-create-sakaz_narad.year-input-group {
+  flex: 0 0 15%;
+  max-width: 142.67px;
+}
+
+/* Інпути */
+.input-create-sakaz_narad {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 15px;
+  border: 1px solid #00bcd4;
+  border-radius: 6px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.input-create-sakaz_narad::placeholder {
+  color: #aaa;
+}
+
+.input-create-sakaz_narad:focus {
+  border-color: #0097a7;
+  box-shadow: 0 0 0 2px rgba(0, 188, 212, 0.3);
+}
+
+/* Список підказок */
+.suggestions-list-create-sakaz_narad {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+
+  max-height: 120px; /* Показати рівно 3 пункти по ~40px */
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  overflow-anchor: none;
+
+  list-style: none;
+  padding: 0;
+  background: #e0f7fa;
+  border-radius: 6px;
+  z-index: 999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+
+.suggestions-list-create-sakaz_narad li {
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.suggestions-list-create-sakaz_narad li[role="option"]:hover,
+.suggestions-list-create-sakaz_narad li[aria-selected="true"] {
+  background-color: #b2ebf2;
+}
+
+.suggestions-list-create-sakaz_narad li[data-form-options-status] {
+  color: #546e7a;
+  cursor: default;
+}
+
+/* Лейбли */
+label {
+  font-size: 14px;
+  color: #444;
+  font-weight: 500;
+}
+
+/* Кнопки */
+.buttons-create-sakaz_narad {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.btn-action-create-sakaz_narad {
+  padding: 2px;
+  min-width: 40px;
+  min-height: 40px;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #00bcd4;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-action-create-sakaz_narad:hover {
+  background-color: #0097a7;
+}
+
+.btn-action-create-sakaz_narad.btn-edit[data-unlocked="true"] {
+  background-color: #e53935 !important;
+}
+
+.btn-action-create-sakaz_narad.btn-edit[data-unlocked="false"],
+.btn-action-create-sakaz_narad.btn-edit:not([data-unlocked]) {
+  background-color: #00bcd4;
+}
+
+/* Інлайн поля */
+.car-field-inline,
+.phone-field-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.car-field-inline {
+  align-items: self-end;
+  gap: 12px;
+}
+
+/* Кнопки підтвердження */
+.car-confirm-icons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 100%;
+}
+
+.confirm-button {
+  font-size: 28px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirm-button.yes {
+  color: green;
+}
+
+.confirm-button.yes:hover {
+  color: darkgreen;
+}
+
+.confirm-button.no {
+  color: crimson;
+}
+
+.confirm-button.no:hover {
+  color: darkred;
+}
+
+#car-number-input-create-sakaz_narad::placeholder,
+#car-code-create-sakaz_narad::placeholder,
+#car-vin-create-sakaz_narad::placeholder {
+  text-transform: none;
+}

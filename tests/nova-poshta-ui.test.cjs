@@ -1,0 +1,141 @@
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const http = require('node:http');
+const path = require('node:path');
+const esbuild = require('esbuild');
+const sass = require('sass');
+
+test('archive UI uses compact reads, lazy history, deduplicates reads and preserves sync dates', { skip: !process.env.NP_VALIDATION_ROOT }, async () => {
+  const { chromium } = require(path.join(process.env.NP_VALIDATION_ROOT, 'node_modules/playwright'));
+  const mock = `
+const actor={id:1,name:'Тест',role:'Адміністратор'};
+const shipment={id:'20400000000001',ttn:'20400000000001',state:'arrived',direction:'incoming',document_date:'2026-09-25',estimated_date:'2026-09-26',raw_status:'Прибула',provider_description:'Запчастини',provider_details:{created:'2026-09-25 15:41:00',delivery:'2026-09-26 12:00:00',value:500,delivery_cost:145,weight:2,seats:1,sender_contact:'Петренко Іван Іванович',recipient_contact:'Коваленко Олена',sender_address:'м. Київ, Відділення №1',address:'м. Вінниця, Відділення №14',phone:'380501234567',sender_phone:'380671234567'},links:[]};
+window.__npCalls=[];
+const call=async b=>{window.__npCalls.push(b);await new Promise(r=>setTimeout(r,20));
+if(b.action==='authenticate')return {actor,token:'fixture-session'};
+if(b.action==='overview')return {actor,connection:{enabled:true},events:[]};
+if(b.action==='list')return {shipments:[shipment],has_more:false};
+if(b.action==='detail'||b.action==='act_detail')return {shipment:{...shipment,...(b.full?{history:[{source:'document',payload:{Cost:500}}]}:{})}};
+if(b.action==='act_list')return {items:[{ttn:shipment.ttn,shipment}],editable:true};
+if(b.action==='link_options'){
+  if(b.query==='777')await new Promise(r=>setTimeout(r,700));
+  const ttns=b.query?[{ttn:b.query==='777'?'20400000000777':'20400000000888',direction:'incoming',description:'Архівна ТТН'}]:b.page===2?[{ttn:'20400000000003',direction:'unknown',description:'Документи'}]:[{ttn:shipment.ttn,direction:'incoming',description:'Запчастини'},{ttn:'20400000000002',direction:'outgoing',description:'Двигун'}];
+  const acts=b.query?[{act_id:502,label:'№502 · Петренко Іван · BMW X5'}]:[{act_id:503,label:'№503 · Коваленко Олена · Opel Astra'},{act_id:502,label:'№502 · Петренко Іван · BMW X5'}];
+  return {ttns:b.kind==='act'?[]:ttns,acts:b.kind==='ttn'?[]:acts,ttns_has_more:!b.query&&b.page===1,acts_has_more:false,page:b.page};
+}
+if(b.action==='sync_page')return {has_more:b.page===1,next_directions:b.page===1?['incoming']:[]};
+return {};
+};
+export const supabase={auth:{async getSession(){return {data:{session:{user:{id:'fixture-user'}}}}}},functions:{async invoke(_,options){return {data:{ok:true,...await call(options.body)},error:null}}}};
+`;
+  const entry=`import {openNovaPoshta} from './src/ts/roboha/novaPoshta/ui';import {request} from './src/ts/roboha/novaPoshta/api';window.npRead=request;localStorage.setItem('userAuthData',JSON.stringify({Name:'Тест',slyusar_id:1}));document.getElementById('open').onclick=()=>openNovaPoshta();document.getElementById('act').onclick=()=>openNovaPoshta(100);`;
+  const bundle=await esbuild.build({stdin:{contents:entry,resolveDir:process.cwd(),loader:'ts'},bundle:true,write:false,format:'esm',plugins:[{name:'isolated',setup(build){
+    build.onResolve({filter:/\/(supabaseClient|project\.config)$/},args=>({path:path.basename(args.path),namespace:'mock'}));
+    build.onLoad({filter:/.*/,namespace:'mock'},args=>({contents:args.path==='supabaseClient'?mock:'export const SUPABASE_CONFIG={get url(){return window.location.origin}};',loader:'js'}));
+    build.onLoad({filter:/\.scss$/},()=>({contents:'',loader:'js'}));
+  }}]});
+  const css=sass.compile('src/scss/robocha/_workflows.scss').css+sass.compile('src/scss/robocha/_nova-poshta.scss').css+sass.compile('src/scss/robocha/dodatu_inchi_bazu/_downlExcel.scss').css;
+  const server=http.createServer((req,res)=>{
+    if(req.url==='/functions/v1/nova-poshta'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({ok:true,service:'nova-poshta'}));return;}
+    res.setHeader('Content-Type',req.url==='/app.js'?'text/javascript':req.url==='/style.css'?'text/css':'text/html;charset=utf-8');
+    res.end(req.url==='/app.js'?bundle.outputFiles[0].text:req.url==='/style.css'?css:'<!doctype html><html lang="uk"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/style.css"><button id="open">Нова пошта</button><button id="act">Акт</button><script type="module" src="/app.js"></script></html>');
+  });
+  await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;
+  try {
+    browser=await chromium.launch({channel:'msedge',headless:true});const page=await browser.newPage({viewport:{width:1440,height:1000}});
+    const errors=[];page.on('pageerror',e=>errors.push(e.message));
+    await page.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());
+    await page.goto(`http://127.0.0.1:${server.address().port}`);
+    await page.locator('#open').click();await page.getByLabel('Пароль працівника',{exact:true}).fill('fixture');await page.getByRole('button',{name:'Увійти',exact:true}).click();
+    await page.locator('thead').waitFor();
+    assert.equal(await page.locator('th').filter({hasText:'Створення ТТН'}).count(),1);
+    assert.equal(await page.locator('th').filter({hasText:'Час доставки'}).count(),1);
+    assert.equal(await page.locator('th').filter({hasText:'К-ть'}).count(),1);
+    assert.equal(await page.locator('td:nth-child(3) .np-date-value').first().textContent(),'25.09.26');
+    await page.evaluate(async()=>{window.__npCalls=[];await Promise.all([window.npRead('act_list',{act_id:100}),window.npRead('act_list',{act_id:100})]);});
+    assert.equal(await page.evaluate(()=>window.__npCalls.length),1);
+    await page.getByRole('button',{name:'20400000000001',exact:true}).click();
+    const detail=page.getByRole('dialog',{name:'ТТН 20400000000001',exact:true});await detail.locator('summary').waitFor();
+    assert.equal(await page.evaluate(()=>window.__npCalls.filter(c=>c.full).length),0);
+    await detail.locator('summary').click();await detail.locator('pre').filter({hasText:'history'}).waitFor();
+    await detail.locator('summary').click();await detail.locator('summary').click();
+    assert.equal(await page.evaluate(()=>window.__npCalls.filter(c=>c.full).length),1);
+    assert.equal(await detail.locator('table').count(),0);
+    assert.equal(await detail.getByRole('button',{name:'СПЛАТИТИ',exact:true}).count(),0);
+    assert.ok((await detail.boundingBox()).width<=960);
+    // Expanded history may grow to the documented 92dvh cap; it must stay inside the viewport.
+    assert.ok((await detail.boundingBox()).height <= page.viewportSize().height * 0.92 + 1);
+    assert.equal(await detail.getByText('Петренко Іван Іванович',{exact:true}).count(),1);
+    assert.equal(await detail.getByText('Коваленко Олена',{exact:true}).count(),1);
+    assert.deepEqual(await page.evaluate(()=>window.__npCalls.filter(c=>c.action==='link_options').map(c=>c.kind)),['act']);
+    const link=detail;
+    const actInput=link.getByRole('combobox',{name:'Номер акта',exact:true});
+    await actInput.click();
+    await link.getByRole('option',{name:'№503 · Коваленко Олена · Opel Astra',exact:true}).waitFor();
+    await actInput.fill('П');
+    await page.waitForFunction(()=>window.__npCalls.some(c=>c.action==='link_options'&&c.kind==='act'&&c.query==='П'));
+    await link.getByRole('option',{name:'№502 · Петренко Іван · BMW X5',exact:true}).waitFor();
+    await actInput.press('ArrowDown');await actInput.press('Enter');
+    assert.equal(await actInput.inputValue(),'№502 · Петренко Іван · BMW X5');
+    assert.equal(await page.evaluate(()=>window.__npCalls.some(c=>c.action==='act_link')),false);
+    await link.getByRole('button',{name:'Зберегти',exact:true}).click();
+    await link.getByText('ТТН 20400000000001 збережено в акті №502.',{exact:true}).waitFor();
+    const linked=await page.evaluate(()=>window.__npCalls.find(c=>c.action==='act_link'));
+    assert.equal(linked.act_id,502);assert.equal(linked.ttn,'20400000000001');assert.equal(linked.direction,'incoming');
+    assert.equal(await page.evaluate(()=>window.__npCalls.some(c=>c.action.startsWith('sync_'))),false);
+    await detail.getByRole('button',{name:'Закрити',exact:true}).click();
+    await page.evaluate(()=>document.querySelectorAll('.np-filters input[type=date]').forEach(input=>{input.value='2026-09-01';}));
+    await page.evaluate(()=>{window.__npCalls=[];});
+    for(const [label,day] of [['Створено від','20'],['Створено до','26']]) {
+      const input=page.getByLabel(label,{exact:true});assert.equal(await input.getAttribute('readonly'),'readonly');await input.click();
+      const calendar=page.locator('.custom-datepicker');await calendar.waitFor();assert.equal(await calendar.count(),1);
+      await calendar.getByRole('button',{name:day,exact:true}).click();await calendar.waitFor({state:'detached'});
+      assert.equal(await input.inputValue(),'2026-09-'+day);
+    }
+    await page.waitForTimeout(250);
+    assert.equal(await page.getByRole('button',{name:'Показати',exact:true}).count(),0);
+    const autoFiltered=await page.evaluate(()=>window.__npCalls.filter(c=>c.action==='list'));
+    assert.ok(autoFiltered.length>0);assert.equal(autoFiltered.at(-1).from,'2026-09-20');assert.equal(autoFiltered.at(-1).to,'2026-09-26');
+    await page.getByRole('button',{name:'Напрямок',exact:true}).click();await page.getByRole('option',{name:'Від нас',exact:true}).click();await page.waitForTimeout(250);
+    assert.equal((await page.evaluate(()=>window.__npCalls.filter(c=>c.action==='list').at(-1))).direction,'outgoing');
+    await page.getByRole('button',{name:'Оновити з Нової пошти',exact:true}).click();await page.getByText('Оновлено дані НП за 2026-09-20 — 2026-09-26.',{exact:false}).waitFor();
+    const sync=await page.evaluate(()=>window.__npCalls.filter(c=>c.action==='sync_page'));assert.equal(sync.length,2);assert.deepEqual(sync[1].directions,['incoming']);assert.ok(sync.every(c=>c.from==='2026-09-20'&&c.to==='2026-09-26'));
+    await page.getByRole('button',{name:'Закрити',exact:true}).click();await page.evaluate(()=>{window.__npCalls=[];});await page.locator('#act').click();
+    await page.getByRole('button',{name:'20400000000001',exact:true}).waitFor();assert.deepEqual(await page.evaluate(()=>window.__npCalls.map(c=>c.action)),['act_list']);
+    await page.getByRole('button',{name:'＋ Додати ТТН',exact:true}).click();
+    const fixedLink=page.getByRole('dialog',{name:'Записати ТТН в акт',exact:true});
+    const fixedTtn=fixedLink.getByRole('combobox',{name:'ТТН',exact:true});
+    await fixedLink.getByRole('option',{name:'20400000000002',exact:true}).waitFor();
+    assert.equal(await fixedLink.getByLabel('Номер акта',{exact:true}).inputValue(),'100');
+    assert.equal(await fixedLink.getByLabel('Номер акта',{exact:true}).getAttribute('readonly'),'');
+    assert.equal(await page.evaluate(()=>window.__npCalls.filter(c=>c.action==='link_options').at(-1).kind),'ttn');
+    await fixedLink.getByRole('option',{name:'20400000000002',exact:true}).click();
+    assert.equal(await fixedLink.getByLabel('Напрямок',{exact:true}).inputValue(),'outgoing');
+    assert.equal(await fixedTtn.inputValue(),'20400000000002');
+    await fixedTtn.click();await fixedLink.getByRole('option',{name:'20400000000001',exact:true}).waitFor();
+    await fixedTtn.press('Escape');assert.equal(await fixedLink.count(),1);assert.equal(await fixedTtn.getAttribute('aria-expanded'),'false');
+    await fixedTtn.click();await fixedLink.getByRole('button',{name:'Ще…',exact:true}).click();
+    await fixedLink.getByRole('option',{name:'20400000000003',exact:true}).waitFor();
+    assert.equal(await page.evaluate(()=>window.__npCalls.filter(c=>c.action==='link_options'&&c.kind==='ttn'&&c.page===2).length),1);
+    await fixedTtn.fill('777');await page.waitForFunction(()=>window.__npCalls.some(c=>c.query==='777'));
+    await fixedTtn.fill('888');await fixedLink.getByRole('option',{name:'20400000000888',exact:true}).waitFor();
+    await page.waitForTimeout(500);
+    assert.equal(await fixedLink.getByRole('option',{name:'20400000000777',exact:true}).count(),0);
+    await fixedLink.getByRole('option',{name:'20400000000888',exact:true}).click();
+    await fixedTtn.click();await fixedLink.getByRole('option',{name:'20400000000002',exact:true}).waitFor();
+    assert.equal(await page.evaluate(()=>window.__npCalls.filter(c=>c.action==='link_options'&&c.kind==='ttn'&&!c.query&&c.page===1).length),1);
+    await fixedTtn.fill('2');
+    await page.waitForFunction(()=>window.__npCalls.some(c=>c.action==='link_options'&&c.kind==='ttn'&&c.query==='2'));
+    await fixedLink.getByRole('option',{name:'20400000000888',exact:true}).waitFor();
+    assert.equal(await fixedTtn.getAttribute('aria-expanded'),'true');
+    await fixedTtn.fill('20400000000999');
+    await fixedLink.getByRole('button',{name:'Записати в акт',exact:true}).click();await fixedLink.waitFor({state:'detached'});
+    const manualLink=await page.evaluate(()=>window.__npCalls.filter(c=>c.action==='act_link').at(-1));
+    assert.equal(manualLink.act_id,100);assert.equal(manualLink.ttn,'20400000000999');
+    await page.getByRole('button',{name:'20400000000001',exact:true}).click();const actDetail=page.getByRole('dialog',{name:'ТТН 20400000000001',exact:true});await actDetail.locator('summary').waitFor();
+    assert.equal(await page.evaluate(()=>window.__npCalls.filter(c=>c.action==='detail'||c.action==='act_detail').length),0);
+    await actDetail.locator('summary').click();await actDetail.locator('pre').filter({hasText:'history'}).waitFor();
+    assert.equal(await page.evaluate(()=>window.__npCalls.at(-1).action),'act_detail');
+    await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.deepEqual(errors,[]);
+  } finally {if(browser)await browser.close();await new Promise(r=>server.close(r));}
+});

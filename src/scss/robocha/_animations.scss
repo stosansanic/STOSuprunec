@@ -1,0 +1,169 @@
+// src/scss/robocha/_animations.scss
+// ✨ Глобальні анімації та Skeleton Screens для "Wow" ефекту
+
+/* ==================== KEYFRAMES ==================== */
+
+// Поява знизу-вгору для модалок
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Плавне зникнення
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+// Пульсація для Skeleton Screens
+@keyframes skeletonPulse {
+  0% {
+    background-color: #f0f0f0;
+  }
+  50% {
+    background-color: #e0e0e0;
+  }
+  100% {
+    background-color: #f0f0f0;
+  }
+}
+
+// Мікро-пульсація для кнопок (Success)
+@keyframes buttonPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+// Малювання галочки (Success Checkmark)
+@keyframes drawCheck {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ==================== SKELETON SCREENS ==================== */
+
+.skeleton {
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  display: inline-block;
+  min-height: 1em;
+  width: 100%;
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+}
+
+.skeleton-text {
+  height: 12px;
+  margin-bottom: 8px;
+  width: 80%;
+}
+
+.skeleton-btn {
+  height: 36px;
+  border-radius: 8px;
+}
+
+/* ==================== UTILS ==================== */
+
+.animate-slide-up {
+  animation: slideUp 0.35s cubic-bezier(0.17, 0.67, 0.83, 0.67) forwards;
+}
+
+.btn-wow-pulse:hover {
+  animation: buttonPulse 0.4s ease-in-out;
+}
+
+.success-check-anim {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: drawCheck 0.5s ease forwards;
+}
+
+/* ==================== FROZEN ACT (❄️) ==================== */
+
+@keyframes frozenShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+// Frozen header — анімований біло-синій градієнт
+.zakaz_narayd-header-frozen {
+  background: linear-gradient(
+    90deg,
+    #e3f2fd,
+    #90caf9,
+    #42a5f5,
+    #90caf9,
+    #e3f2fd
+  ) !important;
+  background-size: 300% 100% !important;
+  animation: frozenShift 6s ease-in-out infinite !important;
+}
+
+// Frozen row у таблиці — той самий градієнт як хедер + колір тексту
+.row-frozen {
+  background: linear-gradient(
+    90deg,
+    #e3f2fd,
+    #90caf9,
+    #60adeb,
+
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: frozenShift 6s ease-in-out infinite !important;
+
+  td {
+    color: #0d47a1 !important;
+  }
+}
+
+// Freeze hover кнопка — з'являється при ховері на 🗝️ / ☀️
+.freeze-hover-btn {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  font-size: 11px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 5;
+  line-height: 1;
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+.status-lock-icon:hover .freeze-hover-btn,
+.freeze-hover-btn:hover {
+  opacity: 1;
+}

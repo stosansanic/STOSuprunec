@@ -1,0 +1,48 @@
+{
+  "canonicalSource": "D:/Alim/Proekt/Основа проектів/8 зменьшує вихідний трафік.sql",
+  "canonicalSourceSha256": "7acce89d383bb74398071ef359dcedfaa7845de740457a93995e96857cfbf7d4",
+  "upgradeSha256": "1a9b12df3c7d8c97b77a6b7fd96aa3be1262703c7dd61bcbe68d8f5b9a8ef97b",
+  "file8Sha256": "32294fe788304ca5f8344d5ab7a4e5310f74a01f680c4aa1fd5a1f4149f16d0e",
+  "migrations": [
+    {
+      "name": "20261023063556_realtime_traffic_optimization.sql",
+      "sha256": "d5ee7efc4c02267332d42ecabf669f3971ee69fa2adf5692f9f6153ccc525ead"
+    },
+    {
+      "name": "20261023080955_act_editor_scoped_traffic.sql",
+      "sha256": "bc68e638453045f0333fd836b2ad21dd57d771fab11bcc303de1d21888b5f9d7"
+    },
+    {
+      "name": "20261023081041_atlas_postgrest_efficiency.sql",
+      "sha256": "1a490a4ae76a8ecf1004398b6c71a9207d5dcc40c4cfca61704d079f769b02a4"
+    },
+    {
+      "name": "20261023081212_workshop_postgrest_efficiency.sql",
+      "sha256": "30600ccc82e2bf7a39f049080beb37f3ba5187291471d9b4a68c3b60c2c9dcaa"
+    },
+    {
+      "name": "20261023081314_accounting_bounded_reports.sql",
+      "sha256": "e6221e4438e37496aec1299048f11f44f2f561c2a2432826392b7f5b3b5f2c7b"
+    },
+    {
+      "name": "20261023081918_postgrest_resource_revisions.sql",
+      "sha256": "58a0aad3dde687d71a2f2033f38fcd7a1863abe51d9f95300410c366e24e865d"
+    },
+    {
+      "name": "20261023082222_service_history_compact_summaries.sql",
+      "sha256": "4e01ff2075af07ebdbb6732d89991a5e4f9015475e3bb53c0ee724a2d2429e6f"
+    },
+    {
+      "name": "20261023082800_compact_settings_sms_np_context.sql",
+      "sha256": "6fcffcf042ee21ce2b229e685f28d4a7b56ba96c643c206aa1b4a7917380364e"
+    },
+    {
+      "name": "20261023083234_batch_import_scoped_traffic.sql",
+      "sha256": "12fb53b4ec1e98d4d1264d39781c1fe1bf3dd4b80c910df2e3495c6b366c038d"
+    },
+    {
+      "name": "20261023083651_accounting_resource_revisions.sql",
+      "sha256": "6212e5e7a7e0be69852aa77efe1d974e75104d2373d589eeb4aede7ddd56b9af"
+    }
+  ]
+}

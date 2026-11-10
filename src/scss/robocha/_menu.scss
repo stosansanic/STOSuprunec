@@ -1,0 +1,559 @@
+#menu-item-nova-poshta[hidden] {
+  display: none !important;
+}
+
+.main-menu .menu-items > li > .nova-poshta-menu-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-min, 44px);
+  height: var(--touch-min, 44px);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(237, 28, 36, 0.07);
+  cursor: pointer;
+  transition: background-color 160ms ease;
+
+  img { display: block; }
+  &:hover { background: rgba(237, 28, 36, 0.13); }
+  &:focus-visible { outline: 2px solid #ed1c24; outline-offset: 2px; }
+}
+
+.np-menu-badge { position: absolute; right: -3px; top: -3px; background: #ef4137; color: white; border: 2px solid white; border-radius: 20px; min-width: 20px; height: 20px; padding: 1px 4px; box-sizing: border-box; font: bold 11px/14px sans-serif; pointer-events: none; }
+.np-menu-badge[hidden] { display: none; }
+
+// Shared icon buttons on every screen; names remain in aria-label and title.
+@mixin main-menu-icon-buttons {
+  .menu-items > li > a[data-icon],
+  .menu-items > li > button[data-icon] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--touch-min, 44px);
+    min-width: var(--touch-min, 44px);
+    height: var(--touch-min, 44px);
+    min-height: var(--touch-min, 44px);
+    padding: 0;
+    border-radius: 50%;
+    background: rgba(23, 114, 69, 0.08);
+    font-size: 0;
+    line-height: 1;
+
+    &::before {
+      content: attr(data-icon);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #177245;
+      outline-offset: 2px;
+    }
+  }
+
+  .menu-items > li.active > a[data-icon],
+  .menu-items > li.active > button[data-icon] {
+    box-shadow: inset 0 0 0 2px rgba(23, 114, 69, 0.45);
+  }
+}
+
+.main-menu {
+  list-style: none;
+  font-family: "Montserrat", sans-serif;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* Центруємо елементи по горизонталі */
+  margin: 0;
+  padding: 0;
+
+  > li {
+    display: inline-flex;
+
+    &:first-child {
+      margin-left: 0; /* Прибираємо лівий відступ для першого елемента */
+    }
+
+    & + li {
+      margin-left: 20px;
+    }
+
+    > a,
+    > button.menu-link {
+      color: #000;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      font-size: 15px;
+      text-decoration: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      font-family: inherit;
+    }
+
+    > a:hover,
+    > button.menu-link:hover {
+      text-decoration: none;
+      color: #d70505;
+    }
+  }
+
+  li {
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  li.menu-children {
+    position: relative;
+    margin-right: 12px;
+  }
+
+  li.menu-children:hover > ul {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  ul {
+    padding: 10px 0;
+    margin: 0;
+    list-style: none;
+    background-color: #337ab7;
+    position: absolute;
+    z-index: 20;
+    min-width: 220px;
+    top: 100%;
+    left: -30px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(5px);
+    transition: all 200ms cubic-bezier(0.43, 0.59, 0.16, 1.25);
+  }
+
+  ul li {
+    display: block;
+    padding: 0 10px;
+    line-height: 1.1;
+  }
+
+  ul li:last-child {
+    margin-bottom: 0;
+  }
+
+  ul li a {
+    display: block;
+    color: #fff;
+    padding: 10px;
+    transition: all 0.3s;
+    text-decoration: none;
+  }
+
+  ul li a:hover {
+    color: #337ab7;
+    background: #fff;
+    text-decoration: none;
+  }
+
+  ul ul {
+    top: 0;
+    left: 100%;
+  }
+
+  // Календар
+  #dateRangePicker {
+    font-size: 16px;
+    color: #8000ff;
+    font-weight: bold;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: none;
+    outline: none;
+    min-width: 100px;
+    width: auto;
+    text-align: center;
+    padding: 6px;
+    border-radius: 25px;
+    cursor: pointer;
+  }
+
+  .daterangepicker {
+    background-color: #f7f7f7 !important;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  }
+}
+
+body.page-2 .main-menu {
+  position: relative;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0;
+  padding: 7px 12px;
+  box-sizing: border-box;
+  flex-wrap: nowrap;
+
+  /* Стрілки ховаємо на десктопі */
+  .menu-scroll-arrow {
+    display: none;
+  }
+
+  // user-info виривається зліва з потоку menu-items
+  .menu-items > li.user-info-item {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+    pointer-events: none;
+
+    .user-info {
+      margin-left: 0;
+    }
+  }
+
+  .menu-items {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .alim {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 0.65rem;
+    color: gray;
+    margin-left: auto;
+    margin-right: 12px;
+    align-self: center;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  #dateRangePicker {
+    width: min(100%, 180px);
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 1214px) {
+  body.page-2 .main-menu {
+    .menu-items > li.user-info-item,
+    .alim {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  body.page-2 .main-menu {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 6px 8px;
+    padding: 8px 8px 0;
+
+    .menu-items {
+      width: 100%;
+      min-width: 0;
+      order: 0;
+      flex: 1 1 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      overflow: visible;
+      padding-bottom: 0;
+    }
+
+    .menu-items > li {
+      margin-left: 0;
+      flex: 0 0 auto;
+      order: 1;
+    }
+
+    .menu-items > li > a[data-icon],
+    .menu-items > li > button[data-icon] {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: var(--touch-min, 44px);
+      padding: 5px 10px;
+      border-radius: var(--radius-md, 10px);
+      background: rgba(23, 114, 69, 0.08);
+      white-space: nowrap;
+    }
+
+    .menu-items > li.user-info-item,
+    .menu-items > li.date-range-item,
+    .menu-items > li.search-container,
+    .menu-items > li:has(#ai-chat-menu-btn) {
+      order: 3;
+    }
+
+    .menu-items > li.user-info-item {
+      min-width: 108px;
+
+      .user-info {
+        padding: 2px 6px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    #dateRangePicker {
+      width: 126px;
+      min-width: 126px;
+      font-size: 12px;
+      padding: 5px 8px;
+    }
+
+    .search-container {
+      margin-left: 0;
+      flex: 0 0 auto;
+    }
+
+    .search-container .search-icon {
+      font-size: 1.1rem;
+    }
+
+    .search-container .search-input.active {
+      width: clamp(120px, 24vw, 180px);
+    }
+
+    .user-info {
+      width: auto;
+      margin-left: 0;
+      flex: 0 0 auto;
+      font-size: 0.62rem;
+      line-height: 1.1;
+    }
+
+    .alim {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 870px) {
+  body.page-2 .main-menu {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0;
+    padding: 6px 0;
+    position: relative;
+
+    li {
+      white-space: nowrap;
+    }
+
+    /* 🔲 Стрілки прокрутки по боках */
+    .menu-scroll-arrow {
+      flex: 0 0 auto;
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(23, 114, 69, 0.15);
+      color: #177245;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      transition: all 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+      padding: 0;
+      margin: 0 2px;
+
+      &:active {
+        transform: scale(0.9);
+        background: rgba(23, 114, 69, 0.3);
+      }
+    }
+
+    /* 📜 Горизонтальний скрол меню в одну стрічку */
+    .menu-items {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      padding: 4px 4px;
+
+      /* Ховаємо скролбар */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    .menu-items > li {
+      margin-left: 0;
+      width: auto;
+      flex: 0 0 auto;
+      order: 1;
+    }
+
+    .menu-items > li.user-info-item {
+      display: none;
+    }
+
+    .menu-items > li > a[data-icon],
+    .menu-items > li > button[data-icon] {
+      width: var(--touch-min, 44px);
+      min-width: var(--touch-min, 44px);
+      height: var(--touch-min, 44px);
+      min-height: var(--touch-min, 44px);
+      padding: 0;
+      border-radius: 50%;
+      font-size: 0;
+      line-height: 1;
+    }
+
+    .menu-items > li > a[data-icon]::before,
+    .menu-items > li > button[data-icon]::before {
+      content: attr(data-icon);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .menu-items > li.active > a[data-icon],
+    .menu-items > li.active > button[data-icon] {
+      box-shadow: inset 0 0 0 2px rgba(23, 114, 69, 0.45);
+    }
+
+    .menu-items > li:has(#ai-chat-menu-btn) .ai-chat-menu-btn {
+      width: var(--touch-min, 44px);
+      height: var(--touch-min, 44px);
+      min-width: var(--touch-min, 44px);
+    }
+
+    .date-range-item {
+      margin-left: 2px;
+    }
+
+    .date-range-item,
+    .search-container {
+      flex: 0 0 auto;
+    }
+
+    #dateRangePicker {
+      width: var(--touch-min, 44px) !important;
+      min-width: var(--touch-min, 44px) !important;
+      height: var(--touch-min, 44px);
+      min-height: var(--touch-min, 44px);
+      padding: 0;
+      border-radius: 50%;
+      font-size: 0;
+      color: transparent;
+      background: rgba(23, 114, 69, 0.08);
+      border: none;
+      position: relative;
+      text-indent: -9999px;
+      overflow: hidden;
+    }
+
+    .date-range-item {
+      position: relative;
+    }
+
+    .date-range-item::before {
+      content: "📅";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      pointer-events: none;
+    }
+
+    .search-container {
+      flex: 0 0 auto;
+      width: auto;
+      max-width: none;
+      margin-left: 0;
+
+      .search-icon {
+        font-size: 1.05rem;
+      }
+
+      .search-input {
+        width: 0;
+        min-width: 0;
+      }
+
+      .search-input.active {
+        width: 126px;
+      }
+    }
+
+    .menu-items:has(.search-input.active) .search-container {
+      order: 4;
+      flex: 1 1 100%;
+      width: 100%;
+    }
+
+    .menu-items:has(.search-input.active)
+      .search-container
+      .search-input.active {
+      width: 100%;
+      min-width: 0;
+      margin-left: 6px;
+    }
+
+    .alim {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 560px) {
+  body.page-2 .main-menu {
+    &.menu-scroll-arrows-visible .menu-scroll-arrow {
+      display: flex;
+    }
+
+    .menu-items > li > a[data-icon],
+    .menu-items > li > button[data-icon] {
+      width: var(--touch-min, 44px);
+      min-width: var(--touch-min, 44px);
+      height: var(--touch-min, 44px);
+      min-height: var(--touch-min, 44px);
+    }
+
+    .menu-items > li > a[data-icon]::before,
+    .menu-items > li > button[data-icon]::before {
+      font-size: 17px;
+    }
+
+    #dateRangePicker {
+      width: var(--touch-min, 44px) !important;
+      min-width: var(--touch-min, 44px) !important;
+      height: var(--touch-min, 44px);
+      min-height: var(--touch-min, 44px);
+    }
+
+    .search-container .search-input.active {
+      width: 108px;
+    }
+  }
+}
+
+body.page-2 .main-menu {
+  @include main-menu-icon-buttons;
+}

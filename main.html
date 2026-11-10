@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Основний</title>
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#177245">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="СТО Супрунець">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/logo.jpg">
+
+    <!-- 🔒 Перевірка Google сесії -->
+    <script type="module" src="./src/ts/roboha/main_session_guard.ts"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <link rel="icon" type="image/jpeg" href="/logo.jpg" />
+</head>
+
+<body class="page-2">
+    <nav class="main-menu" role="navigation" aria-label="Головна навігація">
+        <!-- 🔲 Стрілка ← (видима лише на мобільних через CSS) -->
+        <button type="button" class="menu-scroll-arrow menu-scroll-left" aria-label="Прокрутити меню вліво">‹</button>
+
+        <div class="menu-items" id="menu-items-to-hide" style="display: none;">
+            <li class="user-info-item">
+                <div class="user-info" id="userInfoBlock" style="display: none;" aria-label="Інформація користувача">
+                    <div class="user-surname"></div>
+                    <div class="user-access"></div>
+                </div>
+            </li>
+
+            <li><button type="button" id="logout-link" class="menu-link" data-icon="🚪"
+                    aria-label="Вихід із системи" title="Вихід із системи">Вихід</button></li>
+            <li><button type="button" class="menu-link" data-action="openSettings" data-icon="⚙️"
+                    aria-label="Налаштування" title="Налаштування">Налаштування</button></li>
+            <li><button type="button" class="menu-link all_other_bases" data-action="openClient" data-icon="➕"
+                    aria-label="Додати запис" title="Додати запис">Додати</button></li>
+            <li><button type="button" class="menu-link all_other_bases_Bukhh" data-icon="💰"
+                    data-action="openBukhhalteriya" aria-label="Бухгалтерія" title="Бухгалтерія">Бухгалтерія</button></li>
+            <li class="active"><button type="button" class="menu-link" data-action="openHome" data-icon="📋"
+                    aria-label="Замовлення-наряди" title="Замовлення-наряди" aria-current="page">Наряд</button></li>
+            <li style="display: none;" id="menu-item-planyvannya"><button type="button" class="menu-link"
+                    data-icon="🗓️" data-action="openPlanyvannya" aria-label="Планування" title="Планування">Планування</button></li>
+            <li><button type="button" class="menu-link" data-icon="📖" data-action="openServiceBook"
+                    aria-label="Сервісна книжка" title="Сервісна книжка">Сервісна книжка</button></li>
+
+            <li class="date-range-item"><input type="text" id="dateRangePicker" readonly
+                    aria-label="Фільтр по даті" title="Фільтр актів за датою та станом" />
+                <span id="act-counters" class="act-counters" hidden aria-live="polite">
+                    <span id="open-act-count" class="act-count act-count-open"></span>
+                </span>
+            </li>
+
+            <li class="search-container">
+                <span id="searchIcon" class="search-icon" title="Пошук" role="button" tabindex="0"
+                    aria-label="Відкрити пошук">🔍</span>
+                <input type="text" id="searchInput" class="search-input"
+                    placeholder="Пошук: ПІБ, авто, масло BMW, за зиму..." aria-label="Пошук по актах" />
+            </li>
+            <li id="menu-item-nova-poshta" hidden>
+                <button type="button" class="menu-link nova-poshta-menu-button" aria-label="Нова пошта"
+                    data-action="openNovaPoshta" data-icon="" data-menu-tooltip="Нова пошта">
+                    <img src="/nova-poshta.png" width="28" height="28" alt="" />
+                </button>
+            </li>
+        </div>
+
+        <!-- 🔲 Стрілка → (видима лише на мобільних через CSS) -->
+        <button type="button" class="menu-scroll-arrow menu-scroll-right" aria-label="Прокрутити меню вправо">›</button>
+
+        <li class="alim">2.2.3 / © 2025 A-Service</li>
+    </nav>
+
+    <button type="button" id="open-modal-sakaz_narad" class="hidden" aria-hidden="true"></button>
+    <button type="button" id="open-modal-create-sakaz_narad" class="hidden" aria-hidden="true"></button>
+    <button type="button" id="open-modal-all_other_bases" class="hidden" aria-hidden="true"></button>
+    <button type="button" id="open-modal-settings" class="hidden" aria-hidden="true"></button>
+    <button type="button" id="open-modal-Bukhh" class="hidden" aria-hidden="true"></button>
+
+    <div id="act-search-summary" role="status" hidden></div>
+    <div id="table-container-modal-sakaz_narad" role="region" aria-label="Таблиця замовлень-нарядів"></div>
+
+    <script type="module" src="/src/ts/main.ts"></script>
+    <script>
+        // 📱 Стрілки горизонтальної прокрутки меню
+        document.addEventListener('DOMContentLoaded', function() {
+            const scrollLeft = document.querySelector('.menu-scroll-left');
+            const scrollRight = document.querySelector('.menu-scroll-right');
+            const menuItems = document.getElementById('menu-items-to-hide');
+
+            if (scrollLeft && scrollRight && menuItems) {
+                const scrollAmount = 150;
+                const mainMenu = menuItems.closest('.main-menu');
+
+                function updateArrowVisibility() {
+                    const shouldShow =
+                        window.innerWidth <= 550 &&
+                        menuItems.style.display !== 'none' &&
+                        menuItems.scrollWidth > menuItems.clientWidth + 4;
+
+                    if (mainMenu) {
+                        mainMenu.classList.toggle('menu-scroll-arrows-visible', shouldShow);
+                    }
+                }
+
+                scrollLeft.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    menuItems.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                });
+
+                scrollRight.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    menuItems.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                });
+
+                // 📜 По дефолту скролимо в кінець (щоб видно 🔍)
+                function scrollToEnd() {
+                    updateArrowVisibility();
+                    if (window.innerWidth <= 550 && menuItems.style.display !== 'none' && menuItems.scrollWidth > menuItems.clientWidth) {
+                        menuItems.scrollLeft = menuItems.scrollWidth;
+                    }
+                }
+
+                // Спостерігаємо за зміною display (меню спочатку display:none)
+                const styleObserver = new MutationObserver(function() {
+                    if (menuItems.style.display !== 'none') {
+                        setTimeout(scrollToEnd, 100);
+                        styleObserver.disconnect();
+                    }
+                });
+                styleObserver.observe(menuItems, { attributes: true, attributeFilter: ['style'] });
+
+                // 🤖 Повторний скрол при додаванні нових елементів (Атлас тощо)
+                const childObserver = new MutationObserver(function() {
+                    updateArrowVisibility();
+                    setTimeout(scrollToEnd, 150);
+                });
+                childObserver.observe(menuItems, { childList: true, subtree: false });
+
+                window.addEventListener('resize', function() {
+                    updateArrowVisibility();
+                    setTimeout(updateArrowVisibility, 150);
+                }, { passive: true });
+
+                updateArrowVisibility();
+
+                // Вимикаємо спостерігач через 10с (вже все підвантажилось)
+                setTimeout(function() { childObserver.disconnect(); }, 10000);
+            }
+        });
+    </script>
+
+</body>
+
+</html>

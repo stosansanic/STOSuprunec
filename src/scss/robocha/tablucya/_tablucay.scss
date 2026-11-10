@@ -1,0 +1,882 @@
+// _tablucya.scss ось цей
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* =========================================
+   ТАБЛИЦЯ (ОСНОВНИЙ КОНТЕЙНЕР)
+   ========================================= */
+
+#table-container-modal-sakaz_narad {
+  width: calc(100% - 20px);
+  margin: 0 10px;
+  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  /* Container handles scrolling */
+  box-sizing: border-box;
+  padding: 0;
+  z-index: 10;
+  position: relative; /* Додаємо position: relative для правильного відображення */
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+  /* ✅ ЗАХИСТ: Забезпечуємо, що таблиця залишається видимою після закриття модалки */
+  /* Модалка має z-index: 9999 і position: fixed, тому перекриває таблицю під час відкриття */
+  /* Але після закриття модалки (display: none) таблиця має бути видимою */
+
+  /* Перевіряємо, що таблиця не зникла через CSS */
+  &:empty {
+    &::before {
+      content: "Таблиця актів завантажується...";
+      display: block;
+      padding: 20px;
+      text-align: center;
+      color: #666;
+    }
+  }
+
+  /* Skeleton Loading */
+  .skeleton-row {
+    pointer-events: none;
+
+    td {
+      padding: 12px 10px;
+    }
+  }
+
+  .skeleton-cell {
+    height: 20px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite linear;
+    border-radius: 4px;
+    width: 100%;
+  }
+
+  @keyframes skeleton-loading {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* Плавне зникнення skeleton */
+  .skeleton-fadeout {
+    animation: skeleton-out 0.25s ease-out forwards;
+  }
+
+  @keyframes skeleton-out {
+    to {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+
+  /* Плавна поява реальної таблиці */
+  .table-fadein {
+    animation: table-in 0.3s ease-out;
+  }
+
+  @keyframes table-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Рядки, що з'являються після завантаження — каскад зверху вниз */
+  .fade-in-row {
+    animation: row-fade-in 0.3s ease-out backwards;
+  }
+
+  @keyframes row-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Таблиця */
+  table {
+    width: 100%;
+    min-width: 680px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    background-color: rgba(255, 255, 255, 0.95);
+  }
+
+  /* Sticky Header */
+  thead {
+    /* No display:block needed */
+    z-index: 5;
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background-color: #177245;
+      /* Header background must be on TH for sticky to cover content */
+      color: #fff;
+      font-weight: bold;
+      border: 1px solid #000;
+      /* Ensure borders match */
+      box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+      /* Optional: visual separation */
+    }
+  }
+
+  /* Body */
+  tbody {
+    /* Standard table behavior */
+    tr {
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: #f7dfba !important;
+        opacity: 1;
+
+        // Анімація бейджа при наведенні на рядок акту
+        .notification-count-badge {
+          transform: scale(1.15) rotate(5deg);
+          box-shadow:
+            0 4px 12px rgba(255, 71, 87, 0.6),
+            0 0 0 2px rgba(255, 255, 255, 1);
+          animation: badge-pulse 1s ease-in-out infinite;
+        }
+      }
+
+      &.selected {
+        background-color: #ffeb3b !important;
+      }
+    }
+  }
+
+  /* Базова типографіка клітинок */
+  th,
+  td {
+    border: 1px solid #000;
+    padding: 8px 10px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+
+    /* Дозволяємо overflow для комірок з приміткою при hover */
+    &:has(.act-note-indicator:hover),
+    &:has(.client-note-indicator:hover) {
+      overflow: visible;
+    }
+  }
+
+  /* Дозволяємо overflow для рядків з приміткою при hover */
+  tr:has(.act-note-indicator:hover),
+  tr:has(.client-note-indicator:hover) {
+    overflow: visible;
+  }
+
+  tbody:has(.act-note-indicator:hover),
+  tbody:has(.client-note-indicator:hover) {
+    overflow: visible;
+  }
+
+  /* --- Widths (using standard width instead of flex) --- */
+  th:nth-child(1),
+  td:nth-child(1) {
+    width: 100px;
+  }
+
+  th:nth-child(2),
+  td:nth-child(2) {
+    width: 150px;
+  }
+
+  th:nth-child(3),
+  td:nth-child(3) {
+    /* Auto width column - let table layout handle it */
+    width: auto;
+  }
+
+  th:nth-child(4),
+  td:nth-child(4) {
+    width: 180px;
+  }
+
+  /* "Сума" */
+  th:nth-child(5),
+  td:nth-child(5) {
+    width: 130px;
+  }
+
+  /* Стилі для комірки суми зі знижкою */
+  .act-sum-cell {
+    white-space: normal !important;
+    line-height: 1.3;
+    padding: 4px 8px !important;
+
+    .sum-full-price {
+      font-size: 0.85em;
+      color: #333;
+      position: relative;
+      display: inline-block;
+
+      .discount-percent {
+        color: #ff8800; // помаранчевий колір для відсотка
+        font-size: 0.75em;
+        font-weight: 600;
+        margin-left: 2px;
+        vertical-align: super;
+      }
+    }
+
+    .sum-discounted-price {
+      font-size: 1em;
+      color: #0400ff; // синій колір для фінальної суми
+      font-weight: 500;
+    }
+  }
+
+  /* Додаткові стилі */
+  .phone-blue-italic {
+    color: blue;
+  }
+
+  .car-red-bold {
+    color: rgb(195, 109, 28);
+    font-weight: bold;
+  }
+
+  /* Нові стилі для актів та рахунків */
+  .act-label-small {
+    font-size: 0.65em;
+    color: #e67300; // темно-помаранчевий
+    line-height: 1.2;
+    margin-bottom: 2px;
+  }
+
+  .act-number-big {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #000;
+    margin: 3px 0;
+  }
+
+  .raxunok-label-small {
+    font-size: 0.65em;
+    color: #e67300; // темно-помаранчевий
+    line-height: 1.2;
+    margin-top: 2px;
+  }
+
+  /* 📱 Заголовки таблиці: емодзі + текст */
+  .th-emoji {
+    display: none; // На десктопі ховаємо емодзі
+  }
+
+  .th-text {
+    display: inline; // На десктопі показуємо текст
+  }
+}
+
+/* ---- Висоти (щоб контейнер займав екран і скролився) ---- */
+@media (min-width: 1025px) {
+  #table-container-modal-sakaz_narad {
+    max-height: calc(100dvh - 42px);
+  }
+}
+
+@media (min-width: 871px) and (max-width: 1024px) {
+  #table-container-modal-sakaz_narad {
+    width: calc(100% - 16px);
+    margin: 0 8px 0 8px;
+    max-height: calc(100dvh - 86px);
+  }
+
+  #table-container-modal-sakaz_narad th,
+  #table-container-modal-sakaz_narad td {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  #table-container-modal-sakaz_narad th:nth-child(1),
+  #table-container-modal-sakaz_narad td:nth-child(1) {
+    width: 82px;
+  }
+
+  #table-container-modal-sakaz_narad th:nth-child(2),
+  #table-container-modal-sakaz_narad td:nth-child(2) {
+    width: 108px;
+  }
+
+  #table-container-modal-sakaz_narad th:nth-child(3),
+  #table-container-modal-sakaz_narad td:nth-child(3) {
+    width: 41%;
+  }
+
+  #table-container-modal-sakaz_narad th:nth-child(4),
+  #table-container-modal-sakaz_narad td:nth-child(4) {
+    width: 23%;
+  }
+
+  #table-container-modal-sakaz_narad th:nth-child(5),
+  #table-container-modal-sakaz_narad td:nth-child(5) {
+    width: 84px;
+  }
+}
+
+@media (max-width: 870px) {
+  #table-container-modal-sakaz_narad {
+    width: calc(100% - 12px);
+    margin: 0 6px 0 6px;
+    max-height: calc(100dvh - 60px);
+    border-radius: 6px;
+    overflow-x: hidden;
+  }
+
+  .act-note-indicator,
+  .client-note-indicator {
+    display: none;
+  }
+
+  .call-dt-info,
+  .sms-dt-info {
+    display: none;
+  }
+
+  #table-container-modal-sakaz_narad table {
+    min-width: 100%;
+    table-layout: fixed;
+  }
+
+  #table-container-modal-sakaz_narad th,
+  #table-container-modal-sakaz_narad td {
+    padding: 6px 5px;
+    font-size: 12px;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: clip;
+    word-break: break-word;
+    line-height: 1.2;
+  }
+
+  #table-container-modal-sakaz_narad th:nth-child(1),
+  #table-container-modal-sakaz_narad td:nth-child(1) {
+    width: 54px;
+    white-space: nowrap;
+  }
+
+  #table-container-modal-sakaz_narad th:nth-child(2),
+  #table-container-modal-sakaz_narad td:nth-child(2) {
+    width: 78px;
+  }
+
+  #table-container-modal-sakaz_narad th:nth-child(3),
+  #table-container-modal-sakaz_narad td:nth-child(3) {
+    width: 42%;
+  }
+
+  #table-container-modal-sakaz_narad th:nth-child(4),
+  #table-container-modal-sakaz_narad td:nth-child(4) {
+    width: 22%;
+  }
+
+  #table-container-modal-sakaz_narad th:nth-child(5),
+  #table-container-modal-sakaz_narad td:nth-child(5) {
+    width: 64px;
+    white-space: nowrap;
+  }
+
+  /* 📱 На мобільних: емодзі замість тексту в шапці */
+  #table-container-modal-sakaz_narad .th-emoji {
+    display: inline;
+    font-size: 18px;
+  }
+
+  #table-container-modal-sakaz_narad .th-text {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  #table-container-modal-sakaz_narad {
+    width: calc(100% - 8px);
+    margin: 0 4px 0 4px;
+    max-height: calc(100dvh - 60px);
+  }
+
+  #table-container-modal-sakaz_narad table {
+    min-width: 100%;
+  }
+
+  #table-container-modal-sakaz_narad th,
+  #table-container-modal-sakaz_narad td {
+    padding: 5px 4px;
+    font-size: 11px;
+  }
+
+  #table-container-modal-sakaz_narad th:nth-child(1),
+  #table-container-modal-sakaz_narad td:nth-child(1) {
+    width: 50px;
+  }
+
+  #table-container-modal-sakaz_narad th:nth-child(2),
+  #table-container-modal-sakaz_narad td:nth-child(2) {
+    width: 68px;
+  }
+
+  #table-container-modal-sakaz_narad th:nth-child(3),
+  #table-container-modal-sakaz_narad td:nth-child(3) {
+    width: 44%;
+  }
+
+  #table-container-modal-sakaz_narad th:nth-child(4),
+  #table-container-modal-sakaz_narad td:nth-child(4) {
+    width: 20%;
+  }
+
+  #table-container-modal-sakaz_narad th:nth-child(5),
+  #table-container-modal-sakaz_narad td:nth-child(5) {
+    width: 58px;
+  }
+
+  #table-container-modal-sakaz_narad .act-label-small,
+  #table-container-modal-sakaz_narad .raxunok-label-small {
+    font-size: 0.6em;
+  }
+}
+
+/* =========================================
+   АНІМАЦІЇ ТА ПІДСВІЧУВАННЯ (Highliting)
+   ========================================= */
+
+/* Підсвічування змінених актів в списку */
+.act-modified {
+  background-color: #e3f2fd !important;
+  /*   box-shadow: inset 0 0 0 2px #2196f3 !important; */
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+
+  &:hover {
+    background-color: #bbdefb !important;
+    box-shadow:
+      inset 0 0 0 2px #2196f3,
+      0 4px 12px rgba(33, 150, 243, 0.3) !important;
+  }
+}
+
+/* Статуси рядків (відновлено) */
+.row-open {
+  background-color: #e2f7e1 !important;
+}
+
+.row-closed {
+  background-color: #f3f3f3 !important;
+  opacity: 0.6;
+}
+
+/* 💛 Клас для рядків, де Слюсар завершив роботи (slusarsOn = true) */
+.row-slusar-on {
+  background: linear-gradient(90deg, #fff8e1 0%, #ffe082 100%) !important;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: linear-gradient(90deg, #ffe082 0%, #ffd54f 100%) !important;
+  }
+
+  td {
+    color: #ff6f00;
+    font-weight: 600;
+  }
+}
+
+/* Клас для рядків актів (Синя ручка) */
+.act-modified-blue-pen {
+  position: relative;
+  z-index: 1;
+  /*   box-shadow: inset 0 0 0 2px #2196f3 !important; */
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+/* Пульсація доданих елементів */
+.item-added {
+  animation: highlight-added 3s ease-in-out;
+}
+
+@keyframes highlight-added {
+  0% {
+    background-color: transparent;
+  }
+
+  25% {
+    background-color: #e3f2fd;
+  }
+
+  50% {
+    background-color: #bbdefb;
+  }
+
+  75% {
+    background-color: #e3f2fd;
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* Пульсація видалених елементів */
+.item-deleted {
+  animation: highlight-deleted 3s ease-in-out;
+}
+
+@keyframes highlight-deleted {
+  0% {
+    background-color: transparent;
+  }
+
+  25% {
+    background-color: #ffcdd2;
+  }
+
+  50% {
+    background-color: #ffebee;
+  }
+
+  75% {
+    background-color: #ffcdd2;
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* Повільна пульсація */
+.item-pulse-slow {
+  animation: pulse-slow 1.5s ease-in-out 2;
+}
+
+@keyframes pulse-slow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.02);
+    opacity: 0.9;
+  }
+}
+
+/* =========================================
+   БЕЙДЖ З КІЛЬКІСТЮ ПОВІДОМЛЕНЬ
+   ========================================= */
+
+.notification-count-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  background: linear-gradient(135deg, #ff4757 0%, #ff6348 50%, #ff7979 100%);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  box-shadow:
+    0 2px 8px rgba(255, 71, 87, 0.4),
+    0 0 0 2px rgba(255, 255, 255, 0.8);
+  z-index: 4;
+  // Без ховера: обертання кольорів + пульсація
+  // При ховері: статичний збільшений бейдж
+  transform: scale(1.15) rotate(5deg);
+  box-shadow:
+    0 4px 12px rgba(255, 71, 87, 0.6),
+    0 0 0 2px rgba(255, 255, 255, 1);
+  animation: none; // Вимикаємо всі анімації
+
+  &:hover {
+    animation:
+      badge-appear 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+      badge-color-rotate 3s linear infinite,
+      badge-pulse 1.5s ease-in-out infinite;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+}
+
+@keyframes badge-appear {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+
+  60% {
+    transform: scale(1.2) rotate(10deg);
+    opacity: 1;
+  }
+
+  80% {
+    transform: scale(0.9) rotate(-5deg);
+  }
+
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes badge-pulse {
+  0%,
+  100% {
+    transform: scale(1.15) rotate(5deg);
+    box-shadow:
+      0 4px 12px rgba(255, 71, 87, 0.6),
+      0 0 0 2px rgba(255, 255, 255, 1);
+  }
+
+  50% {
+    transform: scale(1.25) rotate(5deg);
+    box-shadow:
+      0 6px 16px rgba(255, 71, 87, 0.8),
+      0 0 0 3px rgba(255, 255, 255, 1);
+  }
+}
+
+/* Анімація обертання кольорів по колу (неонове світіння) */
+@keyframes badge-color-rotate {
+  0% {
+    box-shadow:
+      0 0 8px rgba(59, 130, 246, 0.6),
+      0 0 16px rgba(59, 130, 246, 0.4),
+      0 2px 8px rgba(255, 71, 87, 0.4),
+      0 0 0 2px rgba(59, 130, 246, 0.8);
+  }
+
+  25% {
+    box-shadow:
+      0 0 8px rgba(168, 85, 247, 0.6),
+      0 0 16px rgba(168, 85, 247, 0.4),
+      0 2px 8px rgba(255, 71, 87, 0.4),
+      0 0 0 2px rgba(168, 85, 247, 0.8);
+  }
+
+  50% {
+    box-shadow:
+      0 0 8px rgba(239, 68, 68, 0.6),
+      0 0 16px rgba(239, 68, 68, 0.4),
+      0 2px 8px rgba(255, 71, 87, 0.4),
+      0 0 0 2px rgba(239, 68, 68, 0.8);
+  }
+
+  75% {
+    box-shadow:
+      0 0 8px rgba(249, 115, 22, 0.6),
+      0 0 16px rgba(249, 115, 22, 0.4),
+      0 2px 8px rgba(255, 71, 87, 0.4),
+      0 0 0 2px rgba(249, 115, 22, 0.8);
+  }
+
+  100% {
+    box-shadow:
+      0 0 8px rgba(59, 130, 246, 0.6),
+      0 0 16px rgba(59, 130, 246, 0.4),
+      0 2px 8px rgba(255, 71, 87, 0.4),
+      0 0 0 2px rgba(59, 130, 246, 0.8);
+  }
+}
+
+/* ✏️ Рядок з телефоном і редактором */
+.phone-editor-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.phone-editor-row .phone-blue-italic {
+  text-align: center;
+}
+
+.phone-editor-row .act-editor-info {
+  position: absolute;
+  right: 0;
+}
+
+/* ✏️ Інформація про редактора акту */
+.act-editor-info {
+  font-size: 0.75em;
+  color: #7c3aed;
+  font-weight: 600;
+  padding: 1px 5px;
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+  border-radius: 4px;
+  border: 1px solid #c4b5fd;
+  white-space: nowrap;
+  animation: editor-pulse 2s ease-in-out infinite;
+}
+
+@keyframes editor-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* 📝 Індикатор примітки акту (плавне розширення при наведенні) */
+.act-note-indicator,
+.client-note-indicator {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  font-size: 0.75em;
+  color: #666;
+  background: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: default;
+  z-index: 4;
+  border: 1px solid transparent;
+  box-shadow: none;
+  transition:
+    max-width 0.25s ease-out,
+    box-shadow 0.25s ease-out,
+    border-color 0.25s ease-out;
+
+  &:hover {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    max-width: 420px;
+    width: max-content;
+    white-space: pre-line;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    text-align: left;
+    height: auto;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    background: #f5f5f5;
+    border: 1px solid #bbb;
+    z-index: 1000000;
+  }
+}
+
+/* 📞 Індикатор дзвінка клієнту */
+.client-pib-wrapper {
+  position: relative;
+}
+
+/* Hover-зона для показу ⏳ */
+.call-indicator-zone {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 30px;
+  height: 20px;
+  cursor: pointer;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  .call-indicator-icon {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    font-size: 0.85em;
+  }
+
+  &:hover .call-indicator-icon {
+    opacity: 1;
+  }
+}
+
+/* Результат дзвінка */
+.call-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 0.85em;
+  cursor: pointer;
+  z-index: 4;
+  white-space: nowrap;
+
+  &.call-indicator-result {
+    opacity: 1;
+  }
+
+  .call-status-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    vertical-align: -4px;
+
+    &--reached {
+      color: #15803d;
+    }
+
+    &--missed {
+      color: #dc2626;
+    }
+  }
+}
+/* Позначка вже надісланого SMS. */
+.sms-sent-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9em;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: default;
+
+  .sms-sent-icon {
+    display: block;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    color: #15803d;
+  }
+}
+
+/* Приховування індикаторів дзвінків за налаштуванням */
+body.hide-call-indicators {
+  .call-indicator,
+  .call-indicator-zone {
+    display: none !important;
+  }
+}

@@ -1,0 +1,211 @@
+/* Стилі для оверлею модального вікна вводу пароля */
+.vikno_vvody_parolu-overlay-ActsOn {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: rgba(0, 0, 0, 0.6);
+  /* Напівпрозорий чорний фон */
+  /* display керується через inline стилі в JS */
+  justify-content: center !important;
+  /* Центрування по горизонталі */
+  align-items: center !important;
+  /* Центрування по вертикалі */
+  z-index: 9999999 !important;
+  /* Максимальний z-index */
+  backdrop-filter: blur(5px);
+  /* Ефект розмиття фону */
+  -webkit-backdrop-filter: blur(5px);
+  /* Для підтримки Safari */
+  pointer-events: auto;
+  /* Цей елемент (оверлей) буде перехоплювати всі події миші */
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Коли модалка показана (display: flex встановлюється в JS) */
+.vikno_vvody_parolu-overlay-ActsOn[style*="display: flex"] {
+  display: flex !important;
+}
+
+/* Стилі для самого вмісту модального вікна вводу пароля */
+.vikno_vvody_parolu-content-ActsOn {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  /* Більш округлі кути */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  /* Виразніша тінь */
+  text-align: center;
+  max-width: 400px;
+  /* Обмеження ширини */
+  width: 90%;
+  /* Адаптивна ширина */
+  animation: fadeInScale 0.3s ease-out forwards;
+  /* Анімація появи */
+  border: 1px solid #e0e0e0;
+  /* Легка межа */
+  position: relative !important;
+  /* Для можливості позиціонування елементів всередині */
+  z-index: 99999991;
+  margin: auto !important;
+  /* Додаткове центрування */
+  transform: none !important;
+  /* Скидання можливих трансформацій */
+}
+
+/* Анімація появи модального вікна */
+@keyframes fadeInScale {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Стилі для тексту всередині модального вікна */
+.vikno_vvody_parolu-content-ActsOn p {
+  font-size: 1.1em;
+  color: #555;
+  margin-bottom: 25px;
+  line-height: 1.5;
+  font-family: inherit;
+}
+
+/* Стилі для поля вводу пароля */
+.vikno_vvody_parolu-content-ActsOn .password-input-ActsOn {
+  width: calc(100% - 20px);
+  /* Займає всю доступну ширину мінус відступи */
+  padding: 12px 15px;
+  margin-bottom: 25px;
+  /* Більший відступ знизу */
+  border: 1px solid #a7d9f7;
+  /* Блакитна рамка */
+  border-radius: 8px;
+  font-size: 1.05em;
+  box-sizing: border-box;
+  /* Включає padding і border в ширину */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  outline: none;
+  /* Прибираємо стандартний outline */
+  font-family: inherit;
+  /* Успадковує шрифт */
+}
+
+.vikno_vvody_parolu-content-ActsOn .password-input-ActsOn:focus {
+  border-color: #007bff;
+  /* Яскраво-синя рамка при фокусі */
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+  /* Легка тінь при фокусі */
+}
+
+/* Стилі для кнопок */
+.vikno_vvody_parolu-buttons-ActsOn {
+  display: flex;
+  justify-content: space-around;
+  /* Розташування кнопок з рівними проміжками */
+  gap: 15px;
+  /* Відступ між кнопками */
+}
+
+.vikno_vvody_parolu-buttons-ActsOn button {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.05em;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  flex-grow: 1;
+  /* Кнопки займають рівну ширину */
+  max-width: 160px;
+  /* Обмеження для великих екранів */
+  font-family: inherit;
+  /* Успадковує шрифт */
+}
+
+/* Стилі для кнопки підтвердження */
+.vikno_vvody_parolu-buttons-ActsOn .btn-save-confirm-ActsOn {
+  background-color: #007bff;
+  /* Синій колір */
+  color: white;
+}
+
+.vikno_vvody_parolu-buttons-ActsOn .btn-save-confirm-ActsOn:hover {
+  background-color: #0056b3;
+  /* Темніший синій при наведенні */
+  transform: translateY(-2px);
+}
+
+.vikno_vvody_parolu-buttons-ActsOn .btn-save-confirm-ActsOn:active {
+  transform: translateY(0);
+}
+
+/* Стилі для кнопки скасування */
+.vikno_vvody_parolu-buttons-ActsOn .btn-save-cancel-ActsOn {
+  background-color: #e0e0e0;
+  /* Світло-сірий */
+  color: #555;
+}
+
+.vikno_vvody_parolu-buttons-ActsOn .btn-save-cancel-ActsOn:hover {
+  background-color: #c9c9c9;
+  /* Темніший сірий при наведенні */
+  transform: translateY(-2px);
+}
+
+.vikno_vvody_parolu-buttons-ActsOn .btn-save-cancel-ActsOn:active {
+  transform: translateY(0);
+}
+
+/* Стилі для сповіщень */
+.notification {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 1.1em;
+  color: white;
+  z-index: 3000;
+  /* Зробимо сповіщення ще вищим, щоб вони були над усіма модалками */
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notification.show {
+  opacity: 1;
+}
+
+.notification.info {
+  background-color: #2196f3;
+  /* Blue */
+}
+
+.notification.success {
+  background-color: #4caf50;
+  /* Green */
+}
+
+.notification.warning {
+  background-color: #ff9800;
+  /* Orange */
+}
+
+.notification.error {
+  background-color: #f44336;
+  /* Red */
+}

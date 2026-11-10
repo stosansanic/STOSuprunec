@@ -1,0 +1,91 @@
+#save-prompt-modal,
+#save-prompt-modal-all-other-bases,
+#save-prompt-modal-create,
+#vikno_pidtverdchennay_zakruttia_akty-modal {
+  // Додано новий ID модального вікна
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  pointer-events: auto;
+
+  &.active {
+    display: flex;
+  }
+
+  .modal-content-save,
+  .modal-content-save-confirm,
+  .vikno_pidtverdchennay_zakruttia_akty-content {
+    // Додано новий клас для контенту модального вікна
+    background: white;
+    padding: 20px 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    min-width: 280px;
+
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+    }
+
+    .save-buttons,
+    .vikno_pidtverdchennay_zakruttia_akty-buttons {
+      // Додано новий клас для кнопок
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      gap: 5px;
+
+      .save-password-input {
+        width: 70px;
+        padding: 8px 5px;
+        border: 2px solid #00bcd4;
+        border-radius: 8px;
+        font-size: 1rem;
+        outline: none;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+        text-align: center;
+
+        &:focus {
+          border-color: #0097a7;
+          box-shadow: 0 0 5px rgba(0, 188, 212, 0.5);
+        }
+      }
+
+      button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        background-color: #00bcd4;
+        color: white;
+        transition: background-color 0.3s ease;
+
+        &.btn-save-cancel,
+        &.vikno_pidtverdchennay_zakruttia_akty-cancel-btn {
+          // Додано новий клас для кнопки "Скасувати"
+          background-color: #f44336;
+        }
+
+        &:hover {
+          background-color: #0097a7;
+
+          &.btn-save-cancel,
+          &.vikno_pidtverdchennay_zakruttia_akty-cancel-btn {
+            // Додано новий клас для кнопки "Скасувати"
+            background-color: #d32f2f;
+          }
+        }
+      }
+    }
+  }
+}

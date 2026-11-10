@@ -1,0 +1,42 @@
+
+> sto@0.0.0 build
+> tsc -b && vite build
+
+vite v6.3.5 building for production...
+transforming...
+✓ 535 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                              1.14 kB │ gzip:   0.58 kB
+dist/planyvannya.html                        5.67 kB │ gzip:   1.60 kB
+dist/main.html                               9.22 kB │ gzip:   2.77 kB
+dist/bukhhalteriya.html                     49.24 kB │ gzip:   6.16 kB
+dist/assets/ui-B9WdGUcR.css                 15.19 kB │ gzip:   3.59 kB
+dist/assets/bukhhalteriya-C6MjyRSr.css      44.42 kB │ gzip:   8.43 kB
+dist/assets/main-Db9c-3Kx.css               47.51 kB │ gzip:   8.46 kB
+dist/assets/supabaseClient-_5uupZjy.css    402.96 kB │ gzip:  65.95 kB
+dist/assets/badge-CaTQ-U88.js                0.24 kB │ gzip:   0.21 kB
+dist/assets/browser-D4Rymon6.js              0.34 kB │ gzip:   0.27 kB
+dist/assets/bukhhalteriya-CHyCa_ce.js        0.81 kB │ gzip:   0.45 kB
+dist/assets/planyvannya-i9FaHaWA.js          0.81 kB │ gzip:   0.45 kB
+dist/assets/main-nMeZa3cd.js                 0.88 kB │ gzip:   0.54 kB
+dist/assets/index-fugA1yUB.js                1.52 kB │ gzip:   0.86 kB
+dist/assets/vendor-BHYWe_Yh.js               2.01 kB │ gzip:   1.00 kB
+dist/assets/supabaseClient-DANwK9tH.js       2.94 kB │ gzip:   1.62 kB
+dist/assets/resourceCache-8rm31XYx.js        3.30 kB │ gzip:   1.59 kB
+dist/assets/attentionUI-Cl0PKQxg.js          6.18 kB │ gzip:   2.99 kB
+dist/assets/copy_act-BGyxcCxJ.js            12.49 kB │ gzip:   4.28 kB
+dist/assets/contragent-C8eSRY4c.js          13.12 kB │ gzip:   4.76 kB
+dist/assets/workshopUI-Ose9lzWJ.js          13.23 kB │ gzip:   5.32 kB
+dist/assets/invoiceUI-CfUEF_S-.js           22.67 kB │ gzip:   8.37 kB
+dist/assets/purify.es-BgtpMKW3.js           22.77 kB │ gzip:   8.79 kB
+dist/assets/daterangepicker-uxzJK17J.js     33.06 kB │ gzip:   7.61 kB
+dist/assets/ui-DVhTCwAE.js                  35.98 kB │ gzip:  12.67 kB
+dist/assets/supabase-BfSJB0X0.js           108.06 kB │ gzip:  29.42 kB
+dist/assets/date-vendor-ifpxRJwh.js        149.46 kB │ gzip:  51.40 kB
+dist/assets/index.es-eZZXJeV7.js           159.31 kB │ gzip:  53.39 kB
+dist/assets/react-3DVn_WlK.js              186.49 kB │ gzip:  58.53 kB
+dist/assets/charts--JFhjWof.js             476.42 kB │ gzip: 130.64 kB
+dist/assets/pdf-Dm7egBbN.js                560.24 kB │ gzip: 165.85 kB
+dist/assets/main-CczAlOXt.js             2,208.39 kB │ gzip: 581.55 kB
+✓ built in 9.24s

@@ -1,0 +1,2898 @@
+/* Базові стилі */
+
+/* ==================== БАЗОВІ СТИЛІ ==================== */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+/* ==================== CSS ЗМІННІ ==================== */
+:root {
+  /* Кольори */
+  --primary-color: #4caf50;
+  --primary-hover: #45a049;
+  --secondary-color: #2196f3;
+  --secondary-hover: #1976d2;
+  --danger-color: #f44336;
+  --danger-hover: #d32f2f;
+  --warning-color: #ff9800;
+  --warning-hover: #f57c00;
+  --success-color: #28a745;
+  --light-gray: #f9f9f9;
+  --border-color: #ddd;
+  --gray: #9e9e9e;
+  --orange1: #ff9800;
+  --orange2: #ff9800;
+  --vutratu-color: #7b1fa2;
+  --vutratu-color-hover: #9c27b0;
+
+  /* Розміри */
+  --shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  --border-radius: 15px;
+  --small-radius: 8px;
+  --transition: all 0.3s ease;
+
+  /* Ширини колонок */
+  --col-rozrahovano: 94px;
+  --col-robota: 180px;
+  --col-avto: 130px;
+  --col-kilkist: 57px;
+  --col-diya: 40px;
+  --col-date: 61px;
+  --col-raxunok: 80px;
+  --col-opis: 200px;
+  --col-prumitku: 150px;
+}
+
+/* ==================== КОНТЕЙНЕРИ ==================== */
+.Bukhhalter-container {
+  //margin: 5px;
+  padding: 5px;
+  display: flex;
+  gap: 5px;
+  height: calc(100vh - 10px);
+  min-height: 600px;
+}
+
+.Bukhhalter-table-section {
+  flex: auto;
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 0 15px 15px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.Bukhhalter-scroll-status {
+  padding: 12px 16px;
+  text-align: center;
+  color: var(--text-color, #526271);
+  font-size: 0.9rem;
+  min-height: 40px;
+  button {
+    padding: 8px 16px;
+    border: 1px solid var(--border-color, #d5dde5);
+    border-radius: 8px;
+    background: #f3f7fa;
+    color: inherit;
+    cursor: pointer;
+  }
+}
+
+.Bukhhalter-control-section {
+  flex: 0 0 28%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+/* ==================== ЗАГОЛОВКИ ==================== */
+.Bukhhalter-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+  min-height: 60px;
+}
+
+.Bukhhalter-table-title,
+.Bukhhalter-section-title {
+  color: var(--primary-color);
+  font-weight: bold;
+  text-align: center;
+}
+
+.Bukhhalter-table-title {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.Bukhhalter-section-title {
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+.Bukhhalter-nav-link {
+  color: rgb(2, 46, 243);
+  text-decoration: none;
+  padding: 8px 15px;
+  border: 2px solid white;
+  border-radius: 20px;
+  transition: var(--transition);
+  margin-top: 33px;
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  font-weight: bold;
+}
+
+.Bukhhalter-nav-link:hover {
+  background: white;
+  color: gold;
+}
+
+.Bukhhalter-total-sum {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-hover)
+  );
+  color: white;
+  padding: 8px 15px;
+  border-radius: var(--small-radius);
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  line-height: 1.3;
+}
+
+/* ==================== ТАБЛИЦІ ==================== */
+.Bukhhalter-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  table-layout: fixed;
+}
+
+.Bukhhalter-data-table th {
+  background: var(--primary-color);
+  color: white;
+  padding: 0;
+  text-align: center;
+  font-weight: bold;
+  border: 1px solid var(--primary-hover);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.Bukhhalter-data-table td {
+  padding: 10px 8px;
+  border: 1px solid var(--border-color);
+  word-wrap: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.Bukhhalter-data-table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.Bukhhalter-data-table tbody tr:nth-child(even) {
+  background-color: var(--light-gray);
+}
+
+.Bukhhalter-data-table tbody tr:hover {
+  background-color: var(--border-color) !important;
+}
+
+.Bukhhalter-data-table tbody tr:hover td {
+  background-color: var(--border-color) !important;
+}
+
+#magazine-table tbody tr:hover td:nth-child(10) {
+  color: black !important;
+}
+
+/* Контейнери таблиць */
+#podlegle-table-container,
+#magazine-table-container,
+#details-table-container,
+#vutratu-table-container {
+  flex: 1;
+  overflow: auto;
+  border-radius: var(--small-radius);
+  max-height: calc(100% - 80px);
+  min-height: 200px;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Заголовки таблиць */
+.table-header-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px 4px;
+  line-height: 1.2;
+  width: 100%;
+  height: 100%;
+}
+
+.table-header-emoji {
+  font-size: 18px;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.table-header-text {
+  font-size: 12px;
+  font-weight: 600;
+  display: block;
+  white-space: nowrap;
+}
+
+.Bukhhalter-no-data {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+  font-size: 16px;
+}
+
+/* ==================== СТИЛІ РЯДКІВ ==================== */
+/* Закриті акти - зелений фон */
+.closed-row {
+  background-color: #d4edda !important;
+}
+
+/* Відкриті акти - червоний фон */
+.open-row {
+  background-color: #f8d7da !important;
+}
+
+/* Оплачені рядки - зелена лівий border */
+.paid-row {
+  border-left: 4px solid var(--success-color) !important;
+}
+
+/* Неоплачені рядки - червоний лівий border */
+.unpaid-row {
+  border-left: 4px solid var(--danger-color) !important;
+}
+
+/* Позитивні витрати - зелений фон (для таблиці витрат) */
+.positive-row {
+  background-color: rgba(76, 175, 80, 0.1) !important;
+}
+
+/* Від'ємні витрати - помаранчевий фон (для таблиці витрат з мінусом) */
+.negative-row {
+  background-color: rgba(255, 152, 0, 0.2) !important;
+}
+
+/* Нульові витрати - сірий фон (для таблиці витрат) */
+.zero-row {
+  background-color: rgba(158, 158, 158, 0.1) !important;
+}
+
+/* Стилі для комірок з сумою витрат */
+.expense-positive-cell {
+  color: var(--success-color) !important;
+  font-weight: bold !important;
+}
+
+.expense-negative-cell {
+  color: var(--danger-color) !important;
+  font-weight: bold !important;
+}
+
+.expense-zero-cell {
+  color: var(--gray) !important;
+  font-weight: normal !important;
+}
+
+/* ==================== СТИЛІ ЗАЛИШКІВ ==================== */
+.available-stock {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  font-weight: bold !important;
+  text-align: center !important;
+}
+
+.zero-stock {
+  background-color: var(--light-gray) !important;
+  color: black !important;
+  font-weight: normal !important;
+  text-align: center !important;
+}
+
+.unavailable-stock {
+  background-color: var(--danger-color) !important;
+  color: white !important;
+  font-weight: bold !important;
+  text-align: center !important;
+}
+
+.zero-stock-row {
+  background-color: var(--light-gray) !important;
+}
+
+.zero-stock-row:hover td {
+  background-color: var(--light-gray) !important;
+}
+
+.zero-stock-row:hover td:nth-child(10) {
+  color: black !important;
+}
+
+.available-row {
+  border-left: 4px solid var(--primary-color) !important;
+}
+
+.unavailable-row {
+  border-left: 4px solid var(--border-color) !important;
+}
+
+/* Комбіновані стилі */
+.paid-row.available-row,
+.unpaid-row.available-row {
+  background-color: rgba(76, 175, 80, 0.05);
+}
+
+.paid-row.unavailable-row,
+.unpaid-row.unavailable-row {
+  background-color: rgba(244, 67, 54, 0.05);
+}
+
+.stock-available-row {
+  background-color: rgba(76, 175, 80, 0.1) !important;
+}
+
+.stock-unavailable-row {
+  background-color: rgba(244, 67, 54, 0.1) !important;
+}
+
+.available-stock-text {
+  color: var(--primary-color) !important;
+  font-weight: bold !important;
+}
+
+.unavailable-stock-text {
+  color: var(--danger-color) !important;
+  font-weight: bold !important;
+}
+
+/* ==================== ВКЛАДКИ ==================== */
+.Bukhhalter-tabs {
+  display: flex;
+  gap: 5px;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  flex-shrink: 0;
+}
+
+.Bukhhalter-tab-btn {
+  border: none;
+  padding: 5px 2px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  border-radius: 20px;
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  color: #555;
+  position: relative;
+  overflow: hidden;
+
+  /* Кожна кнопка отримує свій м'який колір */
+  &#tab-btn-magazine {
+    background: #e8f5e9; /* зелений — Склад */
+    &.Bukhhalter-active {
+      background: #43a047;
+      color: white;
+      box-shadow: 0 4px 14px rgba(67, 160, 71, 0.45);
+    }
+    &:not(.Bukhhalter-active):hover {
+      background: #c8e6c9;
+    }
+  }
+
+  &#tab-btn-podlegle {
+    background: #e3f2fd; /* блакитний — Зарплата */
+    &.Bukhhalter-active {
+      background: #1e88e5;
+      color: white;
+      box-shadow: 0 4px 14px rgba(30, 136, 229, 0.45);
+    }
+    &:not(.Bukhhalter-active):hover {
+      background: #bbdefb;
+    }
+  }
+
+  &#tab-btn-details {
+    background: #fce4ec; /* рожевий — Деталі */
+    &.Bukhhalter-active {
+      background: #e53935;
+      color: white;
+      box-shadow: 0 4px 14px rgba(229, 57, 53, 0.4);
+    }
+    &:not(.Bukhhalter-active):hover {
+      background: #f8bbd0;
+    }
+  }
+
+  &#tab-btn-vutratu {
+    background: #fff8e1; /* жовтий — Прибуток */
+    &.Bukhhalter-active {
+      background: #f9a825;
+      color: white;
+      box-shadow: 0 4px 14px rgba(249, 168, 37, 0.45);
+    }
+    &:not(.Bukhhalter-active):hover {
+      background: #ffecb3;
+    }
+  }
+
+  &#tab-btn-analityka {
+    background: #ede7f6; /* фіолетовий — Аналітика */
+    &.Bukhhalter-active {
+      background: #7b1fa2;
+      color: white;
+      box-shadow: 0 4px 14px rgba(123, 31, 162, 0.45);
+    }
+    &:not(.Bukhhalter-active):hover {
+      background: #d1c4e9;
+    }
+  }
+
+  &#tab-btn-audit {
+    background: #e0f2f1; /* бірюзовий — Лог дій */
+    &.Bukhhalter-active {
+      background: #00897b;
+      color: white;
+      box-shadow: 0 4px 14px rgba(0, 137, 123, 0.45);
+    }
+    &:not(.Bukhhalter-active):hover {
+      background: #b2dfdb;
+    }
+  }
+}
+
+.Bukhhalter-tab-btn:not(.Bukhhalter-active):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+.Bukhhalter-tab-btn.Bukhhalter-active {
+  transform: scale(1.04);
+}
+
+/* ==================== ФОРМИ ==================== */
+.Bukhhalter-form-container {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 10px;
+  box-shadow: var(--shadow);
+  flex: 1;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.Bukhhalter-form-container .Bukhhalter-form-section {
+  display: none;
+}
+
+.Bukhhalter-form-container .Bukhhalter-form-section.Bukhhalter-active {
+  display: block;
+}
+
+.Bukhhalter-form-section {
+  display: none;
+}
+
+.Bukhhalter-form-section.Bukhhalter-active {
+  display: block;
+}
+
+.Bukhhalter-form-row {
+  display: flex;
+  gap: 10px;
+}
+
+.Bukhhalter-form-row .Bukhhalter-field-group {
+  flex: 1;
+}
+
+.Bukhhalter-field-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.Bukhhalter-field-label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+  font-size: 12px;
+}
+
+.Bukhhalter-field-input {
+  padding: 8px;
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+  cursor: pointer;
+  width: 100%;
+}
+
+.Bukhhalter-field-input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+.Bukhhalter-field-input::placeholder {
+  color: #999;
+}
+
+/* ==================== КНОПКИ ==================== */
+.Bukhhalter-button-container {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 2px solid #e0e0e0;
+}
+
+.Bukhhalter-button-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.Bukhhalter-action-button {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  transition: var(--transition);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  margin: 5px;
+  flex: 1;
+  min-width: 0;
+}
+
+.Bukhhalter-action-button:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.Bukhhalter-cancel-button {
+  background: var(--danger-color);
+}
+
+.Bukhhalter-cancel-button:hover {
+  background: var(--danger-hover);
+}
+
+.Bukhhalter-add-button {
+  background: var(--secondary-color);
+}
+
+.Bukhhalter-add-button:hover {
+  background: var(--secondary-hover);
+}
+
+.Bukhhalter-clear-button {
+  background: var(--warning-color);
+}
+
+.Bukhhalter-clear-button:hover {
+  background: var(--warning-hover);
+}
+
+.Bukhhalter-excel-button {
+  width: 100% !important;
+  margin: 5px 0 !important;
+}
+
+.Bukhhalter-save-btn {
+  background: var(--danger-color);
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.Bukhhalter-save-btn:hover {
+  background: var(--danger-hover);
+}
+
+.Bukhhalter-act-btn {
+  cursor: pointer;
+}
+
+.Bukhhalter-purple-button {
+  background-color: var(--vutratu-color);
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.Bukhhalter-purple-button:hover {
+  background-color: var(--vutratu-color-hover);
+}
+
+/* Кнопки розрахунку */
+.Bukhhalter-payment-btn {
+  background: transparent;
+  border: 1px solid #ccc;
+  padding: 4px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  width: 100%;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.Bukhhalter-payment-btn.paid {
+  background-color: #d4edda;
+  border-color: var(--success-color);
+  color: #155724;
+}
+
+.Bukhhalter-payment-btn.unpaid {
+  background-color: #f8d7da;
+  border-color: var(--danger-color);
+  color: #721c24;
+}
+
+.Bukhhalter-payment-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.Bukhhalter-payment-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #ccc !important;
+  color: #666 !important;
+  border-color: #ccc !important;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ==================== ПЕРЕМИКАЧІ ==================== */
+.Bukhhalter-toggle-container {
+  margin-bottom: 15px;
+}
+
+/* Базовий стиль для всіх перемикачів */
+.Bukhhalter-payment-toggle,
+.Bukhhalter-status-toggle,
+.Bukhhalter-availability-toggle,
+.Bukhhalter-expense-type-toggle,
+.Bukhhalter-percentage-toggle {
+  width: 100%;
+  height: 20px;
+  outline: none;
+  border-radius: 15px;
+  appearance: none;
+  cursor: pointer;
+  border: 2px solid var(--border-color);
+}
+
+/* Градієнти для перемикачів */
+.Bukhhalter-payment-toggle,
+.Bukhhalter-status-toggle,
+.Bukhhalter-expense-type-toggle,
+.Bukhhalter-percentage-toggle {
+  background: linear-gradient(
+    to right,
+    var(--success-color) 0%,
+    var(--success-color) 33.33%,
+    var(--danger-color) 33.33%,
+    var(--danger-color) 66.66%,
+    var(--orange1) 66.66%,
+    var(--orange2) 100%
+  );
+}
+
+.Bukhhalter-availability-toggle {
+  background: linear-gradient(
+    to right,
+    #4caf50 0%,
+    #4caf50 20%,
+    #9e9e9e 20%,
+    #9e9e9e 40%,
+    #f44336 40%,
+    #f44336 60%,
+    #2196f3 60%,
+    #2196f3 80%,
+    #ff9800 80%,
+    #ff9800 100%
+  );
+}
+
+/* Повзунки */
+.Bukhhalter-payment-toggle::-webkit-slider-thumb,
+.Bukhhalter-status-toggle::-webkit-slider-thumb,
+.Bukhhalter-availability-toggle::-webkit-slider-thumb,
+.Bukhhalter-expense-type-toggle::-webkit-slider-thumb,
+.Bukhhalter-percentage-toggle::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--success-color);
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.Bukhhalter-payment-toggle::-moz-range-thumb,
+.Bukhhalter-status-toggle::-moz-range-thumb,
+.Bukhhalter-availability-toggle::-moz-range-thumb,
+.Bukhhalter-expense-type-toggle::-moz-range-thumb,
+.Bukhhalter-percentage-toggle::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--success-color);
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Лейбли перемикачів */
+.Bukhhalter-toggle-labels,
+.Bukhhalter-toggle-labels-2,
+.Bukhhalter-toggle-labels-5 {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  color: #666;
+  font-weight: bold;
+}
+
+.Bukhhalter-toggle-labels,
+.Bukhhalter-toggle-labels-2 {
+  font-size: 12px;
+}
+
+.Bukhhalter-toggle-labels-5 {
+  font-size: 10px;
+}
+
+.Bukhhalter-toggle-labels span,
+.Bukhhalter-toggle-labels-2 span,
+.Bukhhalter-toggle-labels-5 span {
+  text-align: center;
+  flex: 1;
+}
+
+.Bukhhalter-toggle-labels-5 span {
+  padding: 0 1px;
+}
+
+/* ==================== ФІЛЬТР ПО СКЛАДАХ ==================== */
+.Bukhhalter-sklad-filter-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+
+  /* Динамічна однакова ширина кнопок */
+  &.equal-width {
+    .Bukhhalter-sklad-btn {
+      flex: 1 1 0;
+      min-width: 70px;
+      max-width: 120px;
+    }
+  }
+}
+
+.Bukhhalter-sklad-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  color: white;
+  transition: all 0.2s ease;
+  box-shadow:
+    0 3px 6px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  min-width: 80px;
+  text-align: center;
+  background-color: #4caf50; /* Єдиний зелений колір */
+  position: relative;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 4px 8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    background-color: #43a047;
+  }
+
+  /* Ефект втопленої кнопки при активному стані */
+  &.active {
+    transform: translateY(1px);
+    box-shadow:
+      inset 0 3px 6px rgba(0, 0, 0, 0.4),
+      inset 0 1px 3px rgba(0, 0, 0, 0.3),
+      0 1px 0 rgba(255, 255, 255, 0.2);
+    background-color: #388e3c;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    padding: 6px 14px; /* Компенсація бордера */
+  }
+
+  &:active {
+    transform: translateY(2px);
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.5);
+  }
+}
+
+.Bukhhalter-sklad-btn-all {
+  background-color: #ff9800 !important;
+
+  &:hover {
+    background-color: #f57c00 !important;
+  }
+
+  /* Ефект втопленої кнопки для "Всі" */
+  &.active {
+    background-color: #e65100 !important;
+    transform: translateY(1px);
+    box-shadow:
+      inset 0 3px 6px rgba(0, 0, 0, 0.4),
+      inset 0 1px 3px rgba(0, 0, 0, 0.3),
+      0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    padding: 6px 14px;
+  }
+}
+
+.no-sklad-data {
+  color: #999;
+  font-style: italic;
+  font-size: 13px;
+  padding: 8px;
+}
+
+/* Стиль для складу в таблиці */
+.sklad-cell {
+  text-align: center;
+  font-weight: bold;
+  color: #1565c0;
+}
+
+.magazine-sklad {
+  min-width: 60px;
+  width: 60px;
+}
+
+/* ==================== РОЗМІРИ КОЛОНОК ==================== */
+.pidlehli-money,
+.magazine-money,
+.poAktam-money,
+.vutratu-data,
+.vutratu-diya {
+  min-width: var(--col-money);
+  width: var(--col-money);
+}
+
+.vutratu-money {
+  min-width: var(--col-money);
+  width: var(--col-money);
+}
+
+.pidlehli-robota,
+.poAktam-enuvannya {
+  min-width: var(--col-robota);
+  width: var(--col-robota);
+}
+
+.pidlehli-avto,
+.poAktam-katalog {
+  min-width: var(--col-avto);
+  width: var(--col-avto);
+}
+
+.pidlehli-kilkist,
+.magazine-kilkist,
+.poAktam-kilkist,
+.magazine-zalushok {
+  min-width: var(--col-kilkist);
+  width: var(--col-kilkist);
+}
+
+.pidlehli-diya,
+.magazine-diya,
+.poAktam-diya,
+.vutratu-diya {
+  min-width: var(--col-diya);
+  width: var(--col-diya);
+}
+
+.poAktam-sklad {
+  min-width: 60px;
+  width: 60px;
+}
+
+.magazine-zapchastyst {
+  min-width: 80px;
+  width: 80px;
+}
+
+.vutratu-dataOn,
+.vutratu-dataOff,
+.pidlehli-dataOn,
+.pidlehli-dataOff,
+.pidlehli-dodano,
+.pidlehli-akt,
+.magazine-dataOn,
+.magazine-akt,
+.poAktam-akt,
+.vutratu-akt,
+.poAktam-dataOn,
+.poAktam-dataOff {
+  min-width: var(--col-date);
+  width: var(--col-date);
+}
+
+.magazine-raxunok,
+.magazine-povernennya {
+  min-width: var(--col-raxunok);
+  width: var(--col-raxunok);
+}
+
+.vutratu-opis {
+  min-width: var(--col-opis);
+  width: var(--col-opis);
+}
+
+.vutratu-prumitku {
+  min-width: var(--col-prumitku);
+  width: var(--col-prumitku);
+}
+
+/* Розраховано column - перша колонка для всіх таблиць */
+#podlegle-table th:first-child,
+#podlegle-table td:first-child,
+#magazine-table th:first-child,
+#magazine-table td:first-child,
+#details-table th:first-child,
+#details-table td:first-child,
+#vutratu-table th:first-child,
+#vutratu-table td:first-child {
+  min-width: var(--col-rozrahovano);
+  width: var(--col-rozrahovano);
+}
+
+/* Розмір шрифту для емодзі та тексту в заголовку Розраховано */
+#podlegle-table th:first-child .table-header-emoji,
+#magazine-table th:first-child .table-header-emoji,
+#details-table th:first-child .table-header-emoji,
+#vutratu-table th:first-child .table-header-emoji {
+  font-size: 18px;
+}
+
+#podlegle-table th:first-child .table-header-text,
+#magazine-table th:first-child .table-header-text,
+#details-table th:first-child .table-header-text,
+#vutratu-table th:first-child .table-header-text {
+  font-size: 12px;
+}
+
+/* ==================== ПОВЕРНЕННЯ ==================== */
+.magazine-povernennya,
+.return-cell {
+  text-align: center;
+}
+
+.return-cell {
+  vertical-align: middle;
+}
+
+.return-button-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.Bukhhalter-return-btn {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.Bukhhalter-return-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.Bukhhalter-return-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.return-date {
+  font-size: 10px;
+  color: inherit;
+  font-weight: bold;
+  line-height: 1.1;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.return-date > div {
+  margin: 0;
+}
+
+/* Стилі для рядка повернення */
+.returned-row {
+  background-color: var(--secondary-color) !important;
+  color: white !important;
+}
+
+.returned-row:hover {
+  background-color: var(--secondary-hover) !important;
+}
+
+.returned-row .zero-stock,
+.returned-row .available-stock,
+.returned-row .unavailable-stock {
+  background-color: var(--secondary-color) !important;
+  color: white !important;
+}
+
+/* ==================== МОДАЛЬНЕ ВІКНО ==================== */
+.expense-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.expense-modal-content {
+  background: white;
+  border-radius: 10px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.expense-modal-header {
+  display: grid;
+  grid-template-columns: 1fr auto 40px;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+#expense-modal-title {
+  margin: 0;
+  font-size: 24px;
+  color: #333;
+  text-align: left;
+  font-weight: bold;
+  grid-column: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expense-mode-switcher {
+  grid-column: 2;
+  display: inline-block;
+  padding: 8px 20px;
+  border: 2px solid transparent;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  user-select: none;
+  white-space: nowrap;
+  min-width: 150px;
+  text-align: center;
+}
+
+.expense-mode-switcher:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.expense-mode-switcher:active {
+  transform: scale(0.98);
+}
+
+.expense-mode-switcher.mode-add {
+  background: linear-gradient(135deg, #4caf50, #45a049);
+  color: white;
+  border-color: #4caf50;
+}
+
+.expense-mode-switcher.mode-edit {
+  background: linear-gradient(135deg, #ffc107, #ff9800);
+  color: #333;
+  border-color: #ffc107;
+}
+
+.expense-mode-switcher.mode-edit:hover {
+  color: white;
+}
+
+.expense-mode-switcher.mode-delete {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  color: white;
+  border-color: #f44336;
+}
+
+.expense-modal-close {
+  grid-column: 3;
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+.expense-modal-close:hover {
+  background-color: #f0f0f0;
+  color: #333;
+  transform: rotate(90deg);
+}
+
+.expense-modal-body {
+  padding: 20px 20px 0 20px;
+}
+
+.expense-modal-footer {
+  padding: 20px;
+  border-top: 2px solid #e0e0e0;
+  text-align: center;
+}
+
+.expense-modal-footer button {
+  width: 100%;
+  max-width: 300px;
+  padding: 15px;
+  font-size: 18px;
+}
+
+/* Стилі для textarea */
+.Bukhhalter-field-textarea {
+  resize: none;
+  min-height: 50px;
+  height: auto;
+  max-height: 150px;
+  font-family: Arial, sans-serif;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  width: 100%;
+  padding: 8px;
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.Bukhhalter-field-textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+.Bukhhalter-field-textarea::placeholder {
+  color: #999;
+}
+
+/* ==================== КНОПКА-ТОГЛЕР ФІЛЬТРІВ (МОБІЛЬНА) ==================== */
+.mobile-filter-toggle {
+  display: none; /* Прихована на десктопі */
+}
+
+/* Десктоп: показуємо кнопки всередині форми, ховаємо зовнішні */
+.Bukhhalter-buttons-inside {
+  display: block;
+}
+
+.Bukhhalter-buttons-outside {
+  display: none;
+}
+
+/* ==================== АДАПТИВНІСТЬ ==================== */
+@media (max-width: 1200px) {
+  .Bukhhalter-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .Bukhhalter-table-section {
+    flex: none;
+    height: 400px;
+    width: 100%;
+  }
+
+  .Bukhhalter-control-section {
+    flex: none;
+    width: 100%;
+  }
+
+  #podlegle-table-container,
+  #magazine-table-container,
+  #details-table-container {
+    max-height: 350px;
+  }
+
+  /* Показати кнопку-тоглер фільтрів */
+  .mobile-filter-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
+    transition: all 0.3s ease;
+    letter-spacing: 0.3px;
+
+    &:hover {
+      box-shadow: 0 6px 22px rgba(102, 126, 234, 0.5);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &.expanded {
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      border-radius: 14px 14px 6px 6px;
+    }
+  }
+
+  .mobile-filter-toggle-icon {
+    font-size: 18px;
+  }
+
+  .mobile-filter-toggle-arrow {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+  }
+
+  .mobile-filter-toggle.expanded .mobile-filter-toggle-arrow {
+    transform: rotate(180deg);
+  }
+
+  /* Згортання форми фільтрів */
+  .Bukhhalter-form-container.mobile-collapsed {
+    max-height: 0;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    border: none;
+    box-shadow: none;
+    transition: max-height 0.35s ease, opacity 0.25s ease, padding 0.35s ease;
+  }
+
+  .Bukhhalter-form-container:not(.mobile-collapsed) {
+    max-height: 2000px;
+    opacity: 1;
+    transition: max-height 0.4s ease, opacity 0.3s ease 0.1s, padding 0.35s ease;
+  }
+
+  /* На мобільних: ховаємо кнопки всередині форми, показуємо зовнішні */
+  .Bukhhalter-buttons-inside {
+    display: none;
+  }
+
+  .Bukhhalter-buttons-outside {
+    display: block;
+    background: white;
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 4px 15px rgba(28, 45, 64, 0.1);
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .Bukhhalter-container {
+    padding: 2px 2px;
+    gap: 5px;
+  }
+
+  .Bukhhalter-table-section,
+  .Bukhhalter-form-container {
+    padding: 15px;
+  }
+
+  .Bukhhalter-data-table {
+    font-size: 12px;
+  }
+
+  .Bukhhalter-data-table th,
+  .Bukhhalter-data-table td {
+    padding: 10px 8px;
+  }
+
+  .Bukhhalter-form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .Bukhhalter-nav-link {
+    position: static;
+    transform: none;
+    margin-top: 10px;
+    align-self: flex-end;
+  }
+
+  .Bukhhalter-section-header {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .Bukhhalter-tab-button {
+    font-size: 10px;
+    padding: 10px 8px;
+  }
+
+  .Bukhhalter-total-sum {
+    font-size: 16px;
+    padding: 8px 15px;
+  }
+
+  .table-header-emoji {
+    font-size: 16px;
+    margin-bottom: 2px;
+  }
+
+  .table-header-text {
+    font-size: 10px;
+  }
+
+  #podlegle-table-container,
+  #magazine-table-container,
+  #details-table-container {
+    max-height: 300px;
+  }
+
+  .return-date {
+    font-size: 9px;
+  }
+
+  .return-date > div {
+    font-size: 8px;
+  }
+
+  .Bukhhalter-toggle-labels-5 {
+    font-size: 9px;
+  }
+
+  .Bukhhalter-toggle-labels-5 span {
+    padding: 0 1px;
+    line-height: 1.2;
+  }
+
+  .expense-modal-header {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    gap: 10px;
+    padding: 15px;
+  }
+
+  #expense-modal-title {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 20px;
+    text-align: center;
+  }
+
+  .expense-mode-switcher {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    padding: 10px 15px;
+  }
+
+  .expense-modal-close {
+    grid-column: 1;
+    grid-row: 1;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .expense-modal-header {
+    padding: 12px;
+  }
+
+  #expense-modal-title {
+    font-size: 18px;
+    padding-right: 40px;
+  }
+
+  .expense-mode-switcher {
+    font-size: 13px;
+    padding: 8px 12px;
+    min-width: 130px;
+  }
+}
+
+/* ==================== ПЕРЕМИКАЧ ФІЛЬТРАЦІЇ ДАТ ==================== */
+.Bukhhalter-date-filter-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 10px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.date-filter-btn {
+  flex: 1;
+  padding: 7px 5px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+}
+
+.date-filter-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #b0b0b0;
+}
+
+.date-filter-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  transform: translateY(-2px);
+}
+
+.date-filter-btn.active:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+/* Адаптивність для малих екранів */
+@media (max-width: 768px) {
+  .Bukhhalter-date-filter-toggle {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .date-filter-btn {
+    width: 100%;
+    font-size: 12px;
+    padding: 7px 5px;
+  }
+}
+
+/* ==================== СТРІЛКИ ПОРІВНЯННЯ ПРОЦЕНТІВ ==================== */
+.salary-cell-wrapper {
+  display: flex;
+  align-items: stretch;
+  gap: 0px;
+}
+
+.salary-cell-numbers {
+  flex: 1;
+}
+
+.salary-arrow-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+}
+
+.salary-arrow-up {
+  color: #f44336;
+  /* червоний - процент більший */
+  font-weight: bold;
+  font-size: 1.8em;
+  line-height: 1;
+}
+
+.salary-arrow-down {
+  color: #28a745;
+  /* зелений - процент менший */
+  font-weight: bold;
+  font-size: 1.5em;
+  line-height: 1;
+}
+
+/* Audit Log Styles */
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  table-layout: fixed;
+
+  th,
+  td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Фіксовані стовпці — ширина під максимальні дані
+  th:nth-child(1),
+  td:nth-child(1) {
+    width: 80px;
+    white-space: nowrap;
+  } // Дата
+  th:nth-child(2),
+  td:nth-child(2) {
+    width: 140px;
+    white-space: normal;
+  } // Користувач + Роль
+  th:nth-child(3),
+  td:nth-child(3) {
+    width: 100px;
+    white-space: nowrap;
+    text-align: center;
+  } // Система
+  th:nth-child(4),
+  td:nth-child(4) {
+    width: 150px;
+    white-space: nowrap;
+  } // Дія
+  th:nth-child(5),
+  td:nth-child(5) {
+    width: 70px;
+    white-space: nowrap;
+    text-align: center;
+    overflow: visible;
+    text-overflow: clip;
+  } // Акт №
+
+  // Виконано — весь інший простір
+  th:nth-child(6),
+  td:nth-child(6) {
+    width: auto;
+    white-space: normal;
+    word-break: break-word;
+  }
+}
+
+// Кольори змін у логах: синій = було, червоний = стало
+.log-old {
+  color: #1565c0;
+  font-weight: 600;
+}
+.log-new {
+  color: #c62828;
+  font-weight: 600;
+}
+
+.role-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.role-Адміністратор {
+  background: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+}
+.role-Приймальник {
+  background: #f3e5f5;
+  color: #7b1fa2;
+  border: 1px solid #e1bee7;
+}
+.role-Слюсар {
+  background: #fff3e0;
+  color: #e65100;
+  border: 1px solid #ffe0b2;
+}
+.role-Запчастист {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+.role-Складовщик {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.action-label {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.status-closed {
+  background: #ffebee;
+  color: #c62828;
+}
+.status-open {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.status-update {
+  background: #fff8e1;
+  color: #f57f17;
+}
+.status-info {
+  background: #e3f2fd;
+  color: #0277bd;
+}
+
+.log-added,
+.log-deleted {
+  margin-bottom: 2px;
+}
+
+.log-modified {
+  color: #e65100;
+  margin-bottom: 2px;
+}
+
+/* Audit Filters */
+.audit-filters {
+  padding: 10px 14px;
+  margin-top: 8px;
+  background: #fafbfc;
+  border-radius: 12px;
+  border: 1px solid #e8eaed;
+}
+
+.audit-filters-chips {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.audit-extra-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.audit-filter-row {
+  display: flex;
+  gap: 10px;
+}
+
+.audit-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 100px;
+
+  label {
+    font-size: 11px;
+    color: #777;
+    font-weight: 600;
+  }
+
+  select,
+  input[type="date"] {
+    padding: 6px 8px;
+    border: 1.5px solid #ccc;
+    border-radius: 8px;
+    font-size: 13px;
+    background: #fff;
+    color: #333;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: #1976d2;
+    }
+  }
+}
+
+.audit-chip {
+  padding: 7px 8px;
+  border-radius: 20px;
+  border: 1.5px solid #ccc;
+  background: #fafafa;
+  color: #555;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  text-align: center;
+
+  // 2-й ряд: 2 кнопки на всю ширину
+  &:nth-child(5) {
+    grid-column: 1 / 3;
+  }
+  &:nth-child(6) {
+    grid-column: 3 / 5;
+  }
+
+  &:hover {
+    border-color: #888;
+    background: #f0f0f0;
+  }
+
+  &.active {
+    background: #1976d2;
+    color: #fff;
+    border-color: #1976d2;
+  }
+
+  // Кольори за категоріями — легкий тінт в неактивному стані
+  &[data-category="act"] {
+    background: #fff3e0;
+    border-color: #ffcc80;
+    color: #e65100;
+  }
+  &[data-category="order"] {
+    background: #e8f5e9;
+    border-color: #a5d6a7;
+    color: #2e7d32;
+  }
+  &[data-category="client"] {
+    background: #f3e5f5;
+    border-color: #ce93d8;
+    color: #7b1fa2;
+  }
+  &[data-category="planning"] {
+    background: #e1f5fe;
+    border-color: #81d4fa;
+    color: #0277bd;
+  }
+  &[data-category="settings"] {
+    background: #f5f5f5;
+    border-color: #bdbdbd;
+    color: #616161;
+  }
+
+  // Активний стан — яскравий колір
+  &[data-category="act"].active {
+    background: #e65100;
+    border-color: #e65100;
+    color: #fff;
+  }
+  &[data-category="order"].active {
+    background: #2e7d32;
+    border-color: #2e7d32;
+    color: #fff;
+  }
+  &[data-category="client"].active {
+    background: #7b1fa2;
+    border-color: #7b1fa2;
+    color: #fff;
+  }
+  &[data-category="planning"].active {
+    background: #0277bd;
+    border-color: #0277bd;
+    color: #fff;
+  }
+  &[data-category="settings"].active {
+    background: #616161;
+    border-color: #616161;
+    color: #fff;
+  }
+}
+
+/* Category badges */
+.cat-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.cat-act {
+  background: #fff3e0;
+  color: #e65100;
+  border: 1px solid #ffe0b2;
+}
+.cat-order {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+.cat-client {
+  background: #f3e5f5;
+  color: #7b1fa2;
+  border: 1px solid #e1bee7;
+}
+.cat-planning {
+  background: #e1f5fe;
+  color: #0277bd;
+  border: 1px solid #b3e5fc;
+}
+.cat-settings {
+  background: #f5f5f5;
+  color: #616161;
+  border: 1px solid #e0e0e0;
+}
+.cat-warehouse {
+  background: #e0f2f1;
+  color: #00695c;
+  border: 1px solid #b2dfdb;
+}
+
+/* ==================== МОБІЛЬНА СИСТЕМА БУХГАЛТЕРІЇ ==================== */
+@media (max-width: 1200px) and (min-width: 701px) {
+  body {
+    background: #f4f6f8;
+  }
+
+  .Bukhhalter-container {
+    min-height: 100dvh;
+    padding: 10px;
+  }
+
+  .Bukhhalter-table-section {
+    height: min(58dvh, 620px);
+    min-height: 420px;
+  }
+
+  .Bukhhalter-control-section {
+    gap: 10px;
+  }
+
+  .Bukhhalter-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    padding: 8px;
+    gap: 8px;
+    overflow: visible;
+  }
+
+  .Bukhhalter-tab-btn {
+    min-width: 0;
+    min-height: 42px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    transform: none !important;
+  }
+
+  .Bukhhalter-form-row:has(input[type="date"]) {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .Bukhhalter-form-row:has(input[type="date"]) .Bukhhalter-field-group {
+    min-width: 0;
+  }
+
+  #podlegle-table-container,
+  #magazine-table-container,
+  #details-table-container,
+  #vutratu-table-container {
+    max-height: calc(100% - 86px);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #podlegle-table {
+    min-width: 1160px;
+  }
+
+  #magazine-table {
+    min-width: 1360px;
+  }
+
+  #details-table {
+    min-width: 1180px;
+  }
+
+  #vutratu-table {
+    min-width: 1080px;
+  }
+
+  .audit-table {
+    min-width: 900px;
+  }
+
+  /* Планшет: кнопки дій зовні - стилізація */
+  .Bukhhalter-buttons-outside {
+    margin-top: 10px;
+    border-radius: 14px;
+  }
+
+  .Bukhhalter-buttons-outside .Bukhhalter-button-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .Bukhhalter-buttons-outside .Bukhhalter-action-button {
+    min-height: 44px;
+    border-radius: 12px;
+    font-size: 14px;
+    margin: 0;
+  }
+
+  .Bukhhalter-date-filter-toggle {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    justify-items: stretch;
+  }
+
+  .Bukhhalter-date-filter-toggle:has(.date-filter-btn:nth-child(2):last-child) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .date-filter-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 700px) {
+  body {
+    background: #f4f6f8;
+  }
+
+  .Bukhhalter-container {
+    display: block;
+    height: auto;
+    min-height: 0;
+    padding: 8px;
+  }
+
+  .Bukhhalter-table-section {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(28, 45, 64, 0.08);
+  }
+
+  .Bukhhalter-form-container {
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(28, 45, 64, 0.08);
+  }
+
+  .Bukhhalter-form-container:not(.mobile-collapsed) {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .Bukhhalter-control-section {
+    width: 100%;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .Bukhhalter-section-header {
+    min-height: 0;
+    gap: 8px;
+  }
+
+  .Bukhhalter-table-title {
+    width: 100%;
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.2;
+  }
+
+  .Bukhhalter-nav-link {
+    width: 100%;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid #dbe4ee;
+    border-radius: 12px;
+    background: #f8fbff;
+    color: #1769aa;
+    text-align: center;
+  }
+
+  .Bukhhalter-total-sum {
+    margin: 10px 0;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 12px;
+  }
+
+  .Bukhhalter-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 12px;
+  }
+
+  .Bukhhalter-tab-btn {
+    min-height: 44px;
+    padding: 9px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    line-height: 1.2;
+    transform: none !important;
+  }
+
+  /* Тоглер фільтрів на мобільних */
+  .mobile-filter-toggle {
+    padding: 12px 16px;
+    font-size: 14px;
+    border-radius: 12px;
+  }
+
+  .Bukhhalter-form-row,
+  .audit-filter-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .Bukhhalter-form-row:has(input[type="date"]) {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .Bukhhalter-form-row:has(input[type="date"]) .Bukhhalter-field-group {
+    min-width: 0;
+  }
+
+  .Bukhhalter-field-group {
+    margin-bottom: 10px;
+  }
+
+  .Bukhhalter-field-input,
+  .Bukhhalter-field-textarea {
+    min-height: 42px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+
+  .Bukhhalter-buttons-outside {
+    padding: 10px;
+    border-radius: 12px;
+    margin-top: 8px;
+  }
+
+  .Bukhhalter-buttons-outside .Bukhhalter-button-container {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .Bukhhalter-button-container {
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .Bukhhalter-button-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .Bukhhalter-action-button {
+    min-height: 42px;
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+  }
+
+  .Bukhhalter-date-filter-toggle {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    justify-items: stretch;
+    padding: 8px;
+    border-radius: 12px;
+  }
+
+  .Bukhhalter-date-filter-toggle:has(.date-filter-btn:nth-child(2):last-child) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .date-filter-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    padding: 8px 4px;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .Bukhhalter-toggle-labels span,
+  .Bukhhalter-toggle-labels-2 span,
+  .Bukhhalter-toggle-labels-5 span {
+    white-space: normal;
+    line-height: 1.15;
+  }
+
+  #podlegle-table-container,
+  #magazine-table-container,
+  #details-table-container,
+  #vutratu-table-container,
+  #audit-table-container {
+    max-height: none;
+    min-height: 0;
+    overflow: visible;
+    border-radius: 0;
+  }
+
+  .Bukhhalter-data-table,
+  .Bukhhalter-data-table tbody,
+  .Bukhhalter-data-table tr,
+  .Bukhhalter-data-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .Bukhhalter-data-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: auto;
+    font-size: 13px;
+  }
+
+  .Bukhhalter-data-table thead {
+    display: none;
+  }
+
+  .Bukhhalter-data-table tbody {
+    display: grid;
+    gap: 10px;
+  }
+
+  .Bukhhalter-data-table tbody tr {
+    overflow: hidden;
+    border: 1px solid #dfe7ef;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(28, 45, 64, 0.08);
+  }
+
+  .Bukhhalter-data-table tbody tr:nth-child(even) {
+    background: #fff;
+  }
+
+  .Bukhhalter-data-table tbody tr:hover,
+  .Bukhhalter-data-table tbody tr:hover td {
+    background-color: inherit !important;
+  }
+
+  .Bukhhalter-data-table td {
+    display: grid;
+    grid-template-columns: minmax(96px, 38%) minmax(0, 1fr);
+    align-items: start;
+    gap: 10px;
+    min-height: 38px;
+    padding: 9px 10px;
+    border: 0;
+    border-bottom: 1px solid #eef2f6;
+    white-space: normal;
+    overflow: visible;
+    text-align: right;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+  }
+
+  .Bukhhalter-data-table td:last-child {
+    border-bottom: 0;
+  }
+
+  .Bukhhalter-data-table td::before {
+    content: "";
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.25;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .available-stock::before,
+  .unavailable-stock::before,
+  .returned-row td::before {
+    color: rgba(255, 255, 255, 0.88);
+  }
+
+  .Bukhhalter-data-table tbody tr:has(.Bukhhalter-no-data) {
+    display: block;
+    width: 100%;
+    border: 1px dashed #c9d8ee;
+    background: linear-gradient(135deg, #f8fbff 0%, #eef5ff 100%);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.65);
+  }
+
+  .Bukhhalter-data-table td[colspan] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 118px;
+    padding: 22px 18px;
+    border: 0;
+    text-align: center;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  .Bukhhalter-data-table .Bukhhalter-no-data {
+    flex-direction: column;
+    gap: 8px;
+    color: #50627a;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .Bukhhalter-data-table .Bukhhalter-no-data::before {
+    content: "📭";
+    color: inherit;
+    font-size: 28px;
+    line-height: 1;
+    text-align: center;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .Bukhhalter-payment-btn,
+  .Bukhhalter-delete-btn,
+  .Bukhhalter-act-btn,
+  .Bukhhalter-return-btn {
+    min-height: 34px;
+  }
+
+  .return-button-wrapper {
+    align-items: flex-end;
+  }
+
+  .salary-cell-wrapper {
+    justify-content: flex-end;
+  }
+
+  #podlegle-table td:nth-child(1)::before,
+  #magazine-table td:nth-child(1)::before,
+  #details-table td:nth-child(1)::before,
+  #vutratu-table td:nth-child(1)::before {
+    content: "Розрахунок";
+  }
+
+  #podlegle-table td:nth-child(2)::before,
+  #details-table td:nth-child(2)::before,
+  #vutratu-table td:nth-child(2)::before {
+    content: "Відкриття";
+  }
+
+  #podlegle-table td:nth-child(3)::before,
+  #details-table td:nth-child(3)::before,
+  #vutratu-table td:nth-child(3)::before {
+    content: "Закриття";
+  }
+
+  #podlegle-table td:nth-child(4)::before {
+    content: "Додано";
+  }
+
+  #podlegle-table td:nth-child(5)::before {
+    content: "ПІБ";
+  }
+
+  #podlegle-table td:nth-child(6)::before,
+  #magazine-table td:nth-child(5)::before,
+  #details-table td:nth-child(4)::before,
+  #vutratu-table td:nth-child(5)::before {
+    content: "Акт №";
+  }
+
+  #podlegle-table td:nth-child(7)::before {
+    content: "Клієнт";
+  }
+
+  #podlegle-table td:nth-child(8)::before,
+  #details-table td:nth-child(5)::before {
+    content: "Автомобіль";
+  }
+
+  #podlegle-table td:nth-child(9)::before {
+    content: "Робота";
+  }
+
+  #podlegle-table td:nth-child(10)::before,
+  #magazine-table td:nth-child(8)::before,
+  #details-table td:nth-child(9)::before {
+    content: "Кількість";
+  }
+
+  #podlegle-table td:nth-child(11)::before,
+  #magazine-table td:nth-child(9)::before,
+  #details-table td:nth-child(10)::before {
+    content: "Ціна";
+  }
+
+  #podlegle-table td:nth-child(12)::before,
+  #magazine-table td:nth-child(10)::before,
+  #details-table td:nth-child(11)::before {
+    content: "Сума";
+  }
+
+  #podlegle-table td:nth-child(13)::before,
+  #magazine-table td:nth-child(15)::before,
+  #details-table td:nth-child(13)::before,
+  #vutratu-table td:nth-child(11)::before {
+    content: "Дії";
+  }
+
+  #podlegle-table .Bukhhalter-no-data::before,
+  #magazine-table .Bukhhalter-no-data::before,
+  #details-table .Bukhhalter-no-data::before,
+  #vutratu-table .Bukhhalter-no-data::before,
+  .audit-table .Bukhhalter-no-data::before {
+    content: none !important;
+    display: none;
+  }
+
+  #magazine-table td:nth-child(2)::before {
+    content: "Прихід";
+  }
+
+  #magazine-table td:nth-child(3)::before,
+  #details-table td:nth-child(6)::before {
+    content: "Магазин";
+  }
+
+  #magazine-table td:nth-child(4)::before {
+    content: "Рахунок";
+  }
+
+  #magazine-table td:nth-child(6)::before,
+  #details-table td:nth-child(7)::before {
+    content: "Найменування";
+  }
+
+  #magazine-table td:nth-child(7)::before,
+  #details-table td:nth-child(8)::before {
+    content: "Каталог";
+  }
+
+  #magazine-table td:nth-child(11)::before {
+    content: "Залишок";
+  }
+
+  #magazine-table td:nth-child(12)::before {
+    content: "Запчастист";
+  }
+
+  #magazine-table td:nth-child(13)::before,
+  #details-table td:nth-child(12)::before {
+    content: "Склад";
+  }
+
+  #magazine-table td:nth-child(14)::before {
+    content: "Повернення";
+  }
+
+  #vutratu-table td:nth-child(4)::before {
+    content: "Категорія";
+  }
+
+  #vutratu-table td:nth-child(6)::before {
+    content: "Опис";
+  }
+
+  #vutratu-table td:nth-child(7)::before {
+    content: "Прибуток";
+  }
+
+  #vutratu-table td:nth-child(8)::before {
+    content: "Сума в касі";
+  }
+
+  #vutratu-table td:nth-child(9)::before {
+    content: "Оплата";
+  }
+
+  #vutratu-table td:nth-child(10)::before {
+    content: "Примітки";
+  }
+
+  .audit-table td:nth-child(1)::before {
+    content: "Дата";
+  }
+
+  .audit-table td:nth-child(2)::before {
+    content: "Користувач";
+  }
+
+  .audit-table td:nth-child(3)::before {
+    content: "Система";
+  }
+
+  .audit-table td:nth-child(4)::before {
+    content: "Дія";
+  }
+
+  .audit-table td:nth-child(5)::before {
+    content: "Акт";
+  }
+
+  .audit-table td:nth-child(6)::before {
+    content: "Виконано";
+  }
+
+  .audit-table td:nth-child(n) {
+    width: 100%;
+    white-space: normal;
+    overflow: visible;
+    text-align: right;
+    text-overflow: clip;
+  }
+
+  .analityka-dashboard {
+    padding: 0;
+  }
+
+  .analityka-date-inputs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .analityka-date-separator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .analityka-date-label {
+    min-width: 0;
+  }
+
+  .analityka-date-input {
+    width: 100%;
+  }
+
+  .analityka-quick-btns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .analityka-quick-btn {
+    min-height: 36px;
+  }
+
+  .analityka-summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .analityka-card {
+    border-radius: 12px;
+  }
+
+  .analityka-chart-block,
+  .analityka-top-section {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .analityka-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .analityka-table thead,
+  .analityka-table tbody,
+  .analityka-table tr,
+  .analityka-table th,
+  .analityka-table td {
+    display: revert;
+  }
+
+  .audit-filters {
+    padding: 10px;
+  }
+
+  .audit-filters-chips {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .audit-chip:nth-child(5),
+  .audit-chip:nth-child(6) {
+    grid-column: auto;
+  }
+
+  .expense-modal {
+    align-items: flex-start;
+    padding: 8px;
+  }
+
+  .expense-modal-content {
+    width: 100%;
+    max-height: calc(100dvh - 16px);
+    border-radius: 14px;
+  }
+
+  .expense-modal-body,
+  .expense-modal-footer {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .Bukhhalter-container {
+    padding: 6px;
+  }
+
+  .Bukhhalter-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .mobile-filter-toggle {
+    padding: 10px 14px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+
+  .Bukhhalter-button-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .Bukhhalter-date-filter-toggle {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .Bukhhalter-date-filter-toggle:has(.date-filter-btn:nth-child(2):last-child) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .Bukhhalter-buttons-outside {
+    padding: 8px;
+    border-radius: 10px;
+  }
+
+  .Bukhhalter-data-table td {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    text-align: left;
+  }
+
+  .Bukhhalter-data-table td::before {
+    font-size: 10px;
+  }
+
+  .return-button-wrapper,
+  .salary-cell-wrapper {
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 700px) {
+  #podlegle-table-container,
+  #magazine-table-container,
+  #details-table-container,
+  #vutratu-table-container,
+  #audit-table-container {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-height: 260px;
+    max-height: 58vh;
+    overflow: auto;
+    border-radius: 10px;
+    border: 1px solid rgba(148, 163, 184, 0.45);
+    background: #fff;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  .Bukhhalter-data-table,
+  .Bukhhalter-data-table thead,
+  .Bukhhalter-data-table tbody,
+  .Bukhhalter-data-table tr,
+  .Bukhhalter-data-table th,
+  .Bukhhalter-data-table td {
+    display: revert;
+    width: auto;
+  }
+
+  .Bukhhalter-data-table {
+    width: max-content;
+    min-width: 980px;
+    table-layout: fixed;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-size: 12px;
+  }
+
+  #podlegle-table {
+    min-width: 1420px;
+  }
+
+  #magazine-table {
+    min-width: 1540px;
+  }
+
+  #details-table {
+    min-width: 1320px;
+  }
+
+  #vutratu-table {
+    min-width: 1180px;
+  }
+
+  .Bukhhalter-data-table thead {
+    display: table-header-group;
+  }
+
+  .Bukhhalter-data-table tbody {
+    display: table-row-group;
+  }
+
+  .Bukhhalter-data-table tr {
+    display: table-row;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .Bukhhalter-data-table th,
+  .Bukhhalter-data-table td {
+    display: table-cell;
+    min-height: 0;
+    padding: 8px 6px;
+    border: 1px solid var(--border-color);
+    white-space: normal;
+    word-break: normal;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    text-align: center;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+  }
+
+  .Bukhhalter-data-table th {
+    position: sticky;
+    top: 0;
+    z-index: 12;
+    border-color: var(--primary-hover);
+  }
+
+  .Bukhhalter-data-table td::before,
+  .Bukhhalter-data-table .Bukhhalter-no-data::before {
+    content: none !important;
+    display: none !important;
+  }
+
+  .Bukhhalter-data-table tbody tr:nth-child(even) {
+    background-color: var(--light-gray);
+  }
+
+  .Bukhhalter-data-table tbody tr:hover,
+  .Bukhhalter-data-table tbody tr:hover td {
+    background-color: var(--border-color) !important;
+  }
+
+  .Bukhhalter-data-table tbody tr:has(.Bukhhalter-no-data) {
+    display: table-row;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .Bukhhalter-data-table td[colspan] {
+    display: table-cell;
+    width: auto !important;
+    min-height: 0;
+    padding: 18px 12px;
+    border: 1px solid var(--border-color);
+  }
+
+  .Bukhhalter-data-table .Bukhhalter-no-data {
+    color: #50627a;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-align: center;
+  }
+
+  #audit-table-container {
+    padding: 8px !important;
+  }
+
+  #audit-logs-list {
+    display: block;
+    width: max-content;
+    min-width: 900px;
+  }
+
+  #audit-logs-list .audit-table,
+  .Bukhhalter-data-table.audit-table {
+    display: table !important;
+    width: 900px !important;
+    min-width: 900px !important;
+    max-width: none !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+    font-size: 12px;
+  }
+
+  .Bukhhalter-data-table.audit-table thead {
+    display: table-header-group !important;
+  }
+
+  .Bukhhalter-data-table.audit-table tbody {
+    display: table-row-group !important;
+  }
+
+  .Bukhhalter-data-table.audit-table tr {
+    display: table-row !important;
+    width: auto !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .Bukhhalter-data-table.audit-table th,
+  .Bukhhalter-data-table.audit-table td {
+    display: table-cell !important;
+    min-height: 0 !important;
+    padding: 8px 6px !important;
+    border: 1px solid var(--border-color) !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow: hidden !important;
+    overflow-wrap: anywhere !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .Bukhhalter-data-table.audit-table th {
+    position: sticky;
+    top: 0;
+    z-index: 14;
+  }
+
+  .Bukhhalter-data-table.audit-table td::before,
+  .Bukhhalter-data-table.audit-table .Bukhhalter-no-data::before {
+    content: none !important;
+    display: none !important;
+  }
+
+  .Bukhhalter-data-table.audit-table th:nth-child(1),
+  .Bukhhalter-data-table.audit-table td:nth-child(1) {
+    width: 96px !important;
+    white-space: nowrap !important;
+  }
+
+  .Bukhhalter-data-table.audit-table th:nth-child(2),
+  .Bukhhalter-data-table.audit-table td:nth-child(2) {
+    width: 150px !important;
+  }
+
+  .Bukhhalter-data-table.audit-table th:nth-child(3),
+  .Bukhhalter-data-table.audit-table td:nth-child(3) {
+    width: 120px !important;
+  }
+
+  .Bukhhalter-data-table.audit-table th:nth-child(4),
+  .Bukhhalter-data-table.audit-table td:nth-child(4) {
+    width: 140px !important;
+  }
+
+  .Bukhhalter-data-table.audit-table th:nth-child(5),
+  .Bukhhalter-data-table.audit-table td:nth-child(5) {
+    width: 90px !important;
+  }
+
+  .Bukhhalter-data-table.audit-table th:nth-child(6),
+  .Bukhhalter-data-table.audit-table td:nth-child(6) {
+    width: 304px !important;
+    text-align: left !important;
+  }
+}

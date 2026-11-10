@@ -1,0 +1,1768 @@
+// downlExcel.scss - Стилі для batch-імпорту з Excel
+@use "sass:color";
+// ============= Змінні =============
+$primary-blue: #2196f3;
+$primary-green: #4caf50;
+$primary-yellow: #ffc107;
+$danger-red: #f44336;
+$neutral-gray: #6c757d;
+$warning-orange: #ff9800;
+$text-dark: #333;
+$text-light: #666;
+$text-placeholder: #999;
+$border-color: #ddd;
+$border-strong: #999;
+$border-cell: #c0c0c0;
+$bg-light: #f8f9fa;
+$bg-header: #e9ecef;
+$bg-input: #fafafa;
+$bg-warning: #fff3e0;
+$bg-error: #ffebee;
+$shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+$shadow-modal: 0 10px 40px rgba(0, 0, 0, 0.2);
+$shadow-confirm: 0 10px 40px rgba(0, 0, 0, 0.3);
+$shadow-dropdown:
+  0 8px 24px rgba(33, 150, 243, 0.25),
+  0 4px 8px rgba(0, 0, 0, 0.1);
+$transition: all 0.3s ease;
+$transition-fast: all 0.2s ease;
+$radius-small: 4px;
+$radius-medium: 8px;
+$radius-large: 12px;
+$radius-xlarge: 16px;
+
+// ============= Міксини =============
+@mixin gradient-button($color, $hover: false) {
+  $lightness-start: if($hover, -5%, 0%);
+  $lightness-end: if($hover, -15%, -10%);
+
+  background: linear-gradient(
+    135deg,
+    color.adjust($color, $lightness: $lightness-start) 0%,
+    color.adjust($color, $lightness: $lightness-end) 100%
+  );
+}
+
+@mixin button-base {
+  border: none;
+  border-radius: $radius-medium;
+  cursor: pointer;
+  font-weight: 600;
+  transition: $transition;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-hover;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+
+    &:hover {
+      box-shadow: none;
+      transform: none;
+    }
+  }
+}
+
+@mixin scrollbar {
+  &::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $bg-light;
+    border-radius: $radius-small;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: $radius-small;
+    border: 2px solid $bg-light;
+
+    &:hover {
+      background: #999;
+    }
+  }
+}
+
+// ============= Модальний оверлей =============
+.modal-overlay-all_other_bases {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+
+  &.hidden-all_other_bases {
+    display: none;
+  }
+}
+
+// ============= Модальне вікно підтвердження =============
+.confirm-modal-Excel {
+  max-width: 480px;
+  width: 90%;
+  background: white;
+  border-radius: $radius-xlarge;
+  box-shadow: $shadow-confirm;
+  overflow: hidden;
+  animation: scaleIn 0.3s ease-out;
+}
+
+.confirm-content-Excel {
+  padding: 32px;
+  text-align: center;
+}
+
+.confirm-icon-Excel {
+  font-size: 64px;
+  margin-bottom: 20px;
+  animation: bounce 0.6s ease-out;
+}
+
+.confirm-title-Excel {
+  font-size: 22px;
+  font-weight: 700;
+  color: $text-dark;
+  margin: 0 0 16px 0;
+}
+
+.confirm-message-Excel {
+  font-size: 16px;
+  color: $text-light;
+  margin: 0 0 28px 0;
+  line-height: 1.5;
+}
+
+.confirm-buttons-Excel {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.confirm-btn-Excel {
+  @include button-base;
+  padding: 12px 32px;
+  font-size: 15px;
+  flex: 1;
+
+  &.yes-Excel {
+    @include gradient-button($primary-green);
+    color: white;
+
+    &:hover {
+      @include gradient-button($primary-green, true);
+    }
+  }
+
+  &.no-Excel {
+    @include gradient-button($neutral-gray);
+    color: white;
+
+    &:hover {
+      @include gradient-button($neutral-gray, true);
+    }
+  }
+}
+
+// ============= Модальне вікно імпорту =============
+.batch-modal-Excel {
+  max-width: calc(100vw - 24px);
+  height: min(92dvh, 920px);
+  min-width: 600px;
+  width: calc(100vw - 24px);
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: $radius-large;
+  box-shadow: $shadow-modal;
+  backdrop-filter: blur(14px) saturate(1.12);
+  overflow: hidden;
+  position: relative;
+}
+
+.modal-content-Excel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 22px;
+  overflow: hidden;
+}
+
+.modal-close-all_other_bases {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: $transition-fast;
+  color: $text-dark;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.2);
+    transform: rotate(90deg);
+  }
+}
+
+.batch-title-Excel {
+  font-size: 20px;
+  margin: 0;
+  font-weight: 700;
+  color: $text-dark;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &::before {
+    content: "📊";
+    font-size: 22px;
+  }
+}
+
+.batch-instructions-Excel {
+  font-size: 14px;
+  margin-bottom: 16px;
+  color: $text-light;
+  line-height: 1.6;
+  padding: 12px;
+  background: color.adjust($primary-blue, $lightness: 45%);
+  border-left: 4px solid $primary-blue;
+  border-radius: $radius-small;
+
+  strong {
+    color: $text-dark;
+    font-weight: 600;
+  }
+
+  code {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: "Consolas", "Monaco", monospace;
+    font-size: 12px;
+  }
+}
+
+.batch-textarea-Excel {
+  width: 100%;
+  min-height: 160px;
+  max-height: 250px;
+  padding: 14px;
+  border: 2px solid $border-color;
+  border-radius: $radius-medium;
+  font-family: "Consolas", "Monaco", monospace;
+  font-size: 13px;
+  resize: vertical;
+  transition: $transition;
+  background: $bg-input;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-blue;
+    background: white;
+    box-shadow: 0 0 0 3px rgba($primary-blue, 0.1);
+  }
+
+  &::placeholder {
+    color: $text-placeholder;
+  }
+}
+
+// ============= Кнопки =============
+.batch-buttons-Excel {
+  display: flex;
+  gap: 16px;
+  flex-shrink: 0;
+  padding-top: 8px;
+  margin-top: auto;
+  align-items: center;
+}
+
+// Кнопка голосового введення в Excel-модалці
+.voice-btn-Excel {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  padding: 0;
+  font-size: 20px;
+  border-radius: 12px;
+  border: 1.5px solid #e0e0f0;
+  background: #f8f9fb;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #667eea;
+    background: #eef0ff;
+    transform: scale(1.08);
+  }
+
+  &.ai-chat-voice-btn--listening {
+    border-color: #e53e3e;
+    background: #fff5f5;
+    animation: voice-excel-glow 1.2s ease-in-out infinite;
+  }
+}
+
+@keyframes voice-excel-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(229, 62, 62, 0);
+  }
+}
+
+// Номер рядка (колонка №)
+.row-num-cell-Excel {
+  width: 2% !important;
+  min-width: 28px;
+  max-width: 40px;
+  padding: 2px 4px !important;
+
+  .row-num-Excel {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #999;
+    line-height: 1;
+  }
+}
+
+.batch-btn-Excel {
+  @include button-base;
+  flex: 1;
+  padding: 10px 28px;
+  font-size: 16px;
+  position: relative;
+  overflow: hidden;
+
+  // Ripple effect
+  &::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition:
+      width 0.6s,
+      height 0.6s;
+  }
+
+  &:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  &.parse-Excel {
+    @include gradient-button($primary-blue);
+    color: white;
+
+    &:hover {
+      @include gradient-button($primary-blue, true);
+    }
+  }
+
+  &.upload-Excel {
+    @include gradient-button($primary-green);
+    color: white;
+
+    &:hover {
+      @include gradient-button($primary-green, true);
+    }
+  }
+
+  &.add-row-Excel {
+    @include gradient-button($primary-blue);
+    color: white;
+
+    &:hover {
+      @include gradient-button($primary-blue, true);
+    }
+  }
+
+  &.import-Excel {
+    @include gradient-button($primary-yellow);
+    color: $text-dark;
+    padding: 12px 24px;
+    font-size: 15px;
+
+    &:hover {
+      @include gradient-button($primary-yellow, true);
+    }
+  }
+
+  &.loading-Excel {
+    pointer-events: none;
+    color: transparent;
+
+    &::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: 50%;
+      left: 50%;
+      margin: -10px 0 0 -10px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.6s linear infinite;
+    }
+
+    &::before {
+      display: none;
+    }
+  }
+}
+
+// Pastel colors for the three primary actions in the batch import footer.
+.batch-buttons-Excel .add-row-Excel {
+  border: 1px solid #b7d2f4;
+  background: #e8f2ff;
+  color: #315b8f;
+  box-shadow: 0 2px 6px rgba(69, 112, 169, 0.12);
+
+  &:hover:not(:disabled) { background: #d9eaff; }
+  &:active:not(:disabled) { background: #c9def8; transform: translateY(0) scale(0.98); }
+}
+
+.batch-buttons-Excel #batch-invoice-ocr-btn {
+  border: 1px solid #d0c0ee;
+  background: #f1eaff;
+  color: #634b8e;
+  box-shadow: 0 2px 6px rgba(111, 82, 157, 0.12);
+
+  &:hover:not(:disabled) { background: #e7dcfa; }
+  &:active:not(:disabled) { background: #d9caf2; transform: translateY(0) scale(0.98); }
+}
+
+.batch-buttons-Excel .upload-Excel {
+  border: 1px solid #afd9b8;
+  background: #e7f6e9;
+  color: #326641;
+  box-shadow: 0 2px 6px rgba(67, 132, 79, 0.12);
+
+  &:hover:not(:disabled) { background: #d8efdc; }
+  &:active:not(:disabled) { background: #c8e7ce; transform: translateY(0) scale(0.98); }
+}
+
+// ============= Контейнер таблиці =============
+.batch-table-container-Excel {
+  @include scrollbar;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 2px solid $border-color;
+  border-radius: $radius-medium;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  flex: 1;
+  min-height: 260px;
+  margin-bottom: 16px;
+  width: 100%;
+  max-width: 100%;
+  overscroll-behavior: contain;
+  animation: fadeIn 0.3s ease-out;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+    0 10px 24px rgba(45, 65, 95, 0.08);
+}
+
+// ============= Таблиця =============
+.batch-table-Excel {
+  width: 100% !important;
+  min-width: 0 !important;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 11px;
+  border: 2px solid $border-strong;
+  border-radius: $radius-small;
+  table-layout: fixed !important;
+
+  th,
+  td {
+    padding: 0;
+    text-align: center;
+    border-right: 1px solid $border-cell;
+    border-bottom: 1px solid $border-cell;
+    white-space: normal;
+    background: white;
+    vertical-align: middle;
+    position: relative;
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+
+  th {
+    padding: 5px 4px;
+    background: linear-gradient(
+      180deg,
+      $bg-header 0%,
+      color.adjust($bg-header, $lightness: -3%) 100%
+    );
+    font-weight: 700;
+    color: $text-dark;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    text-transform: uppercase;
+    font-size: 9px;
+    letter-spacing: 0.2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    border-bottom: 2px solid $border-strong;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+
+    &:hover {
+      background: linear-gradient(
+        180deg,
+        color.adjust($bg-header, $lightness: -4%) 0%,
+        color.adjust($bg-header, $lightness: -8%) 100%
+      );
+    }
+
+    // Остання колонка (Г-ть) не сортується
+    &:last-child {
+      cursor: default;
+
+      &:hover {
+        background: linear-gradient(
+          180deg,
+          $bg-header 0%,
+          color.adjust($bg-header, $lightness: -3%) 100%
+        );
+      }
+    }
+  }
+
+  tbody tr {
+    transition: background-color 0.2s;
+
+    &:hover {
+      // Всі колонки крім останньої (Г-ть / статус) - ще світліший зелений
+      td:not(:last-child) {
+        background-color: color.adjust(
+          $primary-green,
+          $lightness: 48%
+        ) !important;
+      }
+
+      // Інпути також стають зеленими при ховері на рядок (крім останньої колонки)
+      td:not(:last-child) .cell-input-Excel,
+      td:not(:last-child) .cell-input-combo-Excel {
+        background: transparent !important;
+      }
+    }
+
+    &:last-child td {
+      border-bottom: none;
+    }
+
+    &:nth-child(even) {
+      background-color: rgba(0, 0, 0, 0.015);
+    }
+
+    &:has(.cell-input-Excel:focus),
+    &:has(.cell-input-combo-Excel:focus) {
+      background-color: color.adjust($primary-blue, $lightness: 50%);
+      box-shadow: inset 0 0 0 1px color.adjust($primary-blue, $lightness: 30%);
+    }
+  }
+
+  // Highlight invalid cells
+  td.invalid-shop,
+  td.invalid-detail {
+    background: $bg-warning;
+    // box-shadow: inset 0 0 0 2px $warning-orange;
+  }
+
+  td.invalid-unit,
+  td.invalid-act,
+  td.invalid-warehouse,
+  td.invalid-qty,
+  td.invalid-price,
+  td.invalid-invoice {
+    background: $bg-error;
+    // box-shadow: inset 0 0 0 2px $danger-red;
+  }
+
+  td.closed-act {
+    background: $bg-warning;
+    // box-shadow: inset 0 0 0 2px $warning-orange;
+  }
+
+  // Статус замовлення - комірка з кольоровим текстом
+  td.orderStatus-cell-Excel {
+    position: relative;
+
+    .cell-input-Excel {
+      background: transparent !important;
+      cursor: pointer;
+      font-weight: 500;
+      text-align: center;
+    }
+  }
+
+  // Дія - комірка з кольоровим текстом
+  td.action-cell-Excel {
+    position: relative;
+
+    .cell-input-Excel {
+      background: transparent !important;
+      cursor: pointer;
+      font-weight: bold;
+      text-align: center;
+    }
+  }
+
+  th:nth-child(1),
+  td:nth-child(1) {
+    width: 3% !important;
+    min-width: 38px !important;
+    position: sticky;
+    left: 0;
+    z-index: 90;
+    box-shadow: 2px 0 0 rgba(0, 0, 0, 0.06);
+  }
+
+  th:nth-child(1) {
+    z-index: 140;
+  }
+
+  th:nth-child(2),
+  td:nth-child(2) {
+    width: 7% !important;
+    min-width: 86px !important;
+  }
+
+  th:nth-child(3),
+  td:nth-child(3) {
+    width: 8% !important;
+    min-width: 96px !important;
+  }
+
+  th:nth-child(4),
+  td:nth-child(4) {
+    width: 9% !important;
+    min-width: 98px !important;
+  }
+
+  th:nth-child(5),
+  td:nth-child(5) {
+    width: 18% !important;
+    min-width: 190px !important;
+    white-space: normal !important;
+  }
+
+  th:nth-child(6),
+  td:nth-child(6) {
+    width: 4% !important;
+    min-width: 54px !important;
+  }
+
+  th:nth-child(7),
+  td:nth-child(7),
+  th:nth-child(8),
+  td:nth-child(8) {
+    width: 6% !important;
+    min-width: 64px !important;
+  }
+
+  th:nth-child(9),
+  td:nth-child(9) {
+    width: 4% !important;
+    min-width: 58px !important;
+  }
+
+  th:nth-child(10),
+  td:nth-child(10),
+  th:nth-child(11),
+  td:nth-child(11),
+  th:nth-child(12),
+  td:nth-child(12) {
+    width: 4% !important;
+    min-width: 58px !important;
+  }
+
+  th:nth-child(13),
+  td:nth-child(13) {
+    width: 6% !important;
+    min-width: 82px !important;
+  }
+
+  th:nth-child(14),
+  td:nth-child(14) {
+    width: 6% !important;
+    min-width: 86px !important;
+  }
+
+  th:nth-child(15),
+  td:nth-child(15) {
+    width: 5% !important;
+    min-width: 90px !important;
+  }
+
+  th:nth-child(16),
+  td:nth-child(16) {
+    width: 4% !important;
+    min-width: 72px !important;
+  }
+
+  th:nth-child(17),
+  td:nth-child(17) {
+    width: 2% !important;
+    min-width: 44px !important;
+  }
+}
+
+// ============= Інпути в таблиці =============
+.cell-input-Excel,
+.cell-input-combo-Excel {
+  width: 100%;
+  height: 100%;
+  min-height: 32px;
+  padding: 2px 5px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 11px;
+  color: $text-dark;
+  outline: none;
+  transition: $transition-fast;
+  box-sizing: border-box;
+  text-align: center;
+  display: block;
+
+  &:focus {
+    background: color.adjust($primary-blue, $lightness: 48%);
+    box-shadow: inset 0 0 0 2px $primary-blue;
+    position: relative;
+    z-index: 1;
+  }
+
+  &::placeholder {
+    color: $text-placeholder;
+    font-style: italic;
+    font-size: 12px;
+  }
+
+  &:invalid {
+    box-shadow: inset 0 0 0 2px color.adjust($danger-red, $lightness: 30%);
+  }
+
+  &[type="number"] {
+    text-align: center;
+    -moz-appearance: textfield;
+    appearance: textfield;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      appearance: none;
+      margin: 0;
+    }
+  }
+}
+
+// Комбінований інпут
+.cell-input-combo-Excel {
+  cursor: pointer;
+  padding-right: 14px !important;
+
+  &::after {
+    content: "▼";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: $primary-blue;
+    pointer-events: none;
+    transition: $transition;
+  }
+
+  &.dropdown-open::after {
+    transform: translateY(-50%) rotate(180deg);
+    color: color.adjust($primary-blue, $lightness: -15%);
+  }
+
+  &:focus {
+    background: color.adjust($primary-blue, $lightness: 48%) !important;
+    box-shadow: inset 0 0 0 2px $primary-blue !important;
+  }
+}
+
+// ============= Адаптивні стилі для лівого вирівнювання =============
+.shop-input-Excel,
+.detail-input-Excel,
+.unit-input-Excel {
+  text-align: left;
+  min-width: 150px;
+  max-width: 100%;
+  word-wrap: break-word;
+  white-space: normal;
+  line-height: 1.4;
+}
+
+.detail-input-Excel {
+  overflow: hidden !important;
+  resize: none !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+// ============= Статус комірки =============
+.status-cell-Excel {
+  padding: 2px 4px !important;
+  text-align: center;
+  min-width: 40px !important;
+  max-width: 50px;
+
+  &.success-Excel {
+    background: color.adjust($primary-green, $lightness: 40%);
+  }
+
+  &.error-Excel {
+    background: color.adjust($danger-red, $lightness: 35%);
+  }
+
+  &.ready-Excel {
+    background: color.adjust($primary-green, $lightness: 42%);
+  }
+}
+
+.status-text-Excel {
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.delete-row-btn-Excel {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 1px 2px;
+  line-height: 1;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    transform: scale(1.3);
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+// ============= Випадаючий список =============
+.excel-dropdown-list {
+  @include scrollbar;
+  position: absolute;
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+  border: 2px solid $primary-blue;
+  border-radius: $radius-large;
+  box-shadow: $shadow-dropdown;
+  z-index: 100000;
+  overflow-y: auto;
+  min-width: 200px;
+  animation: dropdownSlideIn 0.2s ease-out;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: $radius-small;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $primary-blue;
+    border-radius: $radius-small;
+
+    &:hover {
+      background: color.adjust($primary-blue, $lightness: -10%);
+    }
+  }
+}
+
+.excel-dropdown-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: $transition-fast;
+  font-size: 14px;
+  color: $text-dark;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &::before {
+    content: "▸";
+    color: $primary-blue;
+    font-size: 12px;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: $transition-fast;
+  }
+
+  &:hover,
+  &:focus {
+    background: linear-gradient(
+      90deg,
+      color.adjust($primary-blue, $lightness: 48%) 0%,
+      color.adjust($primary-blue, $lightness: 45%) 100%
+    );
+    color: color.adjust($primary-blue, $lightness: -25%);
+    font-weight: 600;
+    outline: none;
+    padding-left: 20px;
+
+    &::before {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  &:active {
+    background: color.adjust($primary-blue, $lightness: 42%);
+    transform: scale(0.98);
+  }
+}
+
+// ============= Медіа-запити =============
+@media (max-width: 1024px) {
+  .batch-modal-Excel {
+    width: min(96vw, 980px);
+    height: min(92dvh, 820px);
+    max-height: 92dvh;
+    min-width: unset;
+  }
+
+  .modal-content-Excel {
+    padding: 18px;
+  }
+
+  .batch-filter-bar-Excel {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding-right: 42px;
+  }
+
+  .batch-title-Excel {
+    font-size: 19px;
+  }
+
+  .batch-filter-buttons-Excel {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .batch-filter-btn-Excel {
+    width: 100%;
+    min-height: 36px;
+    padding: 7px 10px;
+    font-size: 12px;
+    white-space: normal;
+    line-height: 1.15;
+  }
+
+  .batch-filter-dates-Excel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    margin: 0;
+  }
+
+  .batch-filter-date-label-Excel {
+    min-width: 0;
+  }
+
+  .batch-filter-date-input-Excel {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .batch-instructions-Excel {
+    max-height: 92px;
+    overflow: auto;
+    margin-bottom: 10px;
+    font-size: 12px;
+  }
+
+  .batch-buttons-Excel {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    display: grid;
+    grid-template-columns: 1fr 1fr auto 1fr;
+    gap: 10px;
+    justify-content: stretch;
+    margin: 0 -2px;
+    padding-top: 10px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.68) 0%,
+      rgba(255, 255, 255, 0.96) 35%,
+      #ffffff 100%
+    );
+  }
+
+  .batch-btn-Excel {
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 12px;
+    font-size: 14px;
+    line-height: 1.15;
+  }
+
+  .voice-btn-Excel {
+    align-self: stretch;
+    height: auto;
+  }
+
+  .batch-table-Excel {
+    font-size: 12px;
+
+    th {
+      padding: 8px 6px;
+      font-size: 11px;
+    }
+
+    .cell-input-Excel,
+    .cell-input-combo-Excel {
+      min-height: 34px;
+      padding: 1px 2px;
+      font-size: 12px;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .batch-modal-Excel {
+    width: calc(100vw - 14px);
+    height: calc(100dvh - 16px);
+    max-width: none;
+    max-height: none;
+    border-radius: 14px;
+  }
+
+  .modal-content-Excel {
+    padding: 16px 12px 12px;
+  }
+
+  .modal-close-all_other_bases {
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    font-size: 22px;
+  }
+
+  .batch-title-Excel {
+    font-size: 18px;
+  }
+
+  .batch-filter-buttons-Excel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .batch-filter-btn-Excel {
+    min-height: 34px;
+    padding: 7px 8px;
+  }
+
+  .batch-filter-dates-Excel {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .batch-filter-date-label-Excel {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .batch-instructions-Excel {
+    display: none;
+  }
+
+  .batch-textarea-Excel {
+    min-height: 110px;
+    max-height: 160px;
+    font-size: 12px;
+  }
+
+  .batch-table-container-Excel {
+    overflow: auto;
+    min-height: 280px;
+    margin-bottom: 10px;
+  }
+
+  .batch-table-Excel {
+    min-width: 1480px !important;
+  }
+
+  .batch-buttons-Excel {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .voice-btn-Excel {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+  }
+
+  .batch-btn-Excel {
+    min-height: 44px;
+    padding: 9px 10px;
+  }
+
+  #batch-upload-btn-Excel:not(.hidden-all_other_bases) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-height: 560px) and (max-width: 900px) {
+  .batch-modal-Excel {
+    height: calc(100dvh - 12px);
+  }
+
+  .modal-content-Excel {
+    padding-top: 12px;
+  }
+
+  .batch-filter-buttons-Excel {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .batch-filter-dates-Excel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .batch-instructions-Excel,
+  .batch-textarea-Excel {
+    display: none;
+  }
+}
+
+// ============= Анімації =============
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// ============= Утилітний клас =============
+.hidden-all_other_bases {
+  display: none !important;
+}
+
+/* Повністю вимикаємо нативний date-picker */
+.batch-table-Excel
+  input.cell-input-Excel[type="date"]::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.batch-table-Excel
+  input.cell-input-Excel[type="date"]::-webkit-inner-spin-button,
+.batch-table-Excel input.cell-input-Excel[type="date"]::-webkit-clear-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
+/* Стилі для date input */
+.batch-table-Excel input.cell-input-Excel[type="date"] {
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: none;
+  background-image: none;
+  padding-right: 8px;
+  cursor: pointer;
+}
+
+/* Edge/IE артефакти */
+.batch-table-Excel input.cell-input-Excel[type="date"]::-ms-clear {
+  display: none;
+}
+
+/* ============= Кастомний Календар DatePicker ============= */
+.custom-datepicker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9998;
+  background: transparent;
+}
+
+.custom-datepicker {
+  position: fixed;
+  z-index: 9999;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 12px;
+  min-width: 280px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  animation: datepicker-fade-in 0.2s ease-out;
+}
+
+@keyframes datepicker-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.custom-datepicker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.custom-datepicker-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #f0f0f0;
+  }
+}
+
+.custom-datepicker-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.custom-datepicker-nav-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f5f5f5;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #177245;
+    color: #fff;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.custom-datepicker-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.custom-datepicker-weekday {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #888;
+  padding: 6px 0;
+}
+
+.custom-datepicker-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.custom-datepicker-day {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover:not(.empty):not(.selected) {
+    background: #e8f5e9;
+    color: #177245;
+  }
+
+  &.empty {
+    cursor: default;
+  }
+
+  &.today {
+    border: 2px solid #177245;
+    font-weight: 600;
+  }
+
+  &.selected {
+    background: #177245;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  &.other-month {
+    color: #bbb;
+  }
+}
+
+.custom-datepicker-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+}
+
+.custom-datepicker-today-btn,
+.custom-datepicker-clear-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.custom-datepicker-today-btn {
+  background: #177245;
+  color: #fff;
+
+  &:hover {
+    background: #125a36;
+  }
+}
+
+.custom-datepicker-clear-btn {
+  background: #f0f0f0;
+  color: #666;
+
+  &:hover {
+    background: #e0e0e0;
+  }
+}
+
+/* Skeleton Loader для модалки Завантаження деталей Excel */
+.batch-skeleton-loader-Excel {
+  padding: 10px 0;
+  margin-top: 15px;
+}
+
+// ============= Фільтр-бар (кнопки + календар) =============
+.batch-filter-bar-Excel {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.batch-filter-buttons-Excel {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.batch-filter-btn-Excel {
+  @include button-base;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  border-radius: $radius-medium;
+  text-transform: none;
+  position: relative;
+  transition: all 0.25s ease;
+
+  &.filter-red-Excel {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 2px solid #fca5a5;
+
+    &:hover {
+      background: #fecaca;
+      border-color: #f87171;
+    }
+  }
+
+  &.filter-blue-Excel {
+    background: #dbeafe;
+    color: #2563eb;
+    border: 2px solid #93c5fd;
+
+    &:hover {
+      background: #bfdbfe;
+      border-color: #60a5fa;
+    }
+  }
+
+  &.filter-white-Excel {
+    background: #dcfce7;
+    color: #2d7244;
+    border: 2px solid #86efac;
+
+    &:hover {
+      background: #bbf7d0;
+      border-color: #4ade80;
+    }
+  }
+
+  &.filter-orange-Excel {
+    background: #ffedd5;
+    color: #c2410c;
+    border: 2px solid #fdba74;
+
+    &:hover {
+      background: #fed7aa;
+      border-color: #fb923c;
+    }
+  }
+
+  &.filter-gradient-Excel {
+    background: linear-gradient(135deg, #fee2e2 0%, #dbeafe 100%);
+    color: #6b21a8;
+    border: 2px solid #c4b5fd;
+
+    &:hover {
+      background: linear-gradient(135deg, #fecaca 0%, #bfdbfe 100%);
+      border-color: #a78bfa;
+    }
+  }
+
+  // Активний стан фільтра
+  &.active-filter-Excel {
+    box-shadow:
+      0 0 0 3px rgba($primary-blue, 0.35),
+      $shadow-hover;
+    transform: translateY(-2px) scale(1.04);
+  }
+}
+
+.batch-filter-dates-Excel {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-left: auto;
+  margin-right: 60px;
+}
+
+.batch-filter-date-label-Excel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-dark;
+}
+
+.batch-filter-date-input-Excel {
+  padding: 6px 10px;
+  border: 2px solid $border-color;
+  border-radius: $radius-medium;
+  font-size: 13px;
+  font-family: inherit;
+  transition: $transition-fast;
+  background: $bg-input;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-blue;
+    box-shadow: 0 0 0 3px rgba($primary-blue, 0.1);
+  }
+}
+
+.batch-skeleton-row-Excel {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 8px;
+  background: #fff;
+  border-radius: 4px;
+}
+
+.batch-skeleton-cell-Excel {
+  height: 20px;
+  border-radius: 4px;
+}
+
+/* Перевикористовуємо анімацію pulse */
+.skeleton-pulse {
+  background: linear-gradient(90deg, #e0e0e0 0px, #f0f0f0 40px, #e0e0e0 80px);
+  background-size: 200px 100%;
+  animation: skeletonPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes skeletonPulse {
+  0% {
+    background-position: -200px 0;
+  }
+
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+@media (max-width: 1024px) {
+  .batch-filter-bar-Excel {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding-right: 42px;
+  }
+
+  .batch-filter-buttons-Excel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+
+  .batch-filter-btn-Excel {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #filter-zamovyty-zamovleno-btn {
+    grid-column: 1 / -1;
+    order: 5;
+  }
+
+  #batch-clear-and-add-btn-Excel {
+    order: 4;
+  }
+
+  .batch-buttons-Excel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .voice-btn-Excel,
+  #batch-upload-btn-Excel:not(.hidden-all_other_bases) {
+    grid-column: auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .batch-table-container-Excel {
+    min-height: clamp(320px, 48dvh, 540px);
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 640px) {
+  .batch-filter-bar-Excel {
+    gap: 7px;
+    margin-bottom: 7px;
+  }
+
+  .batch-filter-buttons-Excel {
+    gap: 7px;
+  }
+
+  .batch-table-container-Excel {
+    min-height: clamp(340px, 52dvh, 560px);
+  }
+}
+
+@media (max-height: 560px) and (max-width: 900px) {
+  .batch-filter-buttons-Excel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .batch-table-container-Excel {
+    min-height: 260px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .batch-filter-bar-Excel {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+    padding-right: 50px;
+  }
+
+  .batch-title-Excel {
+    font-size: 18px;
+    min-width: 0;
+  }
+
+  .batch-title-Excel::before {
+    font-size: 20px;
+  }
+
+  .batch-filter-buttons-Excel {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 7px;
+    min-width: 0;
+  }
+
+  .batch-filter-btn-Excel {
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 7px 13px;
+    font-size: 12px;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+
+  #filter-zamovyty-zamovleno-btn {
+    padding-inline: 14px;
+  }
+
+  .batch-filter-dates-Excel {
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin-left: 0;
+    margin-right: 0;
+    min-width: 0;
+  }
+
+  .batch-filter-date-label-Excel {
+    white-space: nowrap;
+  }
+
+  .batch-filter-date-input-Excel {
+    width: 130px;
+    min-width: 0;
+    padding-inline: 8px;
+  }
+}

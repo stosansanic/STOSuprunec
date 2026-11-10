@@ -1,0 +1,56 @@
+// _tokens.scss — Design Tokens для STO Suprunec
+// Єдине джерело правди для кольорів, spacing, radius, шрифтів
+
+:root {
+  // === Brand ===
+  --color-brand: #177245;
+  --color-brand-light: #e2f7e1;
+  --color-brand-dark: #0d5a35;
+
+  // === Accent (єдиний синій) ===
+  --color-accent: #2563eb;
+  --color-accent-light: #dbeafe;
+
+  // === Functional ===
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-danger: #dc2626;
+  --color-danger-light: #fee2e2;
+  --color-success: #16a34a;
+  --color-success-light: #dcfce7;
+  --color-frozen: #3b82f6;
+  --color-frozen-light: #e3f2fd;
+
+  // === Neutrals ===
+  --color-bg: #fafbfc;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-text: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #94a3b8;
+
+  // === Spacing ===
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  // === Border Radius ===
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+
+  // === Shadows ===
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.16);
+
+  // === Font ===
+  --font-primary: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  // === Touch target min size ===
+  --touch-min: 44px;
+}
