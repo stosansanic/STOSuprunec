@@ -1,3 +1,4 @@
+import { isTrivialQuery } from "./chatFastPath";
 import { createChatGeminiRequest, listChatGeminiModels, getChatGeminiSelection, setChatGeminiSelection } from "./chatGeminiModels";
 import { notify as showAppMessage } from "../../utils/appDialogs";
 // src/ts/roboha/ai/aiChat.ts
@@ -845,20 +846,6 @@ function updateTokenCounter(requestTokens: number, totalTokens?: number): void {
 /**
  * 💡 Детектор тривіальних запитів — пропускаємо ВСІ запити до БД
  */
-function isTrivialQuery(query: string): boolean {
-  const q = query.toLowerCase().trim();
-  // Короткі привітання/подяки/загальні питання
-  if (
-    q.length < 40 &&
-    /^(привіт|здоров|здрастуй|вітаю|салам|хай|hello|hi|дякую|спасибі|спс|дяка|ок|окей|зрозуміло|добре|ясно|лады|хорош|гуд|бувай|до побачення|поки|пока|хто ти|як тебе|що ти вмієш|що ти можеш|допоможи|help|як справи|що нового|що можеш)\b/i.test(
-      q,
-    )
-  ) {
-    return true;
-  }
-  return false;
-}
-
 /** 🌐 Визначає чи потрібен інтернет-пошук для цього запиту */
 function needsWebSearch(query: string): boolean {
   const q = query.toLowerCase();
@@ -3603,7 +3590,7 @@ async function callGemini(
     const aiContext = buildAIContext();
 
     // 💡 Тривіальні запити — без контексту БД (економія ~95% токенів)
-    const trivial = isTrivialQuery(userMessage);
+    const trivial = !images?.length && isTrivialQuery(userMessage);
     // 📷 Фото-запити — мінімальний контекст (не вантажимо статистику/акти)
     const isPhotoQuery = !!(images && images.length > 0);
     // 🌐 Визначаємо чи потрібен інтернет-пошук для цього конкретного запиту
@@ -3646,7 +3633,10 @@ async function callGemini(
         : aiContextLevel === "medium"
           ? 6
           : 4;
-    const recentHistory = chatHistory.slice(-historySize);
+    // sendMessage has already appended the current user message.
+    const previousHistory = chatHistory[chatHistory.length - 1]?.role === "user"
+      ? chatHistory.slice(0, -1) : chatHistory;
+    const recentHistory = previousHistory.slice(-(trivial ? 2 : historySize));
 
     // Системний промпт Gemini
     // 🌐 Блок про інтернет-пошук — короткий (деталі в tool declaration)
@@ -3702,7 +3692,7 @@ async function callGemini(
     const skillQuery = isPhotoQuery
       ? `фото документ розпізна ${userMessage}`
       : userMessage;
-    const skillsPrompt = await buildSkillPrompt(skillQuery);
+    const skillsPrompt = trivial ? "" : await buildSkillPrompt(skillQuery);
 
     // 🤖 Мінімальна персона — деталі в скілі #1 (Базовий) та #24 (Форматування)
     const globalAtlasPersona = `
@@ -3716,8 +3706,8 @@ async function callGemini(
       financialRestrictionBlock, // 🔒 Безпека — найвищий пріоритет
       globalAtlasPersona,
       skillsPrompt,
-      functionCallingBlock,
-      internetSearchBlock,
+      trivial ? "" : functionCallingBlock,
+      trivial ? "" : internetSearchBlock,
     ]
       .filter(Boolean)
       .join("\n");
@@ -3745,7 +3735,7 @@ async function callGemini(
         : aiContextLevel === "medium"
           ? 4
           : 3;
-    const groqHistory = chatHistory.slice(-groqHistorySize);
+    const groqHistory = previousHistory.slice(-(trivial ? 2 : groqHistorySize));
 
     const GEMINI_CONTEXT_LIMIT = preciseLookup
       ? 12000
@@ -3784,7 +3774,7 @@ async function callGemini(
     // 🔧 Для gemini-2.5-flash (thinking model) потрібен більший бюджет:
     // thinking-токени витрачаються окремо, але малий maxOutputTokens
     // може обрізати відповідь після function calling
-    const geminiMaxOutput =
+    const geminiMaxOutput = trivial ? 1024 :
       aiContextLevel === "heavy"
         ? 16384
         : aiContextLevel === "medium"
@@ -3793,7 +3783,7 @@ async function callGemini(
 
     // 💡 Адаптивний thinking-бюджет: менше для тривіальних запитів → швидша відповідь
     const thinkingBudget = trivial
-      ? 1024
+      ? 0
       : preciseLookup
         ? 1536
         : aiContextLevel === "heavy"
