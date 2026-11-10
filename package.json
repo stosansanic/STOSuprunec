@@ -13,7 +13,7 @@
     "watch:nova-poshta-env": "node scripts/watch-nova-poshta-env.cjs",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "npm run build:github && gh-pages -d dist --no-history",
+    "deploy": "npm run build:github && node scripts/publish-github-pages.cjs",
     "deploy1": "git status -sb && git add -A && (git diff --cached --quiet || git commit -m \"Update STO Suprunec\") && git push origin main && npm run deploy",
     "deploy2": "npm run deploy1",
     "vercel": "npm run build:vercel && vercel --prod --yes",
