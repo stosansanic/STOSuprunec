@@ -636,12 +636,19 @@
 // ── Статус-бар під полем введення ──
 .ai-chat-statusbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
   padding: 4px 12px 6px;
   background: #0f172a;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
+}
+
+#ai-gemini-model {
+  max-width: 220px;
+  min-width: 90px;
+  text-overflow: ellipsis;
 }
 
 .ai-key-indicator {

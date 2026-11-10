@@ -1,3 +1,4 @@
+import { createChatGeminiRequest, listChatGeminiModels, getChatGeminiSelection, setChatGeminiSelection } from "./chatGeminiModels";
 import { notify as showAppMessage } from "../../utils/appDialogs";
 // src/ts/roboha/ai/aiChat.ts
 // 🤖 AI-Чат Асистент "Атлас" — Google Gemini + аналіз даних СТО
@@ -195,26 +196,10 @@ interface DailyStats {
 // ============================================================
 
 const CHAT_MODAL_ID = "ai-chat-modal";
-const GEMINI_BASE_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models";
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 const OPENROUTER_MODEL = "openrouter/free";
 type AIKeyProvider = "gemini" | "groq" | "openrouter";
 type OpenAICompatibleProvider = "groq" | "openrouter";
-
-/** Основна модель — Gemini 2.5 Flash (thinking) */
-const GEMINI_MODEL = "gemini-2.5-flash";
-
-/** Повертає повний URL для обраної моделі */
-function getGeminiModelUrl(modelId?: string): string {
-  return `${GEMINI_BASE_URL}/${modelId || GEMINI_MODEL}:generateContent`;
-}
-
-/** Чи підтримує модель thinkingConfig */
-function modelSupportsThinking(modelId?: string): boolean {
-  const id = modelId || GEMINI_MODEL;
-  return id.includes("2.5");
-}
 
 /** Визначає провайдера за форматом ключа */
 function getKeyProvider(key: string): AIKeyProvider {
@@ -744,7 +729,40 @@ function formatAIKeyOption(index: number, tokens: number): string {
  * Використовує інкрементальне оновлення — не перебудовує HTML,
  * якщо кількість опцій не змінилася (запобігає збою change-event).
  */
+let modelSelectRevision = 0;
+async function refreshChatModelSelect(): Promise<void> {
+  const el = document.getElementById("ai-gemini-model") as HTMLSelectElement | null;
+  if (!el) return;
+  const revision = ++modelSelectRevision;
+  const key = geminiApiKeys[currentKeyIndex];
+  el.replaceChildren(new Option("🤖 Авто", "auto"));
+  el.disabled = true;
+  if (!key || getKeyProvider(key) !== "gemini") {
+    el.options[0].textContent = key ? "Модель провайдера" : "Немає ключа";
+    return;
+  }
+  el.title = "Завантаження доступних моделей Gemini…";
+  try {
+    const models = await listChatGeminiModels(key);
+    if (revision !== modelSelectRevision || !el.isConnected) return;
+    for (const model of models) el.add(new Option(model.id.replace("gemini-", "Gemini "), model.id));
+    const value = getChatGeminiSelection();
+    if (value !== "auto" && !models.some(m => m.id === value)) el.add(new Option(value + " (недоступна)", value));
+    el.value = value;
+    el.disabled = false;
+    el.title = "Авто: актуальна Flash-модель; при 404 — наступна доступна. Ручний вибір фіксує модель.";
+  } catch {
+    if (revision !== modelSelectRevision || !el.isConnected) return;
+    const value = getChatGeminiSelection();
+    if (value !== "auto") el.add(new Option(value, value));
+    el.value = value;
+    el.disabled = false;
+    el.title = "Не вдалося отримати моделі. Перевірте ключ або повторіть запит.";
+  }
+}
+
 function updateKeySelect(): void {
+  void refreshChatModelSelect();
   const selectEl = document.getElementById(
     "ai-key-select",
   ) as HTMLSelectElement | null;
@@ -1408,13 +1426,8 @@ function buildSearchQuery(args: {
  *
  * 🔄 Retry-логіка при 429/503:
  *   1. Спробувати з іншим API-ключем (до 3 спроб)
- *   2. Якщо gemini-2.5-flash повертає 400 → fallback на gemini-2.0-flash
+ *   2. Модель автоматично визначається за списком Google
  */
-const GEMINI_SEARCH_PRIMARY_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
-const GEMINI_SEARCH_FALLBACK_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
-
 async function geminiSearchGrounding(args: {
   query: string;
   auto_parts_mode?: boolean;
@@ -1493,17 +1506,17 @@ async function geminiSearchGrounding(args: {
 
   // 🔄 Retry: спробуємо до 3 ключів на основній моделі, потім fallback
   const MAX_SEARCH_RETRIES = Math.min(keys.length, 3);
-  // ✅ Для пошуку використовуємо gemini-2.5-flash як основну
-  // Якщо 2.5 Flash повертає 400 → fallback на gemini-2.0-flash
-  const modelsToTry = [GEMINI_SEARCH_PRIMARY_URL, GEMINI_SEARCH_FALLBACK_URL];
+  // Для пошуку використовуємо той самий вибір моделі, що й у чаті.
+  // На 404 транспорт пробує наступну доступну модель в режимі Авто.
 
-  for (const modelUrl of modelsToTry) {
+  {
     for (let attempt = 0; attempt < MAX_SEARCH_RETRIES; attempt++) {
       const keyIndex = (currentKeyIndex + attempt) % keys.length;
       const apiKey = keys[keyIndex];
 
       try {
-        const response = await fetch(`${modelUrl}?key=${apiKey}`, {
+        const requestGemini = await createChatGeminiRequest(apiKey);
+        const response = await requestGemini({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(requestBody),
@@ -1583,9 +1596,6 @@ async function geminiSearchGrounding(args: {
       }
     }
 
-    // Якщо основна модель не допомогла — логуємо перед спробою fallback
-    if (modelUrl === getGeminiModelUrl()) {
-    }
   }
 
   // Всі спроби невдалі
@@ -2811,8 +2821,8 @@ async function geminiWithFunctionCalling(
   wantsSearch: boolean,
   sourceUserMessage: string,
   signal?: AbortSignal,
-  modelUrl: string = getGeminiModelUrl(),
 ): Promise<{ text: string; usageTokens: number }> {
+  const requestGemini = await createChatGeminiRequest(apiKey, signal);
   let currentContents = [...contents];
   let totalTokens = 0;
   let lastCreateReminderText: string | null = null;
@@ -2842,7 +2852,7 @@ async function geminiWithFunctionCalling(
       requestBody.tools = [{ googleSearch: {} }];
     }
 
-    const response = await fetch(`${modelUrl}?key=${apiKey}`, {
+    const response = await requestGemini({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestBody),
@@ -2899,7 +2909,7 @@ async function geminiWithFunctionCalling(
           ...currentContents,
           { role: "user", parts: [{ text: retryPrompt }] },
         ];
-        const retryResp = await fetch(`${modelUrl}?key=${apiKey}`, {
+        const retryResp = await requestGemini({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -2929,7 +2939,7 @@ async function geminiWithFunctionCalling(
           }
         } else if (retryResp.status === 429) {
           await new Promise((r) => setTimeout(r, 3000));
-          const retry2Resp = await fetch(`${modelUrl}?key=${apiKey}`, {
+          const retry2Resp = await requestGemini({
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -2996,6 +3006,7 @@ async function geminiWithFunctionCalling(
           functionResponseParts.push({
             functionResponse: {
               name: fc.name,
+            ...(fc.id ? { id: fc.id } : {}),
               response: {
                 content: JSON.stringify({
                   success: true,
@@ -3041,6 +3052,7 @@ async function geminiWithFunctionCalling(
         functionResponseParts.push({
           functionResponse: {
             name: fc.name,
+              ...(fc.id ? { id: fc.id } : {}),
             response: {
               content: result,
             },
@@ -3155,7 +3167,7 @@ async function geminiWithFunctionCalling(
         ...currentContents,
         { role: "user", parts: [{ text: retryPrompt }] },
       ];
-      const retryResp = await fetch(`${modelUrl}?key=${apiKey}`, {
+      const retryResp = await requestGemini({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -3187,7 +3199,7 @@ async function geminiWithFunctionCalling(
         // 429 — ще раз з більшою затримкою
 
         await new Promise((r) => setTimeout(r, 3000));
-        const retry2Resp = await fetch(`${modelUrl}?key=${apiKey}`, {
+        const retry2Resp = await requestGemini({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -3873,9 +3885,7 @@ async function callGemini(
               maxOutputTokens: geminiMaxOutput,
               topP: 0.9,
               // Адаптивний thinking-бюджет тільки для моделей що підтримують
-              ...(modelSupportsThinking()
-                ? { thinkingConfig: { thinkingBudget } }
-                : {}),
+              thinkingConfig: { thinkingBudget },
             },
             fcTools,
             wantsSearch,
@@ -3957,66 +3967,7 @@ async function callGemini(
       }
     }
 
-    // 🔄 Fallback: якщо всі ключі дали 503 на gemini-2.5-flash — пробуємо gemini-2.0-flash
-    if (had503) {
-      const fallbackTried = new Set<number>();
-      let fallbackStart = currentKeyIndex;
-      while (fallbackTried.size < keys.length) {
-        const keyIdx = fallbackStart % keys.length;
-        fallbackTried.add(keyIdx);
-        const apiKey = keys[keyIdx];
-        if (getKeyProvider(apiKey) !== "gemini") {
-          fallbackStart = keyIdx + 1;
-          continue;
-        }
-        try {
-          // gemini-2.0-flash не підтримує thinkingConfig — прибираємо
-          const result = await geminiWithFunctionCalling(
-            apiKey,
-            [...contents],
-            { parts: [{ text: systemPromptText }] },
-            {
-              temperature: 0.25,
-              maxOutputTokens: geminiMaxOutput,
-              topP: 0.9,
-            },
-            fcTools,
-            wantsSearch,
-            userMessage,
-            signal,
-            getGeminiModelUrl("gemini-2.0-flash"),
-          );
-          const text =
-            result.text ||
-            "⚠️ AI обробив запит, але не зміг сформувати текстову відповідь.";
-
-          currentKeyIndex = keyIdx;
-          updateKeySelect();
-          persistActiveKeyInDB();
-
-          const settingId = geminiKeySettingIds[keyIdx];
-          if (settingId > 0) {
-            saveTokensToDB(
-              settingId,
-              result.usageTokens || estimatedTokens,
-            ).then(() => {
-              const total =
-                geminiKeyTokens[keyIdx] ??
-                result.usageTokens ??
-                estimatedTokens;
-              updateTokenCounter(result.usageTokens || estimatedTokens, total);
-            });
-          }
-
-          return text;
-        } catch (fbErr: any) {
-          if (fbErr?.name === "AbortError") throw fbErr;
-          fallbackStart = keyIdx + 1;
-          continue;
-        }
-      }
-      return `⏳ Сервіс Google AI тимчасово недоступний (503). Спробуйте через хвилину.`;
-    }
+    if (had503) return "⏳ Сервіс Gemini тимчасово недоступний. Спробуйте пізніше.";
 
     keysLoaded = false;
     if (keys.length === 1) {
@@ -6708,6 +6659,8 @@ export async function createAIChatModal(): Promise<void> {
             <option value="heavy"${aiContextLevel === "heavy" ? " selected" : ""}>🛡️ Високий</option>
           </select>
 
+          <select id="ai-gemini-model" class="ai-context-level" aria-label="Модель Gemini" title="Автоматичний або ручний вибір моделі Gemini"><option value="auto">🤖 Авто</option></select>
+
           <label class="ai-lock-key-toggle" id="ai-lock-key-label" title="${lockKey ? "Вимкнути перебір ключів" : "Увімкнути перебір ключів"}">
             <input type="checkbox" id="ai-lock-key-cb" ${lockKey ? "checked" : ""}>
             <span class="ai-lock-key-btn">${lockKey ? "ВКЛ" : "ВИКЛ"}</span>
@@ -7083,6 +7036,11 @@ function initAIChatHandlers(modal: HTMLElement): void {
         );
     });
   }
+
+  modal.querySelector<HTMLSelectElement>("#ai-gemini-model")?.addEventListener("change", (event) => {
+    setChatGeminiSelection((event.target as HTMLSelectElement).value);
+  });
+  void refreshChatModelSelect();
 
   // ── Зміна рівня контексту ──
   const levelSelect = modal.querySelector(
