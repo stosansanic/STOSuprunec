@@ -22,7 +22,6 @@ const PRECACHE_ASSETS = [
   './planyvannya.html',
   './bukhhalteriya.html',
   './manifest.json',
-  './logo.jpg',
   './vite.svg',
 ];
 

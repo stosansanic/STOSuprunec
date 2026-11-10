@@ -282,8 +282,8 @@ let pendingUnfrozenWarehouseIds: Set<number> = new Set();
 const DEFAULT_COLOR = "#164D25";
 
 /** Застосовує favicon у браузері (замінює або створює <link rel="icon">) */
-function applyFavicon(url: string): void {
-  if (!url) return;
+function applyFavicon(_url: string): void {
+  const url = "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22/%3E";
   let link = document.querySelector(
     'link[rel="icon"]',
   ) as HTMLLinkElement | null;
@@ -297,20 +297,7 @@ function applyFavicon(url: string): void {
 
 /** Завантажує favicon з БД і застосовує при старті сторінки */
 export async function loadAndApplyFavicon(): Promise<void> {
-  try {
-    const { data, error } = await supabase
-      .from("settings")
-      .select("Загальні")
-      .eq("setting_id", 15)
-      .single();
-    if (error || !data) return;
-    const url = (data as unknown as Record<string, unknown>)[
-      "Загальні"
-    ] as string;
-    if (url) applyFavicon(url);
-  } catch {
-    /* ігноруємо — favicon не критичний */
-  }
+  applyFavicon("");
 }
 
 /**
