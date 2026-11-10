@@ -1,0 +1,1 @@
+function o(){var a;const e=document.querySelector(".nova-poshta-menu-button");(a=e==null?void 0:e.querySelector(".np-menu-badge"))==null||a.remove(),e==null||e.setAttribute("aria-label","Нова пошта")}export{o as initNovaPoshtaBadge};
